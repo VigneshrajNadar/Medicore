@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Storage - MediCore</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1e293b;
+            margin-bottom: 30px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .danger {
+            background: #ef4444;
+        }
+        .danger:hover {
+            background: #dc2626;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .order-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .lab-test {
+            border-left: 4px solid #10b981;
+        }
+        .has-pdf {
+            background: #f0fdf4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Storage Debug Tool</h1>
+        
+        <div class="debug-section">
+            <h3>Storage Contents</h3>
+            <button onclick="showStorageContents()">Show All Storage</button>
+            <button onclick="showLabTestOrders()">Show Lab Test Orders</button>
+            <button onclick="clearStorage()" class="danger">Clear All Storage</button>
+            <div id="storageOutput"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>Test PDF Upload</h3>
+            <p>Create a test lab test order and upload a PDF:</p>
+            <button onclick="createTestOrder()">Create Test Lab Order</button>
+            <button onclick="simulatePDFUpload()">Simulate PDF Upload</button>
+            <div id="testOutput"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>Lab Test Orders with PDFs</h3>
+            <button onclick="showOrdersWithPDFs()">Show Orders with PDFs</button>
+            <div id="pdfOrders"></div>
+        </div>
+    </div>
+
+    <script>
+        function showStorageContents() {
+            const output = document.getElementById('storageOutput');
+            const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            output.innerHTML = `
+                <h4>Apollo Users:</h4>
+                <pre>${JSON.stringify(apolloUsers, null, 2)}</pre>
+                <h4>Users Array:</h4>
+                <pre>${JSON.stringify(users, null, 2)}</pre>
+            `;
+        }
+
+        function showLabTestOrders() {
+            const output = document.getElementById('storageOutput');
+            const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            let labTestOrders = [];
+            
+            // Get from apolloUsers
+            Object.values(apolloUsers).forEach(user => {
+                if (user.orders) {
+                    user.orders.forEach(order => {
+                        if (order.orderType === 'lab_test') {
+                            labTestOrders.push({
+                                source: 'apolloUsers',
+                                userId: user.id,
+                                userName: user.name,
+                                ...order
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Get from users array
+            users.forEach(user => {
+                if (user.orders) {
+                    user.orders.forEach(order => {
+                        if (order.orderType === 'lab_test') {
+                            labTestOrders.push({
+                                source: 'users',
+                                userId: user.id,
+                                userName: user.name,
+                                ...order
+                            });
+                        }
+                    });
+                }
+            });
+            
+            output.innerHTML = `
+                <h4>Lab Test Orders Found: ${labTestOrders.length}</h4>
+                <div>
+                    ${labTestOrders.map(order => `
+                        <div class="order-item lab-test ${order.resultFile ? 'has-pdf' : ''}">
+                            <strong>Order ID:</strong> ${order.id}<br>
+                            <strong>Source:</strong> ${order.source}<br>
+                            <strong>User:</strong> ${order.userName} (${order.userId})<br>
+                            <strong>Status:</strong> ${order.status}<br>
+                            <strong>Test:</strong> ${order.test || order.testName || 'Unknown'}<br>
+                            <strong>Has PDF:</strong> ${order.resultFile ? '✅ Yes - ' + order.resultFile.name : '❌ No'}<br>
+                            ${order.resultFile ? `<strong>Upload Date:</strong> ${new Date(order.resultFile.uploadDate).toLocaleString()}<br>` : ''}
+                            <strong>Last Updated:</strong> ${order.lastUpdated || 'Never'}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function createTestOrder() {
+            const testOrder = {
+                id: 'TEST_' + Date.now(),
+                orderType: 'lab_test',
+                test: 'Blood Test',
+                status: 'tested',
+                date: new Date().toISOString(),
+                total: '199',
+                createdAt: new Date().toISOString()
+            };
+            
+            // Add to current user in apolloUsers
+            const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            if (currentUser.id && apolloUsers[currentUser.id]) {
+                if (!apolloUsers[currentUser.id].orders) {
+                    apolloUsers[currentUser.id].orders = [];
+                }
+                apolloUsers[currentUser.id].orders.push(testOrder);
+                localStorage.setItem('apolloUsers', JSON.stringify(apolloUsers));
+            }
+            
+            // Also add to users array
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                if (!users[userIndex].orders) {
+                    users[userIndex].orders = [];
+                }
+                users[userIndex].orders.push(testOrder);
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            document.getElementById('testOutput').innerHTML = `
+                <div style="color: green; margin: 10px 0;">
+                    ✅ Test order created with ID: ${testOrder.id}
+                </div>
+            `;
+        }
+
+        function simulatePDFUpload() {
+            const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            // Find a test order
+            let testOrderId = null;
+            Object.values(apolloUsers).forEach(user => {
+                if (user.orders) {
+                    user.orders.forEach(order => {
+                        if (order.orderType === 'lab_test' && order.id.startsWith('TEST_')) {
+                            testOrderId = order.id;
+                        }
+                    });
+                }
+            });
+            
+            if (!testOrderId) {
+                document.getElementById('testOutput').innerHTML = `
+                    <div style="color: red;">❌ No test order found. Create one first.</div>
+                `;
+                return;
+            }
+            
+            const resultFile = {
+                name: 'test-result.pdf',
+                size: 12345,
+                uploadDate: new Date().toISOString(),
+                data: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPD4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Gb250IDw8Ci9GMSA0IDAgUgo+Pgo+PgovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMDAgNzAwIFRkCihUZXN0IFBERikgVGoKRVQKZW5kc3RyZWFtCmVuZG9iago=',
+                type: 'application/pdf'
+            };
+            
+            // Update in apolloUsers
+            Object.keys(apolloUsers).forEach(userId => {
+                if (apolloUsers[userId].orders) {
+                    apolloUsers[userId].orders = apolloUsers[userId].orders.map(order => {
+                        if (order.id === testOrderId) {
+                            return {
+                                ...order,
+                                status: 'completed',
+                                resultFile,
+                                lastUpdated: new Date().toISOString()
+                            };
+                        }
+                        return order;
+                    });
+                }
+            });
+            
+            // Update in users array
+            const updatedUsers = users.map(user => {
+                if (user.orders) {
+                    user.orders = user.orders.map(order => {
+                        if (order.id === testOrderId) {
+                            return {
+                                ...order,
+                                status: 'completed',
+                                resultFile,
+                                lastUpdated: new Date().toISOString()
+                            };
+                        }
+                        return order;
+                    });
+                }
+                return user;
+            });
+            
+            localStorage.setItem('apolloUsers', JSON.stringify(apolloUsers));
+            localStorage.setItem('users', JSON.stringify(updatedUsers));
+            
+            document.getElementById('testOutput').innerHTML = `
+                <div style="color: green; margin: 10px 0;">
+                    ✅ PDF uploaded to test order: ${testOrderId}
+                </div>
+            `;
+        }
+
+        function showOrdersWithPDFs() {
+            const output = document.getElementById('pdfOrders');
+            const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            let ordersWithPDFs = [];
+            
+            // Check apolloUsers
+            Object.values(apolloUsers).forEach(user => {
+                if (user.orders) {
+                    user.orders.forEach(order => {
+                        if (order.orderType === 'lab_test' && order.resultFile) {
+                            ordersWithPDFs.push({
+                                source: 'apolloUsers',
+                                userName: user.name,
+                                ...order
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Check users array
+            users.forEach(user => {
+                if (user.orders) {
+                    user.orders.forEach(order => {
+                        if (order.orderType === 'lab_test' && order.resultFile) {
+                            ordersWithPDFs.push({
+                                source: 'users',
+                                userName: user.name,
+                                ...order
+                            });
+                        }
+                    });
+                }
+            });
+            
+            output.innerHTML = `
+                <h4>Orders with PDFs: ${ordersWithPDFs.length}</h4>
+                ${ordersWithPDFs.map(order => `
+                    <div class="order-item has-pdf">
+                        <strong>Order ID:</strong> ${order.id}<br>
+                        <strong>Source:</strong> ${order.source}<br>
+                        <strong>User:</strong> ${order.userName}<br>
+                        <strong>PDF:</strong> ${order.resultFile.name}<br>
+                        <strong>Upload Date:</strong> ${new Date(order.resultFile.uploadDate).toLocaleString()}<br>
+                        <strong>Data Size:</strong> ${order.resultFile.data.length} characters
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function clearStorage() {
+            if (confirm('This will clear ALL storage data. Continue?')) {
+                localStorage.clear();
+                alert('Storage cleared!');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

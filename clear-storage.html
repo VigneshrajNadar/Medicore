@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear LocalStorage - MediCore</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        .storage-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .success {
+            background: linear-gradient(135deg, #00b894, #00a085);
+        }
+        .info {
+            background: linear-gradient(135deg, #0984e3, #74b9ff);
+        }
+        #storageUsage {
+            font-weight: bold;
+            color: #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ MediCore Storage Manager</h1>
+        
+        <div class="storage-info">
+            <h3>📊 Current Storage Usage</h3>
+            <p id="storageUsage">Calculating...</p>
+            <p><strong>Storage Limit:</strong> ~5-10MB (varies by browser)</p>
+        </div>
+
+        <div class="storage-info">
+            <h3>🔧 Storage Management</h3>
+            <p>If you're getting "quota exceeded" errors, clear some data:</p>
+            
+            <button onclick="clearAllStorage()" class="danger">
+                🗑️ Clear All Data
+            </button>
+            
+            <button onclick="clearUserData()" class="info">
+                👥 Clear User Data Only
+            </button>
+            
+            <button onclick="clearOrderData()" class="info">
+                📦 Clear Order Data Only
+            </button>
+            
+            <button onclick="showStorageDetails()" class="success">
+                📋 Show Storage Details
+            </button>
+        </div>
+
+        <div id="details" style="display: none;" class="storage-info">
+            <h3>📄 Storage Details</h3>
+            <div id="storageDetails"></div>
+        </div>
+
+        <div class="storage-info">
+            <h3>💡 Tips to Reduce Storage</h3>
+            <ul>
+                <li>Upload smaller PDF files (under 500KB)</li>
+                <li>Clear old orders and user data periodically</li>
+                <li>Use compressed PDF files</li>
+                <li>Avoid uploading multiple large files</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function calculateStorageSize() {
+            let total = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    total += localStorage[key].length + key.length;
+                }
+            }
+            return total;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateStorageUsage() {
+            const usage = calculateStorageSize();
+            const percentage = ((usage / (5 * 1024 * 1024)) * 100).toFixed(1); // Assuming 5MB limit
+            document.getElementById('storageUsage').innerHTML = 
+                `${formatBytes(usage)} (${percentage}% of estimated 5MB limit)`;
+        }
+
+        function clearAllStorage() {
+            if (confirm('⚠️ This will clear ALL data including users, orders, and uploaded files. Continue?')) {
+                localStorage.clear();
+                alert('✅ All storage cleared successfully!');
+                updateStorageUsage();
+            }
+        }
+
+        function clearUserData() {
+            if (confirm('Clear all user account data? This will remove user profiles but keep orders.')) {
+                localStorage.removeItem('apolloUsers');
+                localStorage.removeItem('users');
+                localStorage.removeItem('currentUser');
+                alert('✅ User data cleared successfully!');
+                updateStorageUsage();
+            }
+        }
+
+        function clearOrderData() {
+            if (confirm('Clear all order data? This will remove pharmacy and lab test orders.')) {
+                // Clear orders from user objects
+                const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                
+                // Clear orders from apolloUsers
+                Object.keys(apolloUsers).forEach(userId => {
+                    if (apolloUsers[userId].orders) {
+                        apolloUsers[userId].orders = [];
+                    }
+                });
+                
+                // Clear orders from users array
+                const updatedUsers = users.map(user => ({
+                    ...user,
+                    orders: []
+                }));
+                
+                localStorage.setItem('apolloUsers', JSON.stringify(apolloUsers));
+                localStorage.setItem('users', JSON.stringify(updatedUsers));
+                localStorage.removeItem('labBookings');
+                
+                alert('✅ Order data cleared successfully!');
+                updateStorageUsage();
+            }
+        }
+
+        function showStorageDetails() {
+            const details = document.getElementById('details');
+            const detailsDiv = document.getElementById('storageDetails');
+            
+            let html = '<table style="width: 100%; color: white;">';
+            html += '<tr><th>Key</th><th>Size</th></tr>';
+            
+            const items = [];
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    const size = localStorage[key].length + key.length;
+                    items.push({ key, size });
+                }
+            }
+            
+            items.sort((a, b) => b.size - a.size);
+            
+            items.forEach(item => {
+                html += `<tr><td>${item.key}</td><td>${formatBytes(item.size)}</td></tr>`;
+            });
+            
+            html += '</table>';
+            detailsDiv.innerHTML = html;
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Update storage usage on page load
+        updateStorageUsage();
+        
+        // Auto-refresh every 5 seconds
+        setInterval(updateStorageUsage, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,943 @@
+/* Product Card Styles - Real Pharmacy Website Look */
+.product-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: visible;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+}
+
+/* Modern Dosage Selection Styles */
+.modern-dosage-selection {
+  margin: 12px 0;
+  padding: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.dosage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dosage-label {
+  font-size: 13px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.dosage-count {
+  font-size: 11px;
+  color: #6c757d;
+  background: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.modern-dosage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 6px;
+  max-width: 100%;
+}
+
+.modern-dosage-card {
+  position: relative;
+  background: #fff;
+  border: 1.5px solid #e9ecef;
+  border-radius: 6px;
+  padding: 6px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 45px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modern-dosage-card:hover {
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.modern-dosage-card.selected {
+  border-color: #007bff;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+}
+
+.dosage-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 1px;
+  line-height: 1.2;
+}
+
+.dosage-price {
+  font-size: 9px;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.modern-dosage-card.selected .dosage-price {
+  opacity: 0.9;
+}
+
+/* View More Button */
+.view-more-btn {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  color: #007bff;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 6px 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  width: 100%;
+  text-align: center;
+}
+
+.view-more-btn:hover {
+  background: #e9ecef;
+  border-color: #007bff;
+  color: #0056b3;
+}
+
+.view-more-btn:active {
+  transform: translateY(1px);
+}
+
+.selection-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: white;
+}
+
+/* Variant Selection Styles */
+.variant-selection-section {
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.variant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.variant-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.variant-count {
+  font-size: 10px;
+  color: #6c757d;
+  background: #fff;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid #dee2e6;
+}
+
+.variant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.variant-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: #fff;
+  border: 1.5px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.variant-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.variant-card.selected {
+  border-color: #007bff;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+  box-shadow: 0 2px 12px rgba(0, 123, 255, 0.2);
+}
+
+.variant-card.disabled {
+  opacity: 0.6;
+  background: #f8f9fa;
+  border-color: #dee2e6;
+  cursor: not-allowed;
+}
+
+.variant-card.disabled:hover {
+  border-color: #dee2e6;
+  box-shadow: none;
+  transform: none;
+}
+
+.variant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.variant-strength {
+  font-size: 11px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.variant-pack {
+  font-size: 9px;
+  color: #6c757d;
+}
+
+.variant-pricing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.variant-price {
+  font-size: 12px;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.variant-mrp {
+  font-size: 8px;
+  color: #6c757d;
+  text-decoration: line-through;
+}
+
+.variant-savings {
+  font-size: 7px;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.variant-features {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.pack-type {
+  font-weight: 600;
+  color: #495057;
+}
+
+.generic-badge {
+  background: #28a745;
+  color: white;
+  font-size: 7px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.fast-delivery-badge {
+  background: #007bff;
+  color: white;
+  font-size: 7px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.out-of-stock-badge {
+  background: #dc3545;
+  color: white;
+  font-size: 7px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.in-stock-badge {
+  background: #28a745;
+  color: white;
+  font-size: 7px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.variant-selected-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: white;
+}
+
+.view-more-variants-btn,
+.view-less-variants-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #007bff;
+  border-radius: 6px;
+  color: #007bff;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.view-more-variants-btn:hover,
+.view-less-variants-btn:hover {
+  background: #007bff;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.view-less-variants-btn {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.view-less-variants-btn:hover {
+  background: #6c757d;
+  color: #fff;
+}
+
+/* Delivery Section Styles */
+.delivery-icon {
+  color: #28a745;
+  font-size: 12px;
+}
+
+.pincode-input {
+  margin-bottom: 8px;
+}
+
+.pincode-field {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+  background: #fff;
+  font-weight: 500;
+  z-index: 10;
+  position: relative;
+}
+
+.pincode-field:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.delivery-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #d4edda;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.calendar-icon {
+  color: #28a745;
+  font-size: 11px;
+}
+
+.delivery-text {
+  color: #155724;
+}
+
+.delivery-error {
+  padding: 6px 8px;
+  background: #f8d7da;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #721c24;
+}
+
+/* Price Range Styles */
+.price-range .current-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c5aa0;
+}
+
+.price-note {
+  font-size: 10px;
+  color: #666;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.product-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border-color: #d0d0d0;
+}
+
+.product-card.out-of-stock {
+  opacity: 0.7;
+}
+
+.product-link {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Product Image */
+.product-image-container {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+  opacity: 0;
+}
+
+.product-image.loaded {
+  opacity: 1;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+/* Badges */
+.discount-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 2;
+}
+
+.prescription-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* Prescription Status Indicators */
+.prescription-status {
+  position: absolute;
+  top: 40px;
+  right: 8px;
+  z-index: 2;
+}
+
+.prescription-verified {
+  background: #28a745;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.prescription-pending {
+  background: #ffc107;
+  color: #212529;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+.prescription-required {
+  background: #dc3545;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.stock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.stock-overlay span {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Quick Actions */
+.quick-actions {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.quick-actions.visible {
+  opacity: 1;
+}
+
+.wishlist-btn,
+.quick-view-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.wishlist-btn:hover,
+.quick-view-btn:hover {
+  transform: scale(1.1);
+  color: #007bff;
+}
+
+.wishlist-btn.active {
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+  border: 2px solid #dc3545;
+}
+
+.wishlist-btn.active svg {
+  fill: #dc3545;
+}
+
+.wishlist-btn svg,
+.quick-view-btn svg {
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+/* Product Info - Real Pharmacy Style */
+.product-info {
+  padding: 8px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-brand {
+  font-size: 9px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 1px;
+  letter-spacing: 0.2px;
+}
+
+.product-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #2c2c2c;
+  margin: 0 0 4px 0;
+  line-height: 1.1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.2em;
+}
+
+.pack-size {
+  color: #666;
+  font-size: 10px;
+  margin-bottom: 3px;
+}
+
+/* Rating */
+.rating-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  font-size: 10px;
+}
+
+.star.filled {
+  color: #ffc107;
+}
+
+.star.half {
+  color: #ffc107;
+}
+
+.star.empty {
+  color: #e9ecef;
+}
+
+.rating-text {
+  font-size: 10px;
+  color: #666;
+}
+
+/* Price Styles - Real Pharmacy Look */
+.price-container {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.current-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #00a652;
+  display: flex;
+  align-items: baseline;
+}
+
+.price-unit {
+  font-size: 9px;
+  color: #666;
+  font-weight: 400;
+  margin-left: 3px;
+}
+
+.original-price {
+  font-size: 11px;
+  color: #999;
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
+.savings {
+  color: #28a745;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* Card Actions - Real Pharmacy Style */
+.card-actions {
+  padding: 8px 10px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  background: white;
+  border-radius: 0 0 8px 8px;
+}
+
+.prescription-badge-bottom {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 15px;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 8px 0 0 0;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: pulse 2s infinite;
+  text-align: center;
+}
+
+.prescription-icon {
+  font-size: 14px;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3); }
+  50% { box-shadow: 0 4px 16px rgba(255, 107, 107, 0.5); }
+  100% { box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3); }
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  min-height: 40px;
+  box-shadow: 0 2px 4px rgba(255, 105, 0, 0.2);
+}
+
+.add-to-cart-btn:hover {
+  background: linear-gradient(135deg, #20c997, #28a745);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.remove-from-cart-btn {
+  padding: 12px;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  min-height: 40px;
+}
+
+.remove-from-cart-btn:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.in-cart-btn {
+  padding: 12px;
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  min-height: 40px;
+  opacity: 0.8;
+}
+
+.add-to-cart-btn.prescription-required {
+  background: #007bff;
+  border: 1px solid #007bff;
+}
+
+.add-to-cart-btn.prescription-required:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.notify-btn {
+  flex: 1;
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: not-allowed;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  min-height: 40px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-card {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .product-card {
+    margin-bottom: 16px;
+  }
+
+  .product-info {
+    padding: 12px;
+  }
+
+  .product-name {
+    font-size: 13px;
+  }
+
+  .current-price {
+    font-size: 16px;
+  }
+
+  .card-actions {
+    padding: 0 12px 12px;
+  }
+
+  .add-to-cart-btn,
+  .notify-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .quick-actions {
+    opacity: 1;
+    right: 4px;
+  }
+
+  .wishlist-btn,
+  .quick-view-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-info {
+    padding: 10px;
+  }
+
+  .card-actions {
+    padding: 0 10px 10px;
+  }
+}

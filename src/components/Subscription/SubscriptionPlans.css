@@ -1,0 +1,849 @@
+/* Subscription Plans Styles with Advanced Animations */
+.subscription-page {
+  min-height: 100vh;
+  background: #ffffff;
+  padding-bottom: 60px;
+  position: relative;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.subscription-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.05), transparent);
+  animation: containerShimmer 4s infinite;
+  pointer-events: none;
+}
+
+@keyframes containerShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Hero Section */
+.subscription-hero {
+  background: #ffffff;
+  color: #02475b;
+  padding: 80px 20px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.subscription-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.3;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.subscription-hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.hero-icon {
+  font-size: 3.5rem;
+  color: #0087ba;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.hero-subtitle {
+  font-size: 1.3rem;
+  color: #64748b;
+  margin-bottom: 30px;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 12px 24px;
+  border-radius: 30px;
+  border: 1px solid #e2e8f0;
+  color: #02475b;
+}
+
+.stat-item svg {
+  font-size: 1.3rem;
+  color: #0087ba;
+}
+
+/* Dashboard Link Button */
+.dashboard-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 20px 0;
+  box-shadow: 0 4px 15px rgba(0, 135, 186, 0.3);
+}
+
+.dashboard-link-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 135, 186, 0.4);
+}
+
+.dashboard-link-btn svg {
+  font-size: 1.2rem;
+}
+
+/* Tab Navigation */
+.subscription-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px 20px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 30px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+}
+
+.tab-btn:hover {
+  border-color: #0087ba;
+  color: #0087ba;
+  transform: translateY(-2px);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(0, 135, 186, 0.3);
+}
+
+/* Container */
+.subscription-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Billing Selector */
+.billing-selector {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.billing-selector h3 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.billing-options {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.billing-btn {
+  position: relative;
+  padding: 15px 40px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+}
+
+.billing-btn:hover {
+  border-color: #0087ba;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.billing-btn.active {
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 5px 20px rgba(0, 135, 186, 0.3);
+}
+
+.save-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ff5722;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4);
+}
+
+/* Plans Grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.plan-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  position: relative;
+  border: 3px solid transparent;
+}
+
+.plan-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.plan-card.popular {
+  border-color: var(--plan-color);
+  box-shadow: 0 15px 50px rgba(102, 126, 234, 0.2);
+}
+
+.plan-card.selected {
+  border-color: var(--plan-color);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.plan-badge {
+  position: absolute;
+  top: -15px;
+  right: 30px;
+  background: linear-gradient(135deg, #FF9800 0%, #FF5722 100%);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+}
+
+.plan-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.plan-icon {
+  font-size: 3.5rem;
+  margin-bottom: 15px;
+}
+
+.plan-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.plan-tagline {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Pricing */
+.plan-pricing {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 25px 0;
+  border-top: 2px solid #f0f0f0;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.price-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.hero-icon {
+  color: #333;
+  line-height: 1;
+}
+
+.period {
+  font-size: 1rem;
+  color: #999;
+  align-self: flex-end;
+  margin-bottom: 10px;
+}
+
+.price-savings {
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+
+.price-breakdown {
+  color: #999;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Features */
+.plan-features {
+  margin-bottom: 30px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.feature-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.feature-icon.check {
+  color: #4CAF50;
+}
+
+.feature-icon.cross {
+  color: #ccc;
+}
+
+.feature-item.excluded {
+  opacity: 0.5;
+}
+
+/* Subscribe Button */
+.subscribe-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.subscribe-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+}
+
+.subscribe-btn:active {
+  transform: translateY(0);
+}
+
+/* Comparison Section */
+.comparison-section {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.comparison-toggle {
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 135, 186, 0.3);
+}
+
+.comparison-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 135, 186, 0.4);
+}
+
+.comparison-table {
+  margin-top: 40px;
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th {
+  padding: 20px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-bottom: 3px solid #f0f0f0;
+}
+
+.comparison-table td {
+  padding: 18px;
+  text-align: center;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.comparison-table td.feature-name {
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+}
+
+.check-icon {
+  font-size: 1.3rem;
+}
+
+.cross-icon {
+  font-size: 1.3rem;
+  color: #ccc;
+}
+
+/* Benefits Section */
+.benefits-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.benefits-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 50px;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 80px;
+}
+
+.benefit-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
+}
+
+.benefit-icon {
+  font-size: 3rem;
+  color: #0087ba;
+  margin-bottom: 20px;
+}
+
+.benefit-card h3 {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.benefit-card p {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Testimonials */
+.testimonials-section {
+  margin-top: 80px;
+}
+
+.testimonials-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 50px;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+.testimonial-card {
+  background: white;
+  padding: 35px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
+}
+
+.testimonial-rating {
+  color: #FFB800;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  display: flex;
+  gap: 5px;
+}
+
+.testimonial-card p {
+  color: #555;
+  line-height: 1.7;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.testimonial-author {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.testimonial-author strong {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.testimonial-author span {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* FAQ Section */
+.faq-section {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 50px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 60px;
+}
+
+.faq-item {
+  background: white;
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.faq-question h3 {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.faq-toggle {
+  font-size: 2rem;
+  color: #667eea;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+.faq-answer {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+  animation: fadeIn 0.3s ease;
+}
+
+.faq-answer p {
+  color: #666;
+  line-height: 1.7;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Contact Support */
+.contact-support {
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  padding: 50px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 135, 186, 0.3);
+}
+
+.contact-support h3 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.contact-support p {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  margin-bottom: 30px;
+}
+
+.support-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.support-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 35px;
+  background: white;
+  color: #02475b;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.support-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Bottom CTA */
+.bottom-cta {
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+  margin-top: 80px;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.bottom-cta h2 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.bottom-cta p {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  margin-bottom: 35px;
+}
+
+.cta-btn {
+  padding: 18px 50px;
+  background: white;
+  color: #02475b;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .subscription-hero h1 {
+    font-size: 2rem;
+    flex-direction: column;
+  }
+
+  .hero-icon {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero-stats {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .subscription-tabs {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .billing-options {
+    flex-direction: column;
+  }
+
+  .billing-btn {
+    width: 100%;
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefits-grid,
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-table {
+    padding: 15px;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+
+  .bottom-cta h2 {
+    font-size: 1.8rem;
+  }
+
+  .bottom-cta p {
+    font-size: 1rem;
+  }
+
+  .support-buttons {
+    flex-direction: column;
+  }
+
+  .support-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscription-hero {
+    padding: 50px 15px 40px;
+  }
+
+  .plan-card {
+    padding: 30px 20px;
+  }
+
+  .amount {
+    font-size: 2.5rem;
+  }
+
+  .benefits-section h2,
+  .testimonials-section h2,
+  .faq-section h2 {
+    font-size: 1.8rem;
+  }
+}

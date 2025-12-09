@@ -1,0 +1,703 @@
+.chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pharmacist-chat-modal {
+  width: 90vw;
+  max-width: 900px;
+  height: 85vh;
+  max-height: 700px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.4s ease;
+  position: relative;
+}
+
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pharmacist-chat-modal.minimized {
+  height: 60px;
+  width: 350px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  margin: 0;
+}
+
+.pharmacist-chat-modal.fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+}
+
+.chat-header {
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.pharmacist-chat-modal .header-actions button.close-btn {
+  background: #ff5f56 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 9px !important;
+  min-height: 9px !important;
+  max-width: 9px !important;
+  max-height: 9px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+}
+
+.pharmacist-chat-modal .header-actions button.minimize-btn {
+  background: #ffbd2e !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 9px !important;
+  min-height: 9px !important;
+  max-width: 9px !important;
+  max-height: 9px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+}
+
+.pharmacist-chat-modal .header-actions button.fullscreen-btn {
+  background: #28ca42 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 9px !important;
+  min-height: 9px !important;
+  max-width: 9px !important;
+  max-height: 9px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modal-control-btn.close-btn {
+  background: #ff4757 !important;
+  border: 1px solid #e74c3c !important;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+}
+
+.modal-control-btn.close-btn:hover {
+  background: #e74c3c !important;
+  border: 1px solid #c0392b !important;
+  color: #333 !important;
+}
+
+.minimize-btn {
+  background: #ffbd2e;
+  border: 1px solid #f39c12;
+}
+
+.minimize-btn:hover {
+  background: #e6a82a;
+  border: 1px solid #d68910;
+  color: #333;
+}
+
+.fullscreen-btn {
+  background: #28ca42;
+  border: 1px solid #27ae60;
+}
+
+.fullscreen-btn:hover {
+  background: #24b83c;
+  border: 1px solid #229954;
+  color: #333;
+}
+
+.close-btn {
+  background: #ff4757;
+  border: 1px solid #e74c3c;
+}
+
+.close-btn:hover {
+  background: #e74c3c;
+  border: 1px solid #c0392b;
+  color: #333;
+}
+
+.modal-control-btn:hover svg, .action-btn:hover svg {
+  opacity: 1;
+  color: #333;
+}
+
+.pharmacist-selector {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
+  border-bottom: 1px solid #e0e7ff;
+}
+
+.pharmacist-selector h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4c51bf;
+}
+
+.pharmacist-list {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+}
+
+.pharmacist-list::-webkit-scrollbar {
+  height: 4px;
+}
+
+.pharmacist-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pharmacist-list::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 2px;
+}
+
+.pharmacist-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.pharmacist-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pharmacist-option:hover {
+  background: #f7fafc;
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+}
+
+.pharmacist-option.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.pharmacist-option.selected .pharmacist-name,
+.pharmacist-option.selected .pharmacist-spec {
+  color: white;
+}
+
+.pharmacist-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.pharmacist-info-mini {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.pharmacist-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: #2d3748;
+}
+
+.pharmacist-spec {
+  font-size: 11px;
+  opacity: 0.7;
+  color: #4a5568;
+}
+
+.status-indicator {
+  position: absolute;
+  top: -2px;
+  right: -8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #48bb78;
+  border: 2px solid white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(72, 187, 120, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+}
+
+.current-pharmacist {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pharmacist-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pharmacist-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+}
+
+.pharmacist-details h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pharmacist-details p {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.online-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background: #00ff00;
+  box-shadow: 0 0 4px #00ff00;
+}
+
+.chat-icon {
+  font-size: 24px;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.message {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  animation: messageSlideIn 0.3s ease;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.user {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.message.pharmacist {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.message-content {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 70%;
+}
+
+.message.user .message-content {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.message-bubble {
+  background: white;
+  border-radius: 18px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.message.user .message-bubble {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.message.pharmacist .message-bubble {
+  background: white;
+  color: #2d3748;
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.message-bubble p {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.message-time {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.message-status {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.typing-indicator {
+  background: white;
+  border-radius: 18px 18px 18px 4px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.typing-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #667eea;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.3);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.typing-text {
+  font-size: 13px;
+  color: #667eea;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.chat-input {
+  padding: 20px;
+  background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+  border-top: 1px solid #e0e7ff;
+  backdrop-filter: blur(10px);
+}
+
+.input-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  background: white;
+  border: 2px solid #e0e7ff;
+  border-radius: 24px;
+  padding: 12px 20px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+}
+
+.input-container:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 4px 24px rgba(102, 126, 234, 0.2);
+}
+
+.message-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: #f8f9fa;
+  font-size: 14px;
+  resize: none;
+  font-family: inherit;
+  min-height: 20px;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+
+.message-input:focus {
+  background: #e9ecef;
+}
+
+.send-button {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  font-size: 14px;
+}
+
+.send-button:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.send-button:disabled {
+  background: #e2e8f0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.chat-disclaimer {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+  border-top: 1px solid #ffd54f;
+  font-size: 12px;
+  color: #f57f17;
+  border-radius: 0 0 16px 16px;
+}
+
+.chat-disclaimer p {
+  margin: 0;
+}
+
+.quick-questions {
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+  border-top: 1px solid #e0e7ff;
+}
+
+.quick-questions h4 {
+  margin: 0 0 16px 0;
+  color: #4c51bf;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.question-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.question-chips button {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 16px;
+  padding: 8px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #495057;
+  font-weight: 400;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.question-chips button:hover {
+  background: #007bff;
+  border-color: #007bff;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.25);
+}
+
+/* Scrollbar Styling */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .pharmacist-chat {
+    height: 500px;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .chat-header {
+    border-radius: 0;
+  }
+  
+  .message-content {
+    max-width: 85%;
+  }
+  
+  .question-chips {
+    justify-content: center;
+  }
+  
+  .question-chips button {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}

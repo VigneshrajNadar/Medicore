@@ -1,0 +1,162 @@
+/* Subscription Badge Styles */
+.subscription-badge-card {
+  background: #ffffff;
+  color: #02475b;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid #0087ba;
+  margin-bottom: 24px;
+  animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.badge-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.crown-icon {
+  font-size: 2.5rem;
+  color: #ffd700;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.badge-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #02475b;
+}
+
+.badge-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.95rem;
+  color: #0087ba;
+}
+
+.badge-status svg {
+  color: #4ade80;
+}
+
+.badge-details {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.detail-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #02475b;
+}
+
+.view-benefits-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 135, 186, 0.3);
+}
+
+.view-benefits-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 135, 186, 0.4);
+}
+
+/* Inline Badge for Orders */
+.subscription-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 135, 186, 0.25);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.badge-icon {
+  color: #ffd700;
+  font-size: 0.95rem;
+}
+
+.badge-text {
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.badge-discount {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .subscription-badge-card {
+    padding: 20px;
+  }
+
+  .crown-icon {
+    font-size: 2rem;
+  }
+
+  .badge-info h3 {
+    font-size: 1.3rem;
+  }
+}

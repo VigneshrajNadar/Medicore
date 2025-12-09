@@ -1,0 +1,257 @@
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaTimes, 
+  FaDownload, 
+  FaPrint, 
+  FaCheck,
+  FaCalendarAlt,
+  FaCreditCard,
+  FaMobile,
+  FaTruck
+} from 'react-icons/fa';
+import { useUser } from '../../contexts/UserContext';
+import './InvoiceModal.css';
+
+const InvoiceModal = ({ isOpen, onClose, orderData }) => {
+  const { currentUser } = useUser();
+  
+  if (!isOpen || !orderData) return null;
+
+  const handleDownload = () => {
+    // Create a printable version
+    const printContent = document.getElementById('invoice-content');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice - Order #${orderData.id}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .invoice-header { text-align: center; margin-bottom: 30px; }
+            .invoice-details { margin-bottom: 20px; }
+            .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            .invoice-table th, .invoice-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            .invoice-table th { background-color: #f2f2f2; }
+            .total-section { text-align: right; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const getPaymentIcon = (method) => {
+    switch (method) {
+      case 'card': return <FaCreditCard />;
+      case 'upi': return <FaMobile />;
+      case 'cod': return <FaTruck />;
+      default: return <FaCreditCard />;
+    }
+  };
+
+  const getPaymentMethodName = (method) => {
+    switch (method) {
+      case 'card': return 'Credit/Debit Card';
+      case 'upi': return 'UPI Payment';
+      case 'cod': return 'Cash on Delivery';
+      default: return method;
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="invoice-modal-overlay"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      >
+        <motion.div
+          className="invoice-modal"
+          initial={{ opacity: 0, scale: 0.9, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 50 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="invoice-header">
+            <div className="invoice-title">
+              <h2>Invoice</h2>
+              <button className="close-btn" onClick={onClose}>
+                <FaTimes />
+              </button>
+            </div>
+            <div className="invoice-actions">
+              <button className="action-btn download-btn" onClick={handleDownload}>
+                <FaDownload /> Download
+              </button>
+              <button className="action-btn print-btn" onClick={handlePrint}>
+                <FaPrint /> Print
+              </button>
+            </div>
+          </div>
+
+          {/* Invoice Content */}
+          <div id="invoice-content" className="invoice-content">
+            {/* Company Header */}
+            <div className="company-header">
+              <div className="company-info">
+                <h1>MediCore</h1>
+                <p>Your Trusted Healthcare Partner</p>
+                <div className="company-details">
+                  <p>📍 123 Healthcare Street, Medical City, MC 12345</p>
+                  <p>📞 +91 98765 43210 | 📧 support@medicore.com</p>
+                  <p>🌐 www.medicore.com</p>
+                </div>
+              </div>
+              <div className="invoice-number">
+                <h3>Invoice #{orderData.id}</h3>
+                <p className="invoice-date">
+                  <FaCalendarAlt />
+                  {new Date(orderData.createdAt).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+            </div>
+
+            {/* Customer Details */}
+            <div className="customer-section">
+              <div className="bill-to">
+                <h4>Bill To:</h4>
+                <div className="customer-info">
+                  <p><strong>{orderData.patientName || currentUser?.name || 'Customer'}</strong></p>
+                  <p>{currentUser?.address || orderData.deliveryAddress || orderData.address || 'Address not provided'}</p>
+                  <p>📱 {orderData.mobile || currentUser?.phone || 'Phone not provided'}</p>
+                  {currentUser?.email && <p>📧 {currentUser.email}</p>}
+                </div>
+              </div>
+              <div className="order-info">
+                <h4>Order Details:</h4>
+                <div className="order-meta">
+                  <p><strong>Order Type:</strong> {orderData.orderType === 'pharmacy' ? '💊 Pharmacy' : '🧪 Lab Test'}</p>
+                  <p><strong>Status:</strong> 
+                    <span className={`status-badge ${orderData.status}`}>
+                      <FaCheck /> {orderData.status}
+                    </span>
+                  </p>
+                  {orderData.scheduledDate && (
+                    <p><strong>Scheduled Date:</strong> {new Date(orderData.scheduledDate).toLocaleDateString()}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Items Table */}
+            <div className="items-section">
+              <h4>Items:</h4>
+              <table className="invoice-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orderData.items.map((item, index) => (
+                    <tr key={index}>
+                      <td>
+                        <div className="item-info">
+                          <strong>{item.name}</strong>
+                          {item.brand && <div className="item-brand">{item.brand}</div>}
+                        </div>
+                      </td>
+                      <td>{item.quantity}</td>
+                      <td>₹{item.price}</td>
+                      <td>₹{(item.price * item.quantity).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Payment & Total Section */}
+            <div className="payment-total-section">
+              <div className="payment-info">
+                <h4>Payment Information:</h4>
+                <div className="payment-details">
+                  <div className="payment-method">
+                    {getPaymentIcon(orderData.paymentMethod)}
+                    <span>{getPaymentMethodName(orderData.paymentMethod)}</span>
+                  </div>
+                  {orderData.transactionId && (
+                    <div className="transaction-id">
+                      <strong>Transaction ID:</strong> {orderData.transactionId}
+                    </div>
+                  )}
+                  <div className="payment-status">
+                    <FaCheck className="success-icon" />
+                    Payment Successful
+                  </div>
+                </div>
+              </div>
+
+              <div className="total-section">
+                <div className="total-row subtotal">
+                  <span>Subtotal:</span>
+                  <span>₹{orderData.total}</span>
+                </div>
+                {orderData.savings > 0 && (
+                  <div className="total-row savings">
+                    <span>Savings:</span>
+                    <span>-₹{orderData.savings}</span>
+                  </div>
+                )}
+                <div className="total-row delivery">
+                  <span>Delivery Charges:</span>
+                  <span className="free">FREE</span>
+                </div>
+                <div className="total-row taxes">
+                  <span>Taxes (GST):</span>
+                  <span>₹{(orderData.total * 0.18).toFixed(2)}</span>
+                </div>
+                <div className="total-row grand-total">
+                  <span><strong>Grand Total:</strong></span>
+                  <span><strong>₹{(orderData.total * 1.18).toFixed(2)}</strong></span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="invoice-footer">
+              <div className="terms">
+                <h4>Terms & Conditions:</h4>
+                <ul>
+                  <li>All medicines are subject to availability and prescription verification</li>
+                  <li>Lab test reports will be available within 24-48 hours</li>
+                  <li>For any queries, contact our customer support</li>
+                  <li>This is a computer-generated invoice and does not require signature</li>
+                </ul>
+              </div>
+              <div className="thank-you">
+                <h3>Thank you for choosing MediCore!</h3>
+                <p>Your health is our priority. Get well soon! 💙</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+export default InvoiceModal;

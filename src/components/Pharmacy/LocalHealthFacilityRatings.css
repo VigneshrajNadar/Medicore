@@ -1,0 +1,469 @@
+.facility-ratings-container {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+.facility-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.facility-header h2 {
+  color: #02475b;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.facility-header p {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+/* Filters */
+.facility-filters {
+  margin-bottom: 30px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #02475b;
+  font-size: 0.9rem;
+}
+
+.filter-select {
+  padding: 10px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #02475b;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #02475b;
+}
+
+/* Stats Overview */
+.facilities-stats {
+  margin-bottom: 30px;
+}
+
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 16px;
+  padding: 25px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  color: #0087ba;
+}
+
+.stat-content h3 {
+  color: #02475b;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.stat-content p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Facilities List */
+.facilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.facility-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+  border-left: 5px solid #0087ba;
+}
+
+.facility-card:hover {
+  transform: translateY(-3px);
+}
+
+.facility-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.facility-main-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.facility-type-icon {
+  font-size: 2rem;
+  color: #0087ba;
+}
+
+.facility-details {
+  flex: 1;
+}
+
+.facility-name {
+  color: #02475b;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.facility-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.facility-type {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.facility-location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* Rating Display */
+.facility-rating {
+  text-align: center;
+}
+
+.rating-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.rating-score {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  color: #fbbf24;
+  font-size: 1rem;
+}
+
+.star.empty {
+  color: #e5e7eb;
+}
+
+.rating-count {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+/* Facility Stats */
+.facility-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.facility-stats .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 0.9rem;
+  justify-content: center;
+}
+
+.facility-stats .stat-item svg {
+  color: #0087ba;
+}
+
+.cost-range {
+  font-weight: 600;
+  color: #02475b;
+}
+
+/* Specialties and Facilities */
+.facility-specialties,
+.facility-facilities {
+  margin-bottom: 20px;
+}
+
+.facility-specialties h4,
+.facility-facilities h4 {
+  color: #02475b;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.specialties-list,
+.facilities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.specialty-tag,
+.facility-tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Contact Info */
+.facility-contact {
+  margin-bottom: 20px;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.contact-item svg {
+  color: #0087ba;
+  width: 16px;
+}
+
+/* Facility Actions */
+.facility-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 20px;
+  border-top: 2px solid #e2e8f0;
+}
+
+.action-btn {
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  border: none;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #02475b 0%, #0087ba 100%);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(2, 71, 91, 0.3);
+}
+
+.action-btn.secondary {
+  background: white;
+  color: #02475b;
+  border: 2px solid #02475b;
+}
+
+.action-btn.secondary:hover {
+  background: #02475b;
+  color: white;
+}
+
+.action-btn.tertiary {
+  background: white;
+  color: #10b981;
+  border: 2px solid #10b981;
+}
+
+.action-btn.tertiary:hover {
+  background: #10b981;
+  color: white;
+}
+
+/* No Facilities */
+.no-facilities {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.no-facilities-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.no-facilities h3 {
+  color: #02475b;
+  margin-bottom: 10px;
+}
+
+.no-facilities p {
+  color: #64748b;
+}
+
+/* Tips Section */
+.facility-tips {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 16px;
+  padding: 25px;
+  border-left: 5px solid #0ea5e9;
+}
+
+.facility-tips h3 {
+  color: #02475b;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tip-icon {
+  font-size: 1.5rem;
+  color: #0087ba;
+  flex-shrink: 0;
+}
+
+.tip-content h4 {
+  color: #02475b;
+  margin-bottom: 8px;
+}
+
+.tip-content p {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .facility-ratings-container {
+    padding: 20px;
+  }
+
+  .facility-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-width: auto;
+  }
+
+  .stats-overview {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .facility-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .facility-stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .facility-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    justify-content: center;
+  }
+
+  .tips-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tip-item {
+    flex-direction: column;
+    text-align: center;
+  }
+}
