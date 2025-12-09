@@ -1,4 +1,7 @@
-const API_BASE_URL = 'http://localhost:5001/api';
+// Use relative URL for production (Vercel), localhost for development
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? '/api'  // Vercel production - relative URL
+  : 'http://localhost:5001/api';  // Local development
 
 // User Management
 export const getUsers = async () => {
@@ -352,12 +355,12 @@ export const updateProfile = async (profileData) => {
       },
       body: JSON.stringify(profileData),
     });
-    
+
     if (!response.ok) {
       // Simulate successful update for demo purposes
       return { success: true, message: 'Profile updated successfully' };
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error updating profile:', error);
