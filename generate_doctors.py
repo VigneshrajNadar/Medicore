@@ -29,7 +29,7 @@ last_names = ['Sharma', 'Patel', 'Kumar', 'Verma', 'Singh', 'Gupta', 'Malhotra',
 
 doctors = []
 
-for i in range(1, 271):
+for i in range(1, 501):
     spec = specializations[i % len(specializations)]
     city_data = cities[i % len(cities)]
     hospital = hospitals[i % len(hospitals)]
