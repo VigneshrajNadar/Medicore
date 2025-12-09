@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FaSearch, 
-  FaFilter, 
-  FaMapMarkerAlt, 
-  FaStar, 
-  FaClock, 
+import {
+  FaSearch,
+  FaFilter,
+  FaMapMarkerAlt,
+  FaStar,
+  FaClock,
   FaPhone,
   FaCalendarAlt,
   FaUserMd,
@@ -52,8 +52,8 @@ const DoctorDirectory = () => {
   useEffect(() => {
     // Remove any console.log statements in production
     if (process.env.NODE_ENV === 'production') {
-      console.log = () => {};
-      console.warn = () => {};
+      console.log = () => { };
+      console.warn = () => { };
     }
   }, []);
 
@@ -115,7 +115,7 @@ const DoctorDirectory = () => {
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = '100%';
-    
+
     setSelectedDoctor(doctor);
     setShowDoctorModal(true);
   };
@@ -126,11 +126,11 @@ const DoctorDirectory = () => {
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.width = '';
-    
+
     if (scrollY) {
       window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
-    
+
     setShowDoctorModal(false);
     setSelectedDoctor(null);
   };
@@ -163,12 +163,12 @@ const DoctorDirectory = () => {
     <div className="doctor-directory">
 
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="directory-header"
         initial={{ opacity: 0, y: -50, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
-          duration: 0.8, 
+        transition={{
+          duration: 0.8,
           type: "spring",
           stiffness: 100,
           damping: 15
@@ -190,42 +190,42 @@ const DoctorDirectory = () => {
         >
           Book appointments with the best healthcare professionals
         </motion.p>
-        
+
         {/* Animated Background Elements */}
-        <motion.div 
+        <motion.div
           className="header-bg-element header-bg-1"
-          animate={{ 
+          animate={{
             rotate: 360,
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.6, 0.3]
           }}
-          transition={{ 
+          transition={{
             duration: 20,
             repeat: Infinity,
             ease: "linear"
           }}
         />
-        <motion.div 
+        <motion.div
           className="header-bg-element header-bg-2"
-          animate={{ 
+          animate={{
             rotate: -360,
             scale: [1, 0.8, 1],
             opacity: [0.2, 0.5, 0.2]
           }}
-          transition={{ 
+          transition={{
             duration: 25,
             repeat: Infinity,
             ease: "linear"
           }}
         />
-        <motion.div 
+        <motion.div
           className="header-bg-element header-bg-3"
-          animate={{ 
+          animate={{
             y: [0, -20, 0],
             rotate: 180,
             opacity: [0.4, 0.7, 0.4]
           }}
-          transition={{ 
+          transition={{
             duration: 15,
             repeat: Infinity,
             ease: "easeInOut"
@@ -234,7 +234,7 @@ const DoctorDirectory = () => {
       </motion.div>
 
       {/* Search and Filters */}
-      <motion.div 
+      <motion.div
         className="search-filters-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -250,7 +250,7 @@ const DoctorDirectory = () => {
           />
         </div>
 
-        <button 
+        <button
           className="filter-toggle"
           onClick={() => setShowFilters(!showFilters)}
         >
@@ -262,7 +262,7 @@ const DoctorDirectory = () => {
 
       {/* Advanced Filters */}
       {showFilters && (
-        <motion.div 
+        <motion.div
           className="advanced-filters"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
@@ -291,7 +291,7 @@ const DoctorDirectory = () => {
               >
                 <option value="">All Cities</option>
                 {cities.map(city => (
-                  <option key={city.city} value={city.city}>{city.city}, {city.state}</option>
+                  <option key={city} value={city}>{city}</option>
                 ))}
               </select>
             </div>
@@ -344,7 +344,7 @@ const DoctorDirectory = () => {
       )}
 
       {/* Results Count */}
-      <motion.div 
+      <motion.div
         className="results-count"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -354,7 +354,7 @@ const DoctorDirectory = () => {
       </motion.div>
 
       {/* Doctors Grid */}
-      <motion.div 
+      <motion.div
         className="doctors-grid"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -376,82 +376,82 @@ const DoctorDirectory = () => {
             <motion.div
               key={doctor.id}
               className="doctor-card"
-              initial={{ 
-                opacity: 0, 
-                y: 80, 
-                scale: 0.7, 
+              initial={{
+                opacity: 0,
+                y: 80,
+                scale: 0.7,
                 rotateX: 25,
                 rotateY: -15,
                 z: -100
               }}
-              animate={{ 
-                opacity: 1, 
-                y: 0, 
-                scale: 1, 
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
                 rotateX: 0,
                 rotateY: 0,
                 z: 0
               }}
-              transition={{ 
-                duration: 0.8, 
+              transition={{
+                duration: 0.8,
                 delay: index * 0.15,
                 type: "spring",
                 stiffness: 120,
                 damping: 12,
                 bounce: 0.3
               }}
-              whileHover={{ 
-                y: -15, 
+              whileHover={{
+                y: -15,
                 scale: 1.05,
                 rotateY: 5,
                 rotateX: -2,
                 z: 50,
                 boxShadow: "0 25px 50px rgba(59, 130, 246, 0.4)",
-                transition: { 
+                transition: {
                   duration: 0.4,
                   type: "spring",
                   stiffness: 300,
                   damping: 20
                 }
               }}
-              whileTap={{ 
+              whileTap={{
                 scale: 0.95,
                 rotateX: 5,
                 transition: { duration: 0.1 }
               }}
             >
-              <motion.div 
+              <motion.div
                 className="doctor-image"
-                whileHover={{ 
+                whileHover={{
                   scale: 1.1,
                   rotate: 2,
                   transition: { duration: 0.3 }
                 }}
               >
-                <motion.img 
-                  src={doctor.profile_image} 
+                <motion.img
+                  src={doctor.profile_image}
                   alt={doctor.name}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ 
-                    duration: 0.6, 
+                  transition={{
+                    duration: 0.6,
                     delay: index * 0.1 + 0.2,
                     type: "spring"
                   }}
                 />
                 {doctor.is_verified && (
-                  <motion.div 
+                  <motion.div
                     className="verified-badge"
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
-                    transition={{ 
-                      duration: 0.5, 
+                    transition={{
+                      duration: 0.5,
                       delay: index * 0.1 + 0.4,
                       type: "spring",
                       stiffness: 200
                     }}
-                    whileHover={{ 
-                      scale: 1.2, 
+                    whileHover={{
+                      scale: 1.2,
                       rotate: 360,
                       transition: { duration: 0.5 }
                     }}
@@ -461,56 +461,56 @@ const DoctorDirectory = () => {
                 )}
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 className="doctor-info"
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ 
-                  duration: 0.6, 
+                transition={{
+                  duration: 0.6,
                   delay: index * 0.1 + 0.3,
                   type: "spring"
                 }}
               >
-                <motion.h3 
+                <motion.h3
                   className="doctor-name"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.5, 
+                  transition={{
+                    duration: 0.5,
                     delay: index * 0.1 + 0.4
                   }}
                 >
                   {doctor.name}
                 </motion.h3>
-                <motion.p 
+                <motion.p
                   className="doctor-specialization"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.5, 
+                  transition={{
+                    duration: 0.5,
                     delay: index * 0.1 + 0.5
                   }}
                 >
                   {doctor.specialization}
                 </motion.p>
-                <motion.p 
+                <motion.p
                   className="doctor-qualification"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.5, 
+                  transition={{
+                    duration: 0.5,
                     delay: index * 0.1 + 0.6
                   }}
                 >
                   {doctor.qualification}
                 </motion.p>
-                
-                <motion.div 
+
+                <motion.div
                   className="doctor-rating"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ 
-                    duration: 0.5, 
+                  transition={{
+                    duration: 0.5,
                     delay: index * 0.1 + 0.7,
                     type: "spring"
                   }}
@@ -524,12 +524,12 @@ const DoctorDirectory = () => {
                   </span>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="doctor-details"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.5, 
+                  transition={{
+                    duration: 0.5,
                     delay: index * 0.1 + 0.8
                   }}
                 >
@@ -539,22 +539,22 @@ const DoctorDirectory = () => {
                     { icon: FaClock, text: `${doctor.experience_years} years experience` },
                     { icon: FaRupeeSign, text: `₹${doctor.consultation_fee}` }
                   ].map((item, detailIndex) => (
-                    <motion.div 
+                    <motion.div
                       key={detailIndex}
                       className="detail-item"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ 
-                        duration: 0.4, 
+                      transition={{
+                        duration: 0.4,
                         delay: index * 0.1 + 0.9 + detailIndex * 0.1
                       }}
-                      whileHover={{ 
-                        x: 5, 
+                      whileHover={{
+                        x: 5,
                         transition: { duration: 0.2 }
                       }}
                     >
                       <motion.div
-                        whileHover={{ 
+                        whileHover={{
                           rotate: 360,
                           scale: 1.2,
                           transition: { duration: 0.3 }
@@ -567,22 +567,22 @@ const DoctorDirectory = () => {
                   ))}
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="doctor-actions"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.5, 
+                  transition={{
+                    duration: 0.5,
                     delay: index * 0.1 + 1.2
                   }}
                 >
-                  <motion.button 
+                  <motion.button
                     className="view-profile-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDoctorClick(doctor);
                     }}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.05,
                       y: -2,
                       boxShadow: "0 8px 25px rgba(59, 130, 246, 0.3)"
@@ -597,13 +597,13 @@ const DoctorDirectory = () => {
                     </motion.div>
                     View Profile
                   </motion.button>
-                  <motion.button 
+                  <motion.button
                     className="book-appointment-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleBookAppointment(doctor);
                     }}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.05,
                       y: -2,
                       boxShadow: "0 8px 25px rgba(34, 197, 94, 0.3)"
@@ -611,7 +611,7 @@ const DoctorDirectory = () => {
                     whileTap={{ scale: 0.95 }}
                   >
                     <motion.div
-                      whileHover={{ 
+                      whileHover={{
                         rotate: [0, -10, 10, 0],
                         transition: { duration: 0.4 }
                       }}
@@ -621,24 +621,24 @@ const DoctorDirectory = () => {
                     Book Appointment
                   </motion.button>
                 </motion.div>
-                
+
                 {/* Google Maps Link on Card */}
-                <motion.div 
+                <motion.div
                   className="card-maps-link"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.5, 
+                  transition={{
+                    duration: 0.5,
                     delay: index * 0.1 + 1.4
                   }}
                 >
-                  <motion.a 
+                  <motion.a
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.hospital_address + ', ' + doctor.city + ', ' + doctor.state)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="card-maps-btn"
                     onClick={(e) => e.stopPropagation()}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.02,
                       y: -1,
                       transition: { duration: 0.2 }
@@ -646,7 +646,7 @@ const DoctorDirectory = () => {
                     whileTap={{ scale: 0.98 }}
                   >
                     <motion.div
-                      whileHover={{ 
+                      whileHover={{
                         y: [0, -2, 0],
                         transition: { duration: 0.4, repeat: Infinity }
                       }}
@@ -665,154 +665,154 @@ const DoctorDirectory = () => {
       {/* Doctor Detail Modal */}
       <AnimatePresence>
         {showDoctorModal && selectedDoctor && (
-        <motion.div 
-          className="doctor-modal-overlay"
-          initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-          animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
-          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-          transition={{ duration: 0.3 }}
-          onClick={closeDoctorModal}
-        >
-          <motion.div 
-            className="doctor-modal"
-            initial={{ 
-              scale: 0.3, 
-              opacity: 0, 
-              y: 100,
-              rotateX: 45,
-              rotateY: 15
-            }}
-            animate={{ 
-              scale: 1, 
-              opacity: 1, 
-              y: 0,
-              rotateX: 0,
-              rotateY: 0
-            }}
-            exit={{ 
-              scale: 0.3, 
-              opacity: 0, 
-              y: -100,
-              rotateX: -45,
-              rotateY: -15
-            }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 400, 
-              damping: 25,
-              duration: 0.6
-            }}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'white',
-              borderRadius: '12px',
-              width: '100%',
-              maxWidth: '900px',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              padding: '2rem',
-              position: 'relative',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
-            }}
+          <motion.div
+            className="doctor-modal-overlay"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.3 }}
+            onClick={closeDoctorModal}
           >
-            <button className="modal-close" onClick={closeDoctorModal}>
-              <FaTimes />
-            </button>
+            <motion.div
+              className="doctor-modal"
+              initial={{
+                scale: 0.3,
+                opacity: 0,
+                y: 100,
+                rotateX: 45,
+                rotateY: 15
+              }}
+              animate={{
+                scale: 1,
+                opacity: 1,
+                y: 0,
+                rotateX: 0,
+                rotateY: 0
+              }}
+              exit={{
+                scale: 0.3,
+                opacity: 0,
+                y: -100,
+                rotateX: -45,
+                rotateY: -15
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 25,
+                duration: 0.6
+              }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: 'white',
+                borderRadius: '12px',
+                width: '100%',
+                maxWidth: '900px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                padding: '2rem',
+                position: 'relative',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+              }}
+            >
+              <button className="modal-close" onClick={closeDoctorModal}>
+                <FaTimes />
+              </button>
 
-            <div className="modal-content">
-              {selectedDoctor ? (
-                <>
+              <div className="modal-content">
+                {selectedDoctor ? (
+                  <>
+                    <div className="modal-header">
+                      <img src={selectedDoctor.profile_image} alt={selectedDoctor.name} />
+                      <div className="modal-doctor-info">
+                        <h2>{selectedDoctor.name}</h2>
+                        <p className="specialization">{selectedDoctor.specialization}</p>
+                        <p className="qualification">{selectedDoctor.qualification}</p>
+                        <div className="rating">
+                          {renderStars(selectedDoctor.rating)}
+                          <span>{selectedDoctor.rating} ({selectedDoctor.total_reviews} reviews)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="modal-body">
+                      <div className="info-section">
+                        <h3>About</h3>
+                        <p>{selectedDoctor.about}</p>
+                      </div>
+
+                      <div className="info-section">
+                        <h3>Education & Experience</h3>
+                        <p>{selectedDoctor.education}</p>
+                        <p><strong>Experience:</strong> {selectedDoctor.experience_years} years</p>
+                      </div>
+
+                      <div className="info-section">
+                        <h3>Hospital Details</h3>
+                        <p><strong>Hospital:</strong> {selectedDoctor.hospital_name}</p>
+                        <p><strong>Address:</strong> {selectedDoctor.hospital_address}</p>
+                        <p><strong>City:</strong> {selectedDoctor.city}, {selectedDoctor.state} - {selectedDoctor.pincode}</p>
+                        <p><strong>Languages:</strong> {selectedDoctor.languages}</p>
+
+                        {/* Google Maps Link */}
+                        <div className="maps-link">
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedDoctor.hospital_address + ', ' + selectedDoctor.city + ', ' + selectedDoctor.state)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="maps-btn"
+                          >
+                            <FaMapMarkerAlt />
+                            View on Google Maps
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="info-section">
+                        <h3>Consultation Details</h3>
+                        <p><strong>Fee:</strong> ₹{selectedDoctor.consultation_fee}</p>
+                        <p><strong>Duration:</strong> {selectedDoctor.consultation_duration} minutes</p>
+                        <p><strong>Available Days:</strong> {selectedDoctor.available_days}</p>
+                        <p><strong>Time Slots:</strong> {selectedDoctor.available_time_slots}</p>
+                      </div>
+
+                      {selectedDoctor.awards && (
+                        <div className="info-section">
+                          <h3>Awards & Recognition</h3>
+                          <p>{selectedDoctor.awards}</p>
+                        </div>
+                      )}
+
+                      {selectedDoctor.publications && (
+                        <div className="info-section">
+                          <h3>Publications</h3>
+                          <p>{selectedDoctor.publications}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="modal-footer">
+                      <button className="contact-btn">
+                        <FaPhone />
+                        Contact
+                      </button>
+                      <button
+                        className="book-now-btn"
+                        onClick={() => handleBookAppointment(selectedDoctor)}
+                      >
+                        <FaCalendarAlt />
+                        Book Appointment
+                      </button>
+                    </div>
+                  </>
+                ) : (
                   <div className="modal-header">
-                    <img src={selectedDoctor.profile_image} alt={selectedDoctor.name} />
-                    <div className="modal-doctor-info">
-                      <h2>{selectedDoctor.name}</h2>
-                      <p className="specialization">{selectedDoctor.specialization}</p>
-                      <p className="qualification">{selectedDoctor.qualification}</p>
-                      <div className="rating">
-                        {renderStars(selectedDoctor.rating)}
-                        <span>{selectedDoctor.rating} ({selectedDoctor.total_reviews} reviews)</span>
-                      </div>
-                    </div>
+                    <h2>Loading...</h2>
                   </div>
-
-                  <div className="modal-body">
-                    <div className="info-section">
-                      <h3>About</h3>
-                      <p>{selectedDoctor.about}</p>
-                    </div>
-
-                    <div className="info-section">
-                      <h3>Education & Experience</h3>
-                      <p>{selectedDoctor.education}</p>
-                      <p><strong>Experience:</strong> {selectedDoctor.experience_years} years</p>
-                    </div>
-
-                    <div className="info-section">
-                      <h3>Hospital Details</h3>
-                      <p><strong>Hospital:</strong> {selectedDoctor.hospital_name}</p>
-                      <p><strong>Address:</strong> {selectedDoctor.hospital_address}</p>
-                      <p><strong>City:</strong> {selectedDoctor.city}, {selectedDoctor.state} - {selectedDoctor.pincode}</p>
-                      <p><strong>Languages:</strong> {selectedDoctor.languages}</p>
-                      
-                      {/* Google Maps Link */}
-                      <div className="maps-link">
-                        <a 
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedDoctor.hospital_address + ', ' + selectedDoctor.city + ', ' + selectedDoctor.state)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="maps-btn"
-                        >
-                          <FaMapMarkerAlt />
-                          View on Google Maps
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="info-section">
-                      <h3>Consultation Details</h3>
-                      <p><strong>Fee:</strong> ₹{selectedDoctor.consultation_fee}</p>
-                      <p><strong>Duration:</strong> {selectedDoctor.consultation_duration} minutes</p>
-                      <p><strong>Available Days:</strong> {selectedDoctor.available_days}</p>
-                      <p><strong>Time Slots:</strong> {selectedDoctor.available_time_slots}</p>
-                    </div>
-
-                    {selectedDoctor.awards && (
-                      <div className="info-section">
-                        <h3>Awards & Recognition</h3>
-                        <p>{selectedDoctor.awards}</p>
-                      </div>
-                    )}
-
-                    {selectedDoctor.publications && (
-                      <div className="info-section">
-                        <h3>Publications</h3>
-                        <p>{selectedDoctor.publications}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="modal-footer">
-                    <button className="contact-btn">
-                      <FaPhone />
-                      Contact
-                    </button>
-                    <button 
-                      className="book-now-btn"
-                      onClick={() => handleBookAppointment(selectedDoctor)}
-                    >
-                      <FaCalendarAlt />
-                      Book Appointment
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="modal-header">
-                  <h2>Loading...</h2>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
         )}
       </AnimatePresence>
     </div>
