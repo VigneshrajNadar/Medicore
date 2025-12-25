@@ -33,6 +33,7 @@ Built using React.js and Node.js, MediCore aims to bridge healthcare accessibili
 *Comprehensive feature set covering healthcare services, pharmacy, health tracking, and more*
 
 🌟 Key Highlights
+
 10,000+ verified medicines across 12 categories
 277+ verified doctors across specializations
 AI-powered symptom analysis & health insights
@@ -42,11 +43,13 @@ Donation & request system for unused medicines
 Advanced analytics dashboards (User + Admin)
 
 🏥 Doctor Consultation Services
+
 Doctor search by specialization, city, hospital, rating & price
 Appointment booking, rescheduling & cancellation
 Doctor reviews & ratings
 
 💊 Pharmacy Services
+
 Large medicine catalog (Prescription + OTC)
 Prescription upload with OCR verification
 Pharmacist real-time chat
@@ -54,22 +57,26 @@ Order tracking & delivery status
 Medicine authenticity verification
 
 🎁 Medicine Donation & Request
+
 Donate unused medicines
 Request medicines if unaffordable
 Automatic assignment to nearest collection centers
 Donation chain tracking & impact analytics
 
 🧪 Lab & Diagnostic Services
+
 Browse & book lab tests
 Home sample collection
 Test reports upload & history
 
 📚 Health Awareness
+
 Health blogs & articles
 Seasonal health recommendations
 Disease outbreak alerts
 
 🤖 AI Symptom Checker 
+
 AI-powered symptom checker that analyzes user-reported symptoms to provide preliminary health insights, 
 possible conditions, risk levels, and recommended next steps such as self-care or doctor consultation.
 
