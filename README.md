@@ -298,79 +298,131 @@ Benefit:
 Reduces medicine costs while maintaining treatment effectiveness.
 
 1️⃣4️⃣ Dosage Calculator 
-Purpose: Calculates safe medicine dosage based on user data.
+
+Purpose: 
+Calculates safe medicine dosage based on user data.
+
 Key Features:
 Pediatric & adult dosage calculation
 Weight and age-based dosing
 Overdose prevention alerts
 Pharmacist/doctor reference support
+
 User Benefit:
+
 Prevents medication errors and ensures safe drug consumption.
+---
 
 1️⃣5️⃣ Side Effect Tracker 
+
 Purpose: Monitors and records medicine side effects experienced by users.
+
 Key Features:
 Side effect logging
 Severity tracking
 Pattern detection
 Doctor & pharmacist alert integration
+
 User Benefit:
 Improves patient safety and enables timely medical intervention.
 
+
 🧑‍⚕️ Health Dashboard
+
 Overview of vitals, medications & trends
+
 Personalized health recommendations
+
 Progress visualization with charts
 
+
 📈 Health History Dashboard
+
 Chronological health records
+
 Trend comparison & analytics
+
 Export & sharing options for doctors
 
+
 📦 Orders & Subscriptions Dashboard
+
 Medicine & lab order history
+
 Subscription usage, savings & renewals
 
+
 🎁 Donation Dashboard
+
 Donation/request history
+
 Impact tracking & status updates
+
 
 🔐 Admin Dashboards
 
 🛠 Admin Dashboard Overview
+
 Platform usage statistics
+
 User, doctor & pharmacist verification
+
 Revenue & order metrics
 
+
 💊 Pharmacy Order Management
+
 Prescription verification
+
 Order status tracking
+
 Returns & refunds
 
+
 🧪 Lab Test Management
+
 Report uploads
+
 Patient notifications
+
 Compliance tracking
 
+
 👥 User Management
+
 Role-based access control
+
 User activity monitoring
+
 Account moderation
 
+
 📦 Inventory Management
+
 Stock tracking
+
 Expiry alerts
+
 Auto-reorder system
 
+
 📊 Advanced Analytics & Reports
+
 User engagement analytics
+
 Financial reports
+
 Predictive insights
 
+
 🎁 Donation Management Panel
+
 Donation verification
+
 Center allocation
+
 Community outreach metrics
+
 
 ## 🛠️ Tech Stack
 
