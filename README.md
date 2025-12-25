@@ -73,25 +73,242 @@ Disease outbreak alerts
 AI-powered symptom checker that analyzes user-reported symptoms to provide preliminary health insights, 
 possible conditions, risk levels, and recommended next steps such as self-care or doctor consultation.
 
-🧰 Healthcare Tools (15 Tools)
-MediCore includes 15 advanced healthcare tools, all integrated with dashboards and consultations:
-BMI Calculator – Health risk assessment with personalized insights
-AI Symptom Checker – Intelligent condition analysis & guidance
-Dosage Calculator – Safe pediatric & adult dosage validation
-Medication Tracker – Schedule tracking with reminders
-Health Chatbot – AI-powered health assistant
-Sleep Quality Analyzer – Sleep pattern & trend analysis
-Nutrition Diet Planner – BMR-based meal planning
-Blood Pressure Tracker
-Blood Sugar Monitoring Tool
-Heart Rate Tracker
-Weight & BMI Progress Monitor
-Vaccination Tracker
-Health History Analyzer
-Seasonal Health Advisor
-Preventive Care Recommendation Tool
 
-📊 User Dashboards
+## 🧰 Healthcare Tools Module (15 Tools - Detailed Explanation)
+
+The Healthcare Tools module in MediCore provides users with preventive, analytical, and decision-support health utilities. These tools help users monitor daily health, make informed medical decisions, and maintain long-term wellness without constant hospital visits.
+
+Each tool is independent, data-driven, and integrated with dashboards, consultations, and health history tracking.
+
+---
+
+### 1️⃣ BMI Health Calculator
+
+Purpose:
+Calculates Body Mass Index (BMI) using height, weight, age, and gender.
+
+Features:
+
+ BMI classification (Underweight, Normal, Overweight, Obese)
+ Health risk indication
+ Personalized lifestyle recommendations
+ Historical BMI trend tracking
+
+Benefit:
+Helps users understand weight-related health risks and maintain a healthy body composition.
+
+---
+
+### 2️⃣ AI Healthcare Assistant
+
+Purpose:
+An AI-powered virtual assistant for instant medical guidance.
+
+Features:
+
+ Answers common health queries
+ First-level medical guidance
+ Medication usage explanations
+ Symptom clarification support
+
+Benefit:
+Provides 24/7 healthcare assistance and reduces unnecessary doctor visits.
+
+---
+
+### 3️⃣ Nutrition & Diet Planner
+
+Purpose:
+Helps users plan balanced meals based on personal health data.
+
+Features:
+
+ BMR (Basal Metabolic Rate) calculation
+ Diet plans based on age, weight, and goals
+ Macro & calorie tracking
+ Food recommendations for medical conditions
+
+Benefit:
+Encourages healthy eating habits and personalized nutrition planning.
+
+---
+
+### 4️⃣ Workout & Exercise Guide
+
+Purpose:
+Provides fitness routines and exercise guidance.
+
+Features:
+
+ Beginner to advanced workout plans
+ Exercise tutorials
+ Daily fitness tracking
+ Goal-based workout suggestions
+
+Benefit:
+Promotes physical activity and supports overall wellness.
+
+---
+
+### 5️⃣ Sleep Quality Analyzer
+
+Purpose:
+Analyzes sleep duration and sleep patterns.
+
+Features:
+
+ Sleep duration tracking
+ Quality analysis (deep/light sleep)
+ Sleep improvement tips
+ Trend visualization
+
+Benefit:
+Improves sleep hygiene and helps prevent fatigue-related health issues.
+
+---
+
+### 6️⃣ Vital Signs Monitor
+
+Purpose:
+Monitors essential body vitals.
+
+Tracks:
+
+ Blood pressure
+ Heart rate
+ Body temperature
+ Oxygen levels (manual input)
+
+Features:
+
+ Abnormal value alerts
+ Historical data visualization
+ Doctor consultation integration
+
+Benefit:
+Early detection of potential health problems.
+
+---
+
+### 7️⃣ Vision Health Checker
+
+Purpose:
+Supports basic eye health monitoring.
+
+Features:
+
+ Screen time tracking
+ Eye strain assessment
+ Vision care recommendations
+ Preventive eye health tips
+
+Benefit:
+Protects users from digital eye strain and vision-related issues.
+
+---
+
+### 8️⃣ Dental Health Guide
+
+Purpose:
+Promotes oral hygiene awareness and dental care.
+
+Features:
+
+ Dental care routines
+ Common dental issue guidance
+ Oral hygiene reminders
+ Dentist visit recommendations
+
+Benefit:
+Prevents dental diseases through education and regular care reminders.
+
+---
+
+### 9️⃣ Medication Tracker
+
+Purpose:
+Ensures proper medication adherence.
+
+Features:
+
+ Medicine schedule management
+ Dosage reminders
+ Missed dose alerts
+ Medication history logs
+
+Benefit:
+Improves treatment effectiveness and prevents missed doses.
+
+---
+
+### 🔟 Hospital Finder & Reviews
+
+Purpose:
+Helps users find nearby healthcare facilities.
+
+Features:
+
+ Location-based hospital search
+ Hospital ratings & reviews
+ Specialty-based filtering
+ Appointment booking integration
+
+Benefit:
+Enables quick access to trusted medical facilities.
+
+---
+
+### 1️⃣1️⃣ Symptom Checker
+
+Purpose:
+AI-powered preliminary symptom analysis tool.
+
+Features:
+
+ Symptom-based health suggestions
+ Severity assessment
+ Emergency alerts
+ Doctor recommendation integration
+
+Benefit:
+Helps users decide when medical consultation is necessary.
+
+---
+
+### 1️⃣2️⃣ Alternative Medicines
+
+Purpose:
+Suggests safe alternatives for prescribed medicines.
+
+Features:
+
+ Generic medicine suggestions
+ Cost-effective alternatives
+ Pharmacist verification
+ Safety & interaction checks
+
+Benefit:
+Reduces medicine costs while maintaining treatment effectiveness.
+
+1️⃣4️⃣ Dosage Calculator 
+Purpose: Calculates safe medicine dosage based on user data.
+Key Features:
+Pediatric & adult dosage calculation
+Weight and age-based dosing
+Overdose prevention alerts
+Pharmacist/doctor reference support
+User Benefit:
+Prevents medication errors and ensures safe drug consumption.
+
+1️⃣5️⃣ Side Effect Tracker 
+Purpose: Monitors and records medicine side effects experienced by users.
+Key Features:
+Side effect logging
+Severity tracking
+Pattern detection
+Doctor & pharmacist alert integration
+User Benefit:
+Improves patient safety and enables timely medical intervention.
 
 🧑‍⚕️ Health Dashboard
 Overview of vitals, medications & trends
