@@ -30,7 +30,7 @@ Built using React.js and Node.js, MediCore aims to bridge healthcare accessibili
 
 ![Feature Overview](./docs/images/feature_overview_1765276765076.png)
 
-*Comprehensive feature set covering healthcare services, pharmacy, health tracking, and more*
+
 
 🌟 Key Highlights
 
