@@ -694,18 +694,7 @@ npm run eject
 
 ---
 
-## 📈 Future Enhancements
 
-- [ ] Real-time chat with doctors
-- [ ] Video consultation integration
-- [ ] Payment gateway integration
-- [ ] Push notifications
-- [ ] Mobile app (React Native)
-- [ ] AI-powered symptom checker
-- [ ] Prescription OCR improvements
-- [ ] Multi-language support
-- [ ] Insurance integration
-- [ ] Telemedicine features
 
 ---
 
