@@ -1,6 +1,7 @@
 # MediCore - Advanced Healthcare Management System
 
-A comprehensive healthcare management platform built with React and Node.js, featuring doctor appointments, pharmacy services, health tracking, and medicine donation/request systems.
+MediCore is a full-stack digital healthcare ecosystem that integrates doctor consultations, pharmacy services, AI health tools, lab tests, subscriptions, analytics dashboards, and medicine donation systems into a single unified platform.
+Built using React.js and Node.js, MediCore aims to bridge healthcare accessibility gaps in India by offering affordable, secure, and technology-driven healthcare services.
 
 ![MediCore](https://img.shields.io/badge/MediCore-Healthcare-blue)
 ![React](https://img.shields.io/badge/React-18.1.0-61dafb)
@@ -31,47 +32,121 @@ A comprehensive healthcare management platform built with React and Node.js, fea
 
 *Comprehensive feature set covering healthcare services, pharmacy, health tracking, and more*
 
-### 🏥 Healthcare Services
-- **Doctor Appointments**: Browse, filter, and book appointments with doctors
-- **Specialization Search**: Find doctors by specialization, city, hospital, rating, and price
-- **Video Consultations**: Support for both in-person and video consultations
-- **Appointment Management**: View, reschedule, and cancel appointments
-- **Doctor Reviews**: Rate and review doctors after consultations
+🌟 Key Highlights
+10,000+ verified medicines across 12 categories
+277+ verified doctors across specializations
+AI-powered symptom analysis & health insights
+Real-time pharmacist & doctor consultations
+Subscription model with 15–20% savings
+Donation & request system for unused medicines
+Advanced analytics dashboards (User + Admin)
 
-### 💊 Pharmacy Services
-- **Medicine Catalog**: Browse and search medicines
-- **Shopping Cart**: Add medicines to cart and checkout
-- **Order Tracking**: Track medicine orders and delivery status
-- **Prescription Upload**: Upload prescriptions for medicine orders
+🏥 Doctor Consultation Services
+Doctor search by specialization, city, hospital, rating & price
+Appointment booking, rescheduling & cancellation
+Doctor reviews & ratings
 
-### 🎁 Medicine Donation & Request
-- **Donate Medicines**: Donate unused medicines to help others
-- **Request Medicines**: Request medicines if you cannot afford them
-- **Center Assignment**: Automatic assignment to nearest collection/distribution centers
-- **Donation History**: Track your donations and requests
+💊 Pharmacy Services
+Large medicine catalog (Prescription + OTC)
+Prescription upload with OCR verification
+Pharmacist real-time chat
+Order tracking & delivery status
+Medicine authenticity verification
 
-### 📊 Health Management
-- **Health Dashboard**: Comprehensive health overview
-- **Vitals Tracking**: Monitor heart rate, blood pressure, weight, temperature, blood sugar
-- **Health Records**: Store and manage medical records, lab results, vaccinations
-- **Medication Tracking**: Keep track of current medications and prescriptions
-- **Health History**: View complete health history and trends
+🎁 Medicine Donation & Request
+Donate unused medicines
+Request medicines if unaffordable
+Automatic assignment to nearest collection centers
+Donation chain tracking & impact analytics
 
-### 👤 User Features
-- **User Profiles**: Manage personal information and health data
-- **Notifications**: Real-time notifications for appointments, orders, and health reminders
-- **Favorites**: Save favorite doctors and medicines
-- **Order History**: View past orders and reorder easily
-- **Emergency Contacts**: Store emergency contact information
+🧪 Lab & Diagnostic Services
+Browse & book lab tests
+Home sample collection
+Test reports upload & history
 
-### 🔐 Admin Portal
-- **Admin Dashboard**: Comprehensive admin panel
-- **User Management**: View and manage user accounts
-- **Doctor Management**: Add, edit, and manage doctor profiles
-- **Order Management**: Process and track medicine orders
-- **Analytics**: View platform statistics and insights
+📚 Health Awareness
+Health blogs & articles
+Seasonal health recommendations
+Disease outbreak alerts
 
----
+🤖 AI Symptom Checker 
+AI-powered symptom checker that analyzes user-reported symptoms to provide preliminary health insights, 
+possible conditions, risk levels, and recommended next steps such as self-care or doctor consultation.
+
+🧰 Healthcare Tools (15 Tools)
+MediCore includes 15 advanced healthcare tools, all integrated with dashboards and consultations:
+BMI Calculator – Health risk assessment with personalized insights
+AI Symptom Checker – Intelligent condition analysis & guidance
+Dosage Calculator – Safe pediatric & adult dosage validation
+Medication Tracker – Schedule tracking with reminders
+Health Chatbot – AI-powered health assistant
+Sleep Quality Analyzer – Sleep pattern & trend analysis
+Nutrition Diet Planner – BMR-based meal planning
+Blood Pressure Tracker
+Blood Sugar Monitoring Tool
+Heart Rate Tracker
+Weight & BMI Progress Monitor
+Vaccination Tracker
+Health History Analyzer
+Seasonal Health Advisor
+Preventive Care Recommendation Tool
+
+📊 User Dashboards
+
+🧑‍⚕️ Health Dashboard
+Overview of vitals, medications & trends
+Personalized health recommendations
+Progress visualization with charts
+
+📈 Health History Dashboard
+Chronological health records
+Trend comparison & analytics
+Export & sharing options for doctors
+
+📦 Orders & Subscriptions Dashboard
+Medicine & lab order history
+Subscription usage, savings & renewals
+
+🎁 Donation Dashboard
+Donation/request history
+Impact tracking & status updates
+
+🔐 Admin Dashboards
+
+🛠 Admin Dashboard Overview
+Platform usage statistics
+User, doctor & pharmacist verification
+Revenue & order metrics
+
+💊 Pharmacy Order Management
+Prescription verification
+Order status tracking
+Returns & refunds
+
+🧪 Lab Test Management
+Report uploads
+Patient notifications
+Compliance tracking
+
+👥 User Management
+Role-based access control
+User activity monitoring
+Account moderation
+
+📦 Inventory Management
+Stock tracking
+Expiry alerts
+Auto-reorder system
+
+📊 Advanced Analytics & Reports
+User engagement analytics
+Financial reports
+Predictive insights
+
+🎁 Donation Management Panel
+Donation verification
+Center allocation
+Community outreach metrics
 
 ## 🛠️ Tech Stack
 
@@ -692,11 +767,7 @@ npm run eject
 - **XSS protection**: React's built-in XSS protection
 - **CORS configuration**: Controlled cross-origin requests
 
----
 
-
-
----
 
 
 
