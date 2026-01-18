@@ -36,7 +36,7 @@ import { useUser } from '../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import InvoiceModal from '../Invoice/InvoiceModal';
 import MedicineHistory from './MedicineHistory';
-import { getUserAppointments, updateProfile } from '../../services/api';
+import { getUserAppointments, updateProfile, getOrders } from '../../services/api';
 import SubscriptionBadge from '../Subscription/SubscriptionBadge';
 import './AccountPage.css';
 
@@ -53,6 +53,8 @@ const AccountPage = () => {
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   const handleViewAppointment = (appointment) => {
     setSelectedAppointment(appointment);
@@ -135,12 +137,28 @@ const AccountPage = () => {
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Fetch appointments on component mount
+  // Fetch appointments and orders on component mount
   useEffect(() => {
     if (currentUser?.id) {
       fetchAppointments();
+      fetchOrders();
     }
   }, [currentUser]);
+
+  const fetchOrders = async () => {
+    if (!currentUser?.id) return;
+    setLoadingOrders(true);
+    try {
+      const ordersData = await getOrders(currentUser.id);
+      setOrders(ordersData || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      // Fallback to local user orders if API fails
+      setOrders(currentUser?.orders || []);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
 
   const fetchAppointments = async () => {
     setLoadingAppointments(true);
@@ -383,42 +401,24 @@ const AccountPage = () => {
   );
 
   const renderOrders = () => {
-    // Get fresh orders from localStorage every render
-    const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-
-    // Find current user's orders from both sources
-    let userOrders = [];
-
-    // Check apolloUsers
-    if (currentUser?.id && apolloUsers[currentUser.id]?.orders) {
-      userOrders = [...apolloUsers[currentUser.id].orders];
-    }
-
-    // Check users array
-    const userInArray = users.find(u => u.id === currentUser?.id || u.email === currentUser?.email);
-    if (userInArray?.orders) {
-      userOrders = [...userOrders, ...userInArray.orders];
-    }
-
-    // Remove duplicates based on order ID
-    userOrders = userOrders.filter((order, index, self) =>
-      index === self.findIndex(o => o.id === order.id)
-    );
-
-    const allOrders = userOrders;
+    const allOrders = orders || [];
     const pharmacyOrders = allOrders.filter(order => order.orderType === 'pharmacy');
     const labTestOrders = allOrders.filter(order => order.orderType === 'lab_test');
 
-    const getFilteredOrders = () => {
-      switch (orderFilter) {
-        case 'pharmacy': return pharmacyOrders;
-        case 'lab_test': return labTestOrders;
-        default: return allOrders;
-      }
-    };
+    const filteredOrders = orderFilter === 'all'
+      ? allOrders
+      : allOrders.filter(order => order.orderType === orderFilter);
 
-    const filteredOrders = getFilteredOrders();
+    if (loadingOrders) {
+      return (
+        <div className="account-section">
+          <h2>My Orders</h2>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
+            <div className="loading-spinner">Loading orders...</div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="account-section">
