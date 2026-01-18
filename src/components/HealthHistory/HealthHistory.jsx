@@ -341,8 +341,8 @@ const HealthHistory = () => {
       ...test,
       type: 'Lab Test',
       title: test.test_name,
-      date: test.scheduled_date,
-      time: 'Scheduled',
+      date: test.test_date || test.scheduled_date,
+      time: test.test_time || 'Scheduled',
       status: test.status
     }));
 

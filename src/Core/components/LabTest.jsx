@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaSearch, FaCalendarAlt, FaMapMarkerAlt, FaPhone, FaUser, FaCheck, FaTimes, FaDownload, FaTrash, FaEye, FaEdit } from 'react-icons/fa';
 import { useUser } from '../../contexts/UserContext';
+import api from '../../services/api';
 import PaymentModal from '../../components/Payment/PaymentModal';
 import SubscriptionBadge from '../../components/Subscription/SubscriptionBadge';
 import './LabTest.css';

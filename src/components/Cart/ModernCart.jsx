@@ -140,12 +140,12 @@ const ModernCart = () => {
         price: item.price,
         image: item.image
       })),
-      total: totals.total,
+      total_amount: totals.total,
       savings: calculateSavings(),
-      orderType: 'pharmacy',
-      deliveryAddress: 'Default Address',
-      paymentMethod: paymentData.method,
-      transactionId: paymentData.transactionId,
+      order_type: 'pharmacy',
+      shipping_address: 'Default Address',
+      payment_method: paymentData.method,
+      transaction_id: paymentData.transactionId,
       status: 'confirmed'
     };
 
@@ -162,7 +162,8 @@ const ModernCart = () => {
         items: cartItems.map(item => item.name),
         status: 'confirmed',
         savings: calculateSavings(),
-        orderType: 'pharmacy'
+        orderType: 'pharmacy',
+        order_type: 'pharmacy'
       };
       orderHistory.push(newOrder);
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));

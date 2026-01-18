@@ -406,12 +406,12 @@ const AccountPage = () => {
 
   const renderOrders = () => {
     const allOrders = orders || [];
-    const pharmacyOrders = allOrders.filter(order => order.orderType === 'pharmacy');
-    const labTestOrders = allOrders.filter(order => order.orderType === 'lab_test');
+    const pharmacyOrders = allOrders.filter(order => (order.order_type === 'pharmacy' || order.orderType === 'pharmacy'));
+    const labTestOrders = allOrders.filter(order => (order.order_type === 'lab_test' || order.orderType === 'lab_test'));
 
     const filteredOrders = orderFilter === 'all'
       ? allOrders
-      : allOrders.filter(order => order.orderType === orderFilter);
+      : allOrders.filter(order => (order.order_type === orderFilter || order.orderType === orderFilter));
 
     if (loadingOrders) {
       return (
@@ -469,17 +469,15 @@ const AccountPage = () => {
               >
                 <div className="order-header">
                   <div className="order-info">
-                    <h4>Order #{order.id || `ORD-${index + 1}`}</h4>
-                    <p className="order-date">{order.date || order.createdAt || 'Recent'}</p>
+                    <h4>Order #{order._id || order.id || `ORD-${index + 1}`}</h4>
+                    <p className="order-date">{order.date || (order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Recent')}</p>
                     <span className={`order-status ${order.status || 'pending'}`}>
                       {(order.status || 'pending').replace('_', ' ').toUpperCase()}
                     </span>
-                    {order.lastUpdated && (
-                      <p className="last-updated">Updated: {new Date(order.lastUpdated).toLocaleString()}</p>
-                    )}
+                    {order.lastUpdated && <p className="last-updated">Updated: {new Date(order.lastUpdated).toLocaleString()}</p>}
                   </div>
                   <div className="order-amount">
-                    ₹{order.total || order.amount || '0'}
+                    ₹{order.total_amount || order.total || order.amount || '0'}
                   </div>
                 </div>
 
@@ -487,7 +485,7 @@ const AccountPage = () => {
                   {order.items ? (
                     order.items.slice(0, 2).map((item, idx) => (
                       <div key={idx} className="order-item">
-                        <span>{item.name}</span>
+                        <span>{item.product_name || item.name}</span>
                         <span>Qty: {item.quantity}</span>
                       </div>
                     ))
@@ -508,7 +506,7 @@ const AccountPage = () => {
                   >
                     <FaEye /> View Details
                   </button>
-                  {order.orderType === 'lab_test' && (
+                  {(order.order_type === 'lab_test' || order.orderType === 'lab_test') && (
                     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                       <div style={{ width: '100%', marginBottom: '10px' }}>
                         <span style={{ padding: '5px 10px', background: order.resultFile ? '#10b981' : '#f59e0b', color: 'white', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
