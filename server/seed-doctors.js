@@ -26,7 +26,8 @@ const sampleDoctors = [
         about: 'Experienced Cardiology specialist with 15 years of practice. Committed to providing the highest quality healthcare services.',
         is_verified: true,
         rating: 4.8,
-        total_reviews: 120
+        total_reviews: 120,
+        profile_image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&h=200&fit=crop'
     },
     {
         name: 'Dr. Priya Sharma',
@@ -49,7 +50,8 @@ const sampleDoctors = [
         about: 'Dermatologist with expertise in skin care and cosmetic procedures.',
         is_verified: true,
         rating: 4.6,
-        total_reviews: 95
+        total_reviews: 95,
+        profile_image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=200&h=200&fit=crop'
     },
     {
         name: 'Dr. Amit Patel',
