@@ -76,11 +76,12 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
   };
 
   const getPaymentMethodName = (method) => {
+    if (!method) return 'Net Banking'; // Most common fallback
     switch (method) {
       case 'card': return 'Credit/Debit Card';
       case 'upi': return 'UPI Payment';
       case 'cod': return 'Cash on Delivery';
-      default: return method;
+      default: return method.toUpperCase();
     }
   };
 
@@ -207,12 +208,12 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                 <h4>Payment Information:</h4>
                 <div className="payment-details">
                   <div className="payment-method">
-                    {getPaymentIcon(orderData.paymentMethod)}
-                    <span>{getPaymentMethodName(orderData.paymentMethod)}</span>
+                    {getPaymentIcon(orderData.payment_method || orderData.paymentMethod)}
+                    <span>{getPaymentMethodName(orderData.payment_method || orderData.paymentMethod)}</span>
                   </div>
-                  {orderData.transactionId && (
+                  {(orderData.transaction_id || orderData.transactionId) && (
                     <div className="transaction-id">
-                      <strong>Transaction ID:</strong> {orderData.transactionId}
+                      <strong>Transaction ID:</strong> {orderData.transaction_id || orderData.transactionId}
                     </div>
                   )}
                   <div className="payment-status">
