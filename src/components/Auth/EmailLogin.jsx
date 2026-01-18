@@ -970,7 +970,7 @@ const EmailLogin = () => {
     try {
       if (isAdminLogin) {
         // Admin login logic using backend
-        const result = await login(email, password);
+        const result = await login({ email, password });
 
         if (result.success) {
           if (result.user?.role === 'admin') {
@@ -985,7 +985,7 @@ const EmailLogin = () => {
         }
       } else {
         // Regular user login
-        const result = await login(email, password);
+        const result = await login({ email, password });
         if (result.success) {
           // Check if the logged-in user is an admin
           if (result.user?.role === 'admin') {
