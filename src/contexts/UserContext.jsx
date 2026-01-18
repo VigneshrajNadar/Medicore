@@ -52,29 +52,32 @@ export const UserProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (credentials) => {
     try {
-      // Use Backend API for Login
-      const data = await api.login({ email, password });
+      // Clear any stale user data first
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
 
-      if (data.token) {
+      const data = await api.login(credentials);
+
+      if (data.token && data.user) {
+        // Store token and user data
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        setCurrentUser(data.user);
+        setToken(data.token);
+
+        // Sync with mock database
+        userDB.setCurrentUser(data.user);
+
+        return { success: true, user: data.user };
       }
 
-      const user = data.user || data;
-
-      // If successful, update state
-      setCurrentUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('userId', user.id);
-
-      // Also sync to local mock DB for compatibility with other components
-      // This is a bridge until full refactor
-      userDB.users.set(user.id, user);
-
-      return { success: true, user };
+      return { success: false, message: 'Invalid response from server' };
     } catch (error) {
-      return { success: false, message: error.message };
+      return { success: false, message: error.message || 'Login failed' };
     }
   };
 
