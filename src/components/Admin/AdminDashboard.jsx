@@ -227,16 +227,16 @@ const AdminDashboard = () => {
         pharmacyOrders: allPharmacyOrders.map(o => ({
           ...o,
           id: o._id || o.id,
-          userName: o.user_name || 'User',
-          userEmail: o.user_email || 'No email',
+          userName: o.user_id?.name || o.user_name || 'User',
+          userEmail: o.user_id?.email || o.user_email || 'No email',
           total: o.total_amount || o.total,
           status: o.status || 'pending'
         })),
         labTestOrders: allLabTests.map(o => ({
           ...o,
           id: o._id || o.id,
-          userName: o.patient_name || 'Patient',
-          userEmail: o.user_email || 'No email',
+          userName: o.user_id?.name || o.patient_name || 'Patient',
+          userEmail: o.user_id?.email || o.user_email || 'No email',
           testName: o.product_name || o.test_name || 'Lab Test',
           total: o.total_amount || o.price,
           status: o.status || 'pending'
@@ -274,9 +274,9 @@ const AdminDashboard = () => {
   const handleFileUpload = async (e, orderId) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      // Lower limit to 3MB to fit within Vercel's 4.5MB serverless function payload limit (Base64 encoding adds ~33% overhead)
-      if (file.size > 3 * 1024 * 1024) {
-        alert('File size too large. Please upload an image under 3MB to ensure successful server processing.');
+      // Lower limit to 2MB to fit perfectly within Vercel's 4.5MB serverless function payload limit (Base64 encoding adds ~33% overhead)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size too large. Please upload an image under 2MB to ensure successful server processing.');
         return;
       }
 

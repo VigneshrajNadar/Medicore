@@ -595,7 +595,9 @@ app.get('/api/admin/lab-tests', authenticateToken, async (req, res) => {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ error: 'Admin access required' });
         }
-        const labTests = await LabTest.find().sort({ created_at: -1 });
+        const labTests = await LabTest.find()
+            .populate('user_id', 'name email')
+            .sort({ created_at: -1 });
         res.json(labTests);
     } catch (error) {
         console.error('Error fetching all lab tests:', error);
@@ -612,7 +614,8 @@ app.put('/api/lab-tests/:id', authenticateToken, async (req, res) => {
         // Prevent users from updating other users' tests unless admin (simplified check)
         // ideally detailed permission check here
 
-        const labTest = await LabTest.findByIdAndUpdate(id, updates, { new: true });
+        const labTest = await LabTest.findByIdAndUpdate(id, updates, { new: true })
+            .populate('user_id', 'name email');
 
         if (!labTest) {
             return res.status(404).json({ error: 'Lab test not found' });
@@ -638,7 +641,9 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
             return res.status(403).json({ error: 'Unauthorized' });
         }
 
-        const orders = await Order.find(query).sort({ created_at: -1 });
+        const orders = await Order.find(query)
+            .populate('user_id', 'name email')
+            .sort({ created_at: -1 });
         res.json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);
