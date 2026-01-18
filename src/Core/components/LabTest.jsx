@@ -710,10 +710,10 @@ const LabTest = () => {
           item_id: selectedTest?.id || Date.now(),
           product_name: selectedTest?.name,
           quantity: 1,
-          price: finalPrice
+          price: paymentData.amount // Use actual paid amount
         }],
-        total_amount: finalPrice,
-        savings: selectedTest?.price - finalPrice,
+        total_amount: paymentData.amount,
+        savings: paymentData.savings || 0,
         order_type: 'lab_test',
         patient_name: pendingBooking.name,
         scheduled_date: pendingBooking.date,
@@ -1109,9 +1109,9 @@ const LabTest = () => {
           setPendingBooking(null);
         }}
         orderData={{
-          total: calculateDiscountedPrice(selectedTest?.price || 0),
+          total: selectedTest?.price || 0,
           originalTotal: selectedTest?.price || 0,
-          discount: selectedTest?.price - calculateDiscountedPrice(selectedTest?.price || 0),
+          discount: 0, // Let PaymentModal calculate based on subscription
           orderType: 'lab_test',
           testName: selectedTest?.name,
           patientName: pendingBooking?.name

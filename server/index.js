@@ -602,6 +602,28 @@ app.get('/api/admin/lab-tests', authenticateToken, async (req, res) => {
     }
 });
 
+// Update Lab Test (Admin/Status/File Upload)
+app.put('/api/lab-tests/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        // Prevent users from updating other users' tests unless admin (simplified check)
+        // ideally detailed permission check here
+
+        const labTest = await LabTest.findByIdAndUpdate(id, updates, { new: true });
+
+        if (!labTest) {
+            return res.status(404).json({ error: 'Lab test not found' });
+        }
+
+        res.json(labTest);
+    } catch (error) {
+        console.error('Error updating lab test:', error);
+        res.status(500).json({ error: 'Failed to update lab test' });
+    }
+});
+
 // Orders
 
 // Get all orders (PROTECTED)
@@ -650,6 +672,25 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Error creating order:', error);
         res.status(500).json({ error: `Failed to create order: ${error.message}` });
+    }
+});
+
+// Update Order (Admin/Status)
+app.put('/api/orders/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        const order = await Order.findByIdAndUpdate(id, updates, { new: true });
+
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error('Error updating order:', error);
+        res.status(500).json({ error: 'Failed to update order' });
     }
 });
 

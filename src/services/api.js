@@ -493,6 +493,44 @@ export const bookLabTest = async (labTestData) => {
   }
 };
 
+export const updateLabTest = async (id, updateData) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/lab-tests/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(updateData)
+    });
+    if (!response.ok) throw new Error('Failed to update lab test');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating lab test:', error);
+    throw error;
+  }
+};
+
+export const updateOrder = async (id, updateData) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(updateData)
+    });
+    if (!response.ok) throw new Error('Failed to update order');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating order:', error);
+    throw error;
+  }
+};
+
 export default {
   getUsers,
   createUser,
@@ -516,5 +554,8 @@ export default {
   getLabTests,
   getAllLabTests,
   bookLabTest,
-  updateSubscription
+  bookLabTest,
+  updateSubscription,
+  updateLabTest,
+  updateOrder
 };

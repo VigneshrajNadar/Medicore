@@ -143,6 +143,13 @@ const AccountPage = () => {
     if (userId) {
       fetchAppointments();
       fetchOrders();
+
+      // Poll for order updates (real-time feel)
+      const interval = setInterval(() => {
+        fetchOrders();
+      }, 5000); // Check every 5 seconds
+
+      return () => clearInterval(interval);
     }
   }, [currentUser]);
 

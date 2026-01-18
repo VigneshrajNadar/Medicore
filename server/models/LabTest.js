@@ -13,7 +13,13 @@ const LabTestSchema = new mongoose.Schema({
     collection_address: String,
     total_amount: { type: Number, required: true },
     payment_status: { type: String, default: 'pending', enum: ['pending', 'paid', 'refunded'] },
-    payment_method: String
+    payment_method: String,
+    resultFile: {
+        name: String,
+        data: String,
+        type: String,
+        uploadDate: Date
+    }
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

@@ -255,57 +255,35 @@ const AdminDashboard = () => {
     }
   };
 
-  const updateOrderStatus = (orderId, newStatus, orderType) => {
-    // Update in both storage locations
-    const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-
-    // Update apolloUsers
-    Object.keys(apolloUsers).forEach(userId => {
-      if (apolloUsers[userId].orders) {
-        apolloUsers[userId].orders = apolloUsers[userId].orders.map(order => {
-          if (order.id === orderId && order.orderType === orderType) {
-            return { ...order, status: newStatus, lastUpdated: new Date().toISOString() };
-          }
-          return order;
-        });
+  const updateOrderStatus = async (orderId, newStatus, orderType) => {
+    try {
+      if (orderType === 'pharmacy') {
+        await api.updateOrder(orderId, { status: newStatus });
+        alert('Order updated successfully');
+      } else {
+        await api.updateLabTest(orderId, { status: newStatus });
+        alert('Lab Test updated successfully');
       }
-    });
-
-    // Update users array
-    const updatedUsers = users.map(user => {
-      if (user.orders) {
-        const updatedOrders = user.orders.map(order => {
-          if (order.id === orderId && order.orderType === orderType) {
-            return { ...order, status: newStatus, lastUpdated: new Date().toISOString() };
-          }
-          return order;
-        });
-        return { ...user, orders: updatedOrders };
-      }
-      return user;
-    });
-
-    localStorage.setItem('apolloUsers', JSON.stringify(apolloUsers));
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-    loadAdminData(); // Refresh data
+      loadAdminData();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status: ' + error.message);
+    }
   };
 
-  const handleFileUpload = (orderId, file) => {
+  const handleFileUpload = async (e, orderId) => {
+    const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      // Check file size (limit to 200KB for localStorage stability)
-      const maxSize = 200 * 1024; // 200KB
-      if (file.size > maxSize) {
-        alert('File too large! Please upload an image smaller than 200KB.');
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size too large. Please upload an image under 5MB.');
         return;
       }
 
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = async function (e) {
         try {
           const base64Data = e.target.result;
 
-          // Create result file object with metadata
           const resultFile = {
             name: file.name,
             size: file.size,
@@ -314,85 +292,14 @@ const AdminDashboard = () => {
             type: file.type
           };
 
-          // Get fresh data from localStorage every time
-          let apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
-          let users = JSON.parse(localStorage.getItem('users') || '[]');
-
-          let orderFound = false;
-
-          // Update in apolloUsers first
-          Object.keys(apolloUsers).forEach(userId => {
-            if (apolloUsers[userId].orders) {
-              apolloUsers[userId].orders = apolloUsers[userId].orders.map(order => {
-                if (order.id === orderId && order.orderType === 'lab_test') {
-                  orderFound = true;
-                  console.log('Updating order in apolloUsers:', orderId);
-                  return {
-                    ...order,
-                    status: 'completed',
-                    resultFile,
-                    lastUpdated: new Date().toISOString()
-                  };
-                }
-                return order;
-              });
-            }
+          await api.updateLabTest(orderId, {
+            status: 'completed',
+            resultFile
           });
 
-          // Update in users array
-          users = users.map(user => {
-            if (user.orders) {
-              user.orders = user.orders.map(order => {
-                if (order.id === orderId && order.orderType === 'lab_test') {
-                  orderFound = true;
-                  console.log('Updating order in users:', orderId);
-                  return {
-                    ...order,
-                    status: 'completed',
-                    resultFile,
-                    lastUpdated: new Date().toISOString()
-                  };
-                }
-                return order;
-              });
-            }
-            return user;
-          });
-
-          if (!orderFound) {
-            alert('Error: Lab test order not found with ID: ' + orderId);
-            console.error('Order not found:', orderId);
-            return;
-          }
-
-          // Save both storage locations with error handling
-          try {
-            localStorage.setItem('apolloUsers', JSON.stringify(apolloUsers));
-            localStorage.setItem('users', JSON.stringify(users));
-
-            console.log('Successfully saved to localStorage');
-            console.log('apolloUsers updated:', apolloUsers);
-            console.log('users updated:', users);
-
-            // Clear the uploaded file state
-            setUploadedFile({});
-
-            // Reload admin data to show changes
-            setTimeout(() => {
-              loadAdminData();
-            }, 100);
-
-            alert('Lab test result uploaded successfully!');
-
-          } catch (storageError) {
-            console.error('Storage error:', storageError);
-            if (storageError.name === 'QuotaExceededError') {
-              alert('Storage quota exceeded! Please clear some data first.');
-            } else {
-              alert('Error saving file: ' + storageError.message);
-            }
-          }
-
+          setUploadedFile({});
+          loadAdminData();
+          alert('Lab test result uploaded successfully!');
         } catch (error) {
           console.error('File processing error:', error);
           alert('Error processing file: ' + error.message);

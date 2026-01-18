@@ -16,11 +16,13 @@
 .payment-modal {
   background: white;
   border-radius: 20px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
+  width: 95%;
+  max-width: 1200px;
+  height: 95vh;
   overflow-y: auto;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
   position: relative;
 }
 
@@ -105,6 +107,7 @@
   border-top: 2px solid #3b82f6;
   margin-top: 10px;
 }
+
 .summary-row.discount-row {
   background: linear-gradient(135deg, #02475b15 0%, #0087ba15 100%);
   padding: 10px 12px;
@@ -299,7 +302,8 @@
   gap: 15px;
 }
 
-.card-input, .upi-input {
+.card-input,
+.upi-input {
   width: 100%;
   padding: 12px 15px;
   border: 2px solid #e1e5e9;
@@ -309,7 +313,8 @@
   background: white;
 }
 
-.card-input:focus, .upi-input:focus {
+.card-input:focus,
+.upi-input:focus {
   outline: none;
   border-color: #0087ba;
   box-shadow: 0 0 0 3px rgba(0, 135, 186, 0.1);
@@ -453,7 +458,8 @@
   padding: 0 30px 25px;
 }
 
-.cancel-btn, .pay-btn {
+.cancel-btn,
+.pay-btn {
   flex: 1;
   padding: 15px;
   border: none;
@@ -505,8 +511,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .security-info {
@@ -528,7 +539,7 @@
     margin: 10px;
     max-width: none;
   }
-  
+
   .payment-header,
   .order-summary,
   .payment-methods,
@@ -537,20 +548,20 @@
     padding-left: 20px;
     padding-right: 20px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .upi-app-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .cod-info {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .payment-actions {
     flex-direction: column;
   }
@@ -568,7 +579,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20000; /* Higher than modal overlay */
+  z-index: 20000;
+  /* Higher than modal overlay */
 }
 
 .processing-content {

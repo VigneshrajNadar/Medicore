@@ -71,6 +71,9 @@ const PaymentModal = ({
   };
 
   const calculateDelivery = () => {
+    // No delivery charge for lab tests
+    if (orderData.orderType === 'lab_test') return 0;
+
     const subtotal = parseFloat(calculateSubtotal());
     const discount = parseFloat(calculateSubscriptionDiscount());
     const afterDiscount = subtotal - discount;
@@ -181,7 +184,10 @@ const PaymentModal = ({
           await onPaymentSuccess({
             method: selectedMethod,
             transactionId: `TXN${Date.now()}`,
-            amount: calculateTotal()
+            amount: calculateTotal(),
+            savings: calculateSubscriptionDiscount(),
+            discountPercent: getSubscriptionDiscountPercent(),
+            subtotal: calculateSubtotal()
           });
 
           setIsProcessing(false);
