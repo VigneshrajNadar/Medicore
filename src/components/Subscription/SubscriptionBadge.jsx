@@ -11,7 +11,7 @@ const SubscriptionBadge = ({ showDetails = false, inline = false }) => {
 
   useEffect(() => {
     const subData = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
-    if (subData && subData.status === 'active') {
+    if (subData && (subData.status === 'active' || subData.planName)) {
       setSubscription(subData);
     } else {
       setSubscription(null);
@@ -23,8 +23,10 @@ const SubscriptionBadge = ({ showDetails = false, inline = false }) => {
   }
 
   const getDaysRemaining = () => {
+    if (!subscription || !subscription.endDate) return 0;
     const endDate = new Date(subscription.endDate);
     const today = new Date();
+    if (isNaN(endDate.getTime())) return 0;
     const diffTime = endDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 0;

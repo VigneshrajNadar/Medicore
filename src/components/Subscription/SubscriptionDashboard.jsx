@@ -19,7 +19,7 @@ const SubscriptionDashboard = () => {
   useEffect(() => {
     // Load subscription data
     const subData = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
-    if (subData) {
+    if (subData && subData.status === 'active') {
       setSubscription(subData);
       loadTransactions(subData);
       loadNotifications(subData);
@@ -151,93 +151,66 @@ const SubscriptionDashboard = () => {
 
   };
 
-  const calculateRealUsage = (subData) => {
-    // Initialize sample data if not exists
-    initializeSampleData(subData);
+  const calculateRealUsage = async (subData) => {
+    try {
+      if (!subData || !currentUser) return;
 
-    // Calculate real usage based on user activity
-    const cart = JSON.parse(localStorage.getItem('pharmacy_cart')) || [];
-    const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
-    const labTestHistory = JSON.parse(localStorage.getItem('labTestHistory')) || [];
+      const userId = currentUser.id || currentUser._id;
+      const [orders, labTests] = await Promise.all([
+        api.getOrders(userId),
+        api.getLabTests(userId)
+      ]);
 
-    // Calculate medicine orders since subscription start
-    const subscriptionStartDate = new Date(subData.startDate);
-    const currentDate = new Date();
+      const subscriptionStartDate = new Date(subData.startDate || Date.now());
+      const currentDate = new Date();
 
-    // Validate dates
-    if (isNaN(subscriptionStartDate.getTime())) {
-      console.warn('Invalid subscription start date, using current date');
-      subscriptionStartDate.setTime(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+      // Filter activities since subscription started
+      const ordersSinceSub = orders.filter(order => {
+        const orderDate = new Date(order.created_at || order.date);
+        return orderDate >= subscriptionStartDate;
+      });
+
+      const testsSinceSub = labTests.filter(test => {
+        const testDate = new Date(test.created_at || test.test_date);
+        return testDate >= subscriptionStartDate;
+      });
+
+      // Calculate savings (estimate)
+      const discountPercent = subData.planId === 'elite' ? 0.25 : subData.planId === 'premium' ? 0.15 : 0.05;
+
+      const orderSavings = ordersSinceSub.reduce((sum, order) => {
+        const total = parseFloat(order.total_amount || order.total) || 0;
+        return sum + (total * discountPercent);
+      }, 0);
+
+      const testSavings = testsSinceSub.reduce((sum, test) => {
+        const total = parseFloat(test.total_amount || test.price) || 0;
+        return sum + (total * discountPercent);
+      }, 0);
+
+      setUsage({
+        medicineOrders: ordersSinceSub.length + testsSinceSub.length,
+        totalSavings: Math.floor(orderSavings + testSavings),
+        labTests: testsSinceSub.length
+      });
+    } catch (error) {
+      console.error('Error calculating usage:', error);
     }
-
-    // Filter orders since subscription started
-    const ordersThisMonth = orderHistory.filter(order => {
-      const orderDate = new Date(order.date);
-      return !isNaN(orderDate.getTime()) && orderDate >= subscriptionStartDate && orderDate <= currentDate;
-    });
-
-    // Calculate total savings from medicine orders (assuming 15% average discount for subscribers)
-    const totalOrderValue = ordersThisMonth.reduce((sum, order) => {
-      const orderTotal = parseFloat(order.total) || 0;
-      return sum + orderTotal;
-    }, 0);
-    const medicineOrderSavings = Math.floor(totalOrderValue * 0.15) || 0;
-
-    // Calculate lab test savings (assuming 20% discount for subscribers)
-    const labTestsForSavings = labTestHistory.filter(test => {
-      const testDate = new Date(test.date);
-      return !isNaN(testDate.getTime()) && testDate >= subscriptionStartDate && testDate <= currentDate;
-    });
-    const totalLabTestValue = labTestsForSavings.reduce((sum, test) => {
-      const testPrice = parseFloat(test.price) || 0;
-      return sum + testPrice;
-    }, 0);
-    const labTestSavings = Math.floor(totalLabTestValue * 0.20) || 0;
-
-    // Combined savings with fallback
-    const estimatedSavings = (medicineOrderSavings || 0) + (labTestSavings || 0);
-
-    // Count lab tests
-    const labTestsThisMonth = labTestHistory.filter(test => {
-      const testDate = new Date(test.date);
-      return !isNaN(testDate.getTime()) && testDate >= subscriptionStartDate && testDate <= currentDate;
-    }).length;
-
-    // Add current cart items to medicine orders
-    const cartItemsCount = cart.length || 0;
-    const cartSavings = cartItemsCount * 50;
-
-    // Final calculations with proper fallbacks
-    const finalTotalSavings = estimatedSavings + cartSavings;
-    const finalMedicineOrders = ordersThisMonth.length + labTestsThisMonth + (cartItemsCount > 0 ? 1 : 0);
-
-    // Debug logging
-    console.log('Subscription calculation debug:', {
-      medicineOrderSavings,
-      labTestSavings,
-      cartSavings,
-      estimatedSavings,
-      finalTotalSavings,
-      totalOrderValue,
-      totalLabTestValue
-    });
-
-    setUsage({
-      medicineOrders: finalMedicineOrders || 0,
-      totalSavings: isNaN(finalTotalSavings) ? 0 : finalTotalSavings,
-      labTests: labTestsThisMonth || 0
-    });
   };
 
   const loadTransactions = (subData) => {
+    if (!subData || !subData.startDate) {
+      setTransactions([]);
+      return;
+    }
     // Simulate transaction history
     const txns = [
       {
-        id: subData.transactionId,
+        id: subData.transactionId || 'TXN' + Date.now(),
         date: subData.startDate,
-        amount: subData.amount,
+        amount: subData.amount || 0,
         status: 'success',
-        description: `${subData.planName} - ${subData.billingCycle} subscription`
+        description: `${subData.planName || 'Plan'} - ${subData.billingCycle || 'Active'} subscription`
       }
     ];
     setTransactions(txns);
@@ -403,9 +376,10 @@ const SubscriptionDashboard = () => {
   };
 
   const getDaysRemaining = () => {
-    if (!subscription) return 0;
+    if (!subscription || !subscription.endDate) return 0;
     const endDate = new Date(subscription.endDate);
     const today = new Date();
+    if (isNaN(endDate.getTime())) return 0;
     const diffTime = endDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 0;
@@ -505,11 +479,11 @@ const SubscriptionDashboard = () => {
             </div>
             <div className="detail-row">
               <span>Start Date:</span>
-              <strong>{new Date(subscription.startDate).toLocaleDateString()}</strong>
+              <strong>{subscription.startDate ? new Date(subscription.startDate).toLocaleDateString() : 'N/A'}</strong>
             </div>
             <div className="detail-row">
               <span>Next Billing:</span>
-              <strong>{new Date(subscription.endDate).toLocaleDateString()}</strong>
+              <strong>{subscription.endDate ? new Date(subscription.endDate).toLocaleDateString() : 'N/A'}</strong>
             </div>
             <div className="detail-row">
               <span>Payment Method:</span>
@@ -586,8 +560,8 @@ const SubscriptionDashboard = () => {
                 </div>
                 <div className="txn-details">
                   <strong>{txn.description}</strong>
-                  <p>{new Date(txn.date).toLocaleDateString()}</p>
-                  <span className="txn-id">ID: {txn.id}</span>
+                  <p>{txn.date ? new Date(txn.date).toLocaleDateString() : 'N/A'}</p>
+                  <span className="txn-id">ID: {txn.id || 'N/A'}</span>
                 </div>
                 <div className="txn-amount">
                   <strong>₹{txn.amount}</strong>

@@ -604,13 +604,21 @@ const LabTest = () => {
   };
 
   const getSubscriptionDiscount = () => {
-    const subscription = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
+    let subscription = currentUser?.subscription;
+
+    // If currentUser.subscription is empty or missing, try fallback
+    if (!subscription || Object.keys(subscription).length === 0) {
+      subscription = JSON.parse(localStorage.getItem('userSubscription'));
+    }
+
     if (!subscription || subscription.status !== 'active') return 0;
+    if (subscription.endDate && new Date(subscription.endDate) < new Date()) return 0;
 
     // Discount based on plan
-    if (subscription.planId === 'basic') return 0.05; // 5%
-    if (subscription.planId === 'premium') return 0.15; // 15%
-    if (subscription.planId === 'elite') return 0.25; // 25%
+    const planId = (subscription.planId || '').toLowerCase();
+    if (planId === 'basic') return 0.05; // 5%
+    if (planId === 'premium') return 0.15; // 15%
+    if (planId === 'elite') return 0.25; // 25%
     return 0;
   };
 

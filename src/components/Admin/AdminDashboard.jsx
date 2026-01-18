@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  FaUsers, 
-  FaShoppingCart, 
-  FaBoxOpen, 
+import {
+  FaUsers,
+  FaShoppingCart,
+  FaBoxOpen,
   FaFlask,
   FaDollarSign,
   FaCalendarDay,
@@ -32,11 +32,12 @@ import {
 } from 'react-icons/fa';
 import StorageManager from '../../utils/storageManager';
 import MedicineManagement from './MedicineManagement';
+import * as api from '../../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  
+
   // MediCore Logo Component
   const MediCoreLogo = () => (
     <div className="medicore-logo">
@@ -77,7 +78,7 @@ const AdminDashboard = () => {
 
   const loadInventoryItems = () => {
     const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-    
+
     // Add sample data if inventory is empty
     if (inventory.length === 0) {
       const sampleItems = [
@@ -143,7 +144,7 @@ const AdminDashboard = () => {
       loadStats();
     }
   };
-  
+
   const handleEditItem = (item) => {
     setEditingItem(item);
     setNewItem({
@@ -154,12 +155,12 @@ const AdminDashboard = () => {
     });
     setShowAddForm(true);
   };
-  
+
   const handleUpdateItem = () => {
     if (newItem.name && newItem.category && newItem.price && newItem.stock) {
       const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-      const updatedInventory = inventory.map(item => 
-        item.id === editingItem.id 
+      const updatedInventory = inventory.map(item =>
+        item.id === editingItem.id
           ? { ...item, ...newItem, price: parseFloat(newItem.price), stock: parseInt(newItem.stock) }
           : item
       );
@@ -171,7 +172,7 @@ const AdminDashboard = () => {
       loadStats();
     }
   };
-  
+
   const handleDeleteItem = (itemId) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
@@ -182,80 +183,83 @@ const AdminDashboard = () => {
     }
   };
 
-  const loadAdminData = () => {
-    // Load user data from multiple sources
-    const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
-    // Combine users from both sources
-    const allUsers = [...users];
-    Object.values(apolloUsers).forEach(user => {
-      if (!allUsers.find(u => u.id === user.id)) {
-        allUsers.push(user);
-      }
-    });
-    
-    // Get all orders from all users
-    const allPharmacyOrders = [];
-    const allLabTestOrders = [];
-    let totalRevenue = 0;
-    let monthlyRevenue = 0;
-    let todayOrders = 0;
-    
-    const today = new Date().toDateString();
-    const thisMonth = new Date().getMonth();
-    
-    allUsers.forEach(user => {
-      if (user.orders) {
-        user.orders.forEach(order => {
-          const orderDate = new Date(order.date || order.createdAt || Date.now());
-          const orderTotal = parseFloat(order.total) || 0;
-          
-          totalRevenue += orderTotal;
-          
-          if (orderDate.getMonth() === thisMonth) {
-            monthlyRevenue += orderTotal;
-          }
-          
-          if (orderDate.toDateString() === today) {
-            todayOrders++;
-          }
-          
-          if (order.orderType === 'pharmacy') {
-            allPharmacyOrders.push({
-              ...order,
-              userName: user.name,
-              userEmail: user.email,
-              userId: user.id
-            });
-          } else if (order.orderType === 'lab_test') {
-            allLabTestOrders.push({
-              ...order,
-              userName: user.name,
-              userEmail: user.email,
-              userId: user.id
-            });
-          }
-        });
-      }
-    });
+  const loadAdminData = async () => {
+    try {
+      // Fetch data from real API
+      const [users, allOrders, allLabTests] = await Promise.all([
+        api.getUsers(),
+        api.getAllOrders(),
+        api.getAllLabTests()
+      ]);
 
-    setStats({
-      totalUsers: allUsers.length,
-      pharmacyOrders: allPharmacyOrders,
-      labTestOrders: allLabTestOrders,
-      totalProducts: 10000,
-      totalRevenue,
-      monthlyRevenue,
-      todayOrders
-    });
+      const allPharmacyOrders = allOrders.filter(o => o.order_type === 'pharmacy' || o.orderType === 'pharmacy');
+      const pharmacyLabTests = allLabTests;
+
+      let totalRevenue = 0;
+      let monthlyRevenue = 0;
+      let todayOrders = 0;
+
+      const today = new Date().toDateString();
+      const thisMonth = new Date().getMonth();
+
+      // Process orders for revenue
+      allOrders.forEach(order => {
+        const orderDate = new Date(order.created_at || order.date || order.createdAt);
+        const orderTotal = parseFloat(order.total_amount || order.total) || 0;
+
+        totalRevenue += orderTotal;
+        if (orderDate.getMonth() === thisMonth) monthlyRevenue += orderTotal;
+        if (orderDate.toDateString() === today) todayOrders++;
+      });
+
+      // Process lab tests for revenue
+      allLabTests.forEach(test => {
+        const testDate = new Date(test.created_at || test.test_date || test.date);
+        const testTotal = parseFloat(test.total_amount || test.price) || 0;
+
+        totalRevenue += testTotal;
+        if (testDate.getMonth() === thisMonth) monthlyRevenue += testTotal;
+        if (testDate.toDateString() === today) todayOrders++;
+      });
+
+      setStats({
+        totalUsers: users.length,
+        pharmacyOrders: allPharmacyOrders.map(o => ({
+          ...o,
+          id: o._id || o.id,
+          userName: o.user_name || 'User',
+          userEmail: o.user_email || 'No email',
+          total: o.total_amount || o.total,
+          status: o.status || 'pending'
+        })),
+        labTestOrders: allLabTests.map(o => ({
+          ...o,
+          id: o._id || o.id,
+          userName: o.patient_name || 'Patient',
+          userEmail: o.user_email || 'No email',
+          testName: o.product_name || o.test_name || 'Lab Test',
+          total: o.total_amount || o.price,
+          status: o.status || 'pending'
+        })),
+        totalProducts: 10000,
+        totalRevenue,
+        monthlyRevenue,
+        todayOrders,
+        allUsers: users
+      });
+    } catch (error) {
+      console.error('Error loading admin data:', error);
+      // Fallback logic for demo
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      setStats(prev => ({ ...prev, totalUsers: users.length }));
+    }
   };
 
   const updateOrderStatus = (orderId, newStatus, orderType) => {
     // Update in both storage locations
     const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
+
     // Update apolloUsers
     Object.keys(apolloUsers).forEach(userId => {
       if (apolloUsers[userId].orders) {
@@ -267,7 +271,7 @@ const AdminDashboard = () => {
         });
       }
     });
-    
+
     // Update users array
     const updatedUsers = users.map(user => {
       if (user.orders) {
@@ -297,10 +301,10 @@ const AdminDashboard = () => {
       }
 
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         try {
           const base64Data = e.target.result;
-          
+
           // Create result file object with metadata
           const resultFile = {
             name: file.name,
@@ -309,13 +313,13 @@ const AdminDashboard = () => {
             data: base64Data,
             type: file.type
           };
-        
+
           // Get fresh data from localStorage every time
           let apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
           let users = JSON.parse(localStorage.getItem('users') || '[]');
-          
+
           let orderFound = false;
-          
+
           // Update in apolloUsers first
           Object.keys(apolloUsers).forEach(userId => {
             if (apolloUsers[userId].orders) {
@@ -323,8 +327,8 @@ const AdminDashboard = () => {
                 if (order.id === orderId && order.orderType === 'lab_test') {
                   orderFound = true;
                   console.log('Updating order in apolloUsers:', orderId);
-                  return { 
-                    ...order, 
+                  return {
+                    ...order,
                     status: 'completed',
                     resultFile,
                     lastUpdated: new Date().toISOString()
@@ -334,7 +338,7 @@ const AdminDashboard = () => {
               });
             }
           });
-          
+
           // Update in users array
           users = users.map(user => {
             if (user.orders) {
@@ -342,8 +346,8 @@ const AdminDashboard = () => {
                 if (order.id === orderId && order.orderType === 'lab_test') {
                   orderFound = true;
                   console.log('Updating order in users:', orderId);
-                  return { 
-                    ...order, 
+                  return {
+                    ...order,
                     status: 'completed',
                     resultFile,
                     lastUpdated: new Date().toISOString()
@@ -365,21 +369,21 @@ const AdminDashboard = () => {
           try {
             localStorage.setItem('apolloUsers', JSON.stringify(apolloUsers));
             localStorage.setItem('users', JSON.stringify(users));
-            
+
             console.log('Successfully saved to localStorage');
             console.log('apolloUsers updated:', apolloUsers);
             console.log('users updated:', users);
-            
+
             // Clear the uploaded file state
             setUploadedFile({});
-            
+
             // Reload admin data to show changes
             setTimeout(() => {
               loadAdminData();
             }, 100);
-            
+
             alert('Lab test result uploaded successfully!');
-            
+
           } catch (storageError) {
             console.error('Storage error:', storageError);
             if (storageError.name === 'QuotaExceededError') {
@@ -388,13 +392,13 @@ const AdminDashboard = () => {
               alert('Error saving file: ' + storageError.message);
             }
           }
-          
+
         } catch (error) {
           console.error('File processing error:', error);
           alert('Error processing file: ' + error.message);
         }
       };
-      
+
       reader.readAsDataURL(file);
     } else {
       alert('Please upload an image file only (JPG, PNG, GIF, etc.)');
@@ -425,15 +429,15 @@ const AdminDashboard = () => {
   const getAllUsers = () => {
     const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
+
     const allUsers = [...users];
     Object.values(apolloUsers).forEach(user => {
       if (!allUsers.find(u => u.id === user.id)) {
         allUsers.push(user);
       }
     });
-    
-    return allUsers.filter(user => 
+
+    return allUsers.filter(user =>
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -442,12 +446,12 @@ const AdminDashboard = () => {
   const toggleUserStatus = (userId) => {
     const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
+
     // Update in apolloUsers
     if (apolloUsers[userId]) {
       apolloUsers[userId].isActive = !apolloUsers[userId].isActive;
     }
-    
+
     // Update in users array
     const updatedUsers = users.map(user => {
       if (user.id === userId) {
@@ -465,10 +469,10 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
       const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
+
       // Remove from apolloUsers
       delete apolloUsers[userId];
-      
+
       // Remove from users array
       const updatedUsers = users.filter(user => user.id !== userId);
 
@@ -490,17 +494,17 @@ const AdminDashboard = () => {
     const today = new Date();
     const last7Days = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
     const last30Days = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-    
+
     const allOrders = [...stats.pharmacyOrders, ...stats.labTestOrders];
-    
-    const last7DaysOrders = allOrders.filter(order => 
+
+    const last7DaysOrders = allOrders.filter(order =>
       new Date(order.date || order.createdAt) >= last7Days
     );
-    
-    const last30DaysOrders = allOrders.filter(order => 
+
+    const last30DaysOrders = allOrders.filter(order =>
       new Date(order.date || order.createdAt) >= last30Days
     );
-    
+
     return {
       totalOrdersLast7Days: last7DaysOrders.length,
       totalOrdersLast30Days: last30DaysOrders.length,
@@ -518,7 +522,7 @@ const AdminDashboard = () => {
   const renderOverview = () => (
     <div className="admin-overview">
       <div className="stats-grid">
-        <motion.div 
+        <motion.div
           className="stat-card revenue"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -530,7 +534,7 @@ const AdminDashboard = () => {
           <div className="stat-trend">+12% from last month</div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card monthly"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -542,7 +546,7 @@ const AdminDashboard = () => {
           <div className="stat-trend">+8% from last month</div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card users"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -554,7 +558,7 @@ const AdminDashboard = () => {
           <div className="stat-trend">+{stats.todayOrders} today</div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card orders"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -566,7 +570,7 @@ const AdminDashboard = () => {
           <div className="stat-trend">{stats.todayOrders} today</div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card lab"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -578,7 +582,7 @@ const AdminDashboard = () => {
           <div className="stat-trend">{stats.labTestOrders.filter(o => o.status === 'completed').length} completed</div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card products"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -590,9 +594,9 @@ const AdminDashboard = () => {
           <div className="stat-trend">12 categories</div>
         </motion.div>
       </div>
-      
+
       <div className="analytics-section">
-        <motion.div 
+        <motion.div
           className="analytics-card"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -627,7 +631,7 @@ const AdminDashboard = () => {
       <h3>Pharmacy Orders Management</h3>
       <div className="orders-list">
         {stats.pharmacyOrders.map((order, index) => (
-          <motion.div 
+          <motion.div
             key={order.id}
             className="order-card"
             initial={{ opacity: 0, x: -20 }}
@@ -642,7 +646,7 @@ const AdminDashboard = () => {
                 <p>Total: ₹{order.total}</p>
               </div>
               <div className="order-status">
-                <span 
+                <span
                   className="status-badge"
                   style={{ backgroundColor: getStatusColor(order.status) }}
                 >
@@ -650,9 +654,9 @@ const AdminDashboard = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="order-actions">
-              <select 
+              <select
                 value={order.status}
                 onChange={(e) => updateOrderStatus(order.id, e.target.value, 'pharmacy')}
                 className="status-select"
@@ -686,7 +690,7 @@ const AdminDashboard = () => {
       <h3>Lab Test Orders Management</h3>
       <div className="orders-list">
         {stats.labTestOrders.map((order, index) => (
-          <motion.div 
+          <motion.div
             key={order.id}
             className="order-card"
             initial={{ opacity: 0, x: -20 }}
@@ -702,7 +706,7 @@ const AdminDashboard = () => {
                 <p>Total: ₹{order.total}</p>
               </div>
               <div className="order-status">
-                <span 
+                <span
                   className="status-badge"
                   style={{ backgroundColor: getStatusColor(order.status) }}
                 >
@@ -710,9 +714,9 @@ const AdminDashboard = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="order-actions">
-              <select 
+              <select
                 value={order.status}
                 onChange={(e) => updateOrderStatus(order.id, e.target.value, 'lab_test')}
                 className="status-select"
@@ -723,48 +727,48 @@ const AdminDashboard = () => {
                 <option value="tested">Sample Tested</option>
                 <option value="completed">Results Available</option>
               </select>
-              
-              
-              <div className="file-upload-section" style={{display: 'block', backgroundColor: '#f8fafc', padding: '15px', margin: '10px 0', border: '2px dashed #e2e8f0', borderRadius: '8px'}}>
-                <h4 style={{color: '#1e293b', margin: '0 0 15px 0'}}>📋 Upload Lab Test Results Image (Status: {order.status}) {order.resultFile ? '✅ Already Uploaded' : '⏳ Ready for Upload'}</h4>
+
+
+              <div className="file-upload-section" style={{ display: 'block', backgroundColor: '#f8fafc', padding: '15px', margin: '10px 0', border: '2px dashed #e2e8f0', borderRadius: '8px' }}>
+                <h4 style={{ color: '#1e293b', margin: '0 0 15px 0' }}>📋 Upload Lab Test Results Image (Status: {order.status}) {order.resultFile ? '✅ Already Uploaded' : '⏳ Ready for Upload'}</h4>
                 {!order.resultFile && (
                   <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setUploadedFile({...uploadedFile, [order.id]: e.target.files[0]})}
-                  className="file-input"
-                  id={`file-${order.id}`}
-                />
-                <label htmlFor={`file-${order.id}`} className="file-label">
-                  <FaUpload /> Choose Image File
-                </label>
-                {uploadedFile[order.id] && (
-                  <div className="upload-preview">
-                    <p>📄 Selected: {uploadedFile[order.id].name}</p>
-                    <button 
-                      onClick={() => handleFileUpload(order.id, uploadedFile[order.id])}
-                      className="upload-btn"
-                    >
-                      <FaUpload /> Upload Image
-                    </button>
-                  </div>
-                )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setUploadedFile({ ...uploadedFile, [order.id]: e.target.files[0] })}
+                      className="file-input"
+                      id={`file-${order.id}`}
+                    />
+                    <label htmlFor={`file-${order.id}`} className="file-label">
+                      <FaUpload /> Choose Image File
+                    </label>
+                    {uploadedFile[order.id] && (
+                      <div className="upload-preview">
+                        <p>📄 Selected: {uploadedFile[order.id].name}</p>
+                        <button
+                          onClick={() => handleFileUpload(order.id, uploadedFile[order.id])}
+                          className="upload-btn"
+                        >
+                          <FaUpload /> Upload Image
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
                 {order.resultFile && (
-                  <div style={{marginTop: '10px', padding: '10px', backgroundColor: '#f0fdf4', borderRadius: '6px'}}>
-                    <p style={{margin: 0, color: '#166534', fontWeight: '500'}}>✅ Image Already Uploaded: {order.resultFile.name}</p>
+                  <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0fdf4', borderRadius: '6px' }}>
+                    <p style={{ margin: 0, color: '#166534', fontWeight: '500' }}>✅ Image Already Uploaded: {order.resultFile.name}</p>
                   </div>
                 )}
               </div>
-              
+
               {order.status === 'completed' && order.resultFile && (
                 <div className="result-file-info">
                   <h4>✅ Results Uploaded</h4>
                   <p>🖼️ Image: {order.resultFile.name}</p>
                   <p>📅 Uploaded: {new Date(order.resultFile.uploadDate).toLocaleDateString()}</p>
-                  <button 
+                  <button
                     onClick={() => {
                       const link = document.createElement('a');
                       link.href = order.resultFile.data;
@@ -777,7 +781,7 @@ const AdminDashboard = () => {
                   </button>
                 </div>
               )}
-              
+
               {order.resultFile && (
                 <div className="result-file-info">
                   <FaCheckCircle className="success-icon" />
@@ -808,10 +812,10 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="users-grid">
         {getAllUsers().map((user, index) => (
-          <motion.div 
+          <motion.div
             key={user.id}
             className="user-card"
             initial={{ opacity: 0, x: -20 }}
@@ -826,7 +830,7 @@ const AdminDashboard = () => {
                 <p>Joined: {new Date(user.createdAt || Date.now()).toLocaleDateString()}</p>
               </div>
               <div className="user-status">
-                <span 
+                <span
                   className={`status-badge ${user.isActive !== false ? 'active' : 'inactive'}`}
                   style={{ backgroundColor: user.isActive !== false ? '#10b981' : '#ef4444' }}
                 >
@@ -834,16 +838,16 @@ const AdminDashboard = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="user-actions">
-              <button 
+              <button
                 onClick={() => toggleUserStatus(user.id)}
                 className={`action-btn ${user.isActive !== false ? 'ban' : 'activate'}`}
               >
                 {user.isActive !== false ? <FaBan /> : <FaUserCheck />}
                 {user.isActive !== false ? 'Deactivate' : 'Activate'}
               </button>
-              <button 
+              <button
                 onClick={() => deleteUser(user.id)}
                 className="action-btn delete"
               >
@@ -859,13 +863,13 @@ const AdminDashboard = () => {
   // Advanced Analytics Component
   const renderAnalytics = () => {
     const analyticsData = getAnalyticsData();
-    
+
     return (
       <div className="analytics-section">
         <h3><FaChartBar /> Advanced Analytics & Reports</h3>
-        
+
         <div className="analytics-grid-advanced">
-          <motion.div 
+          <motion.div
             className="analytics-card-large"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -889,7 +893,7 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="analytics-card-large"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -909,7 +913,7 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="analytics-card-large"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -921,8 +925,8 @@ const AdminDashboard = () => {
                 <span className="status-label">Pending</span>
                 <span className="status-count">{analyticsData.orderStatusBreakdown.pending}</span>
                 <div className="status-bar">
-                  <div 
-                    className="status-fill pending" 
+                  <div
+                    className="status-fill pending"
                     style={{ width: `${(analyticsData.orderStatusBreakdown.pending / (stats.pharmacyOrders.length + stats.labTestOrders.length)) * 100}%` }}
                   ></div>
                 </div>
@@ -931,8 +935,8 @@ const AdminDashboard = () => {
                 <span className="status-label">Confirmed</span>
                 <span className="status-count">{analyticsData.orderStatusBreakdown.confirmed}</span>
                 <div className="status-bar">
-                  <div 
-                    className="status-fill confirmed" 
+                  <div
+                    className="status-fill confirmed"
                     style={{ width: `${(analyticsData.orderStatusBreakdown.confirmed / (stats.pharmacyOrders.length + stats.labTestOrders.length)) * 100}%` }}
                   ></div>
                 </div>
@@ -941,8 +945,8 @@ const AdminDashboard = () => {
                 <span className="status-label">Completed</span>
                 <span className="status-count">{analyticsData.orderStatusBreakdown.completed}</span>
                 <div className="status-bar">
-                  <div 
-                    className="status-fill completed" 
+                  <div
+                    className="status-fill completed"
                     style={{ width: `${(analyticsData.orderStatusBreakdown.completed / (stats.pharmacyOrders.length + stats.labTestOrders.length)) * 100}%` }}
                   ></div>
                 </div>
@@ -976,228 +980,228 @@ const AdminDashboard = () => {
       const matchesCategory = filterCategory === '' || item.category === filterCategory;
       return matchesSearch && matchesCategory;
     });
-    
+
     return (
-    <div className="inventory-section">
-      <div className="section-header">
-        <h3><FaWarehouse /> Inventory Management</h3>
-        <button className="add-item-btn" onClick={() => setShowAddForm(!showAddForm)}>
-          <FaPlus /> Add New Item
-        </button>
-      </div>
-      
-      {showAddForm && (
-        <motion.div 
-          className="add-item-form"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h4>{editingItem ? 'Edit Product' : 'Add New Product'}</h4>
-          <div className="form-grid">
+      <div className="inventory-section">
+        <div className="section-header">
+          <h3><FaWarehouse /> Inventory Management</h3>
+          <button className="add-item-btn" onClick={() => setShowAddForm(!showAddForm)}>
+            <FaPlus /> Add New Item
+          </button>
+        </div>
+
+        {showAddForm && (
+          <motion.div
+            className="add-item-form"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h4>{editingItem ? 'Edit Product' : 'Add New Product'}</h4>
+            <div className="form-grid">
+              <input
+                type="text"
+                placeholder="Product Name"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+              />
+              <select
+                value={newItem.category}
+                onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+              >
+                <option value="">Select Category</option>
+                <option value="Prescription Medicines">Prescription Medicines</option>
+                <option value="OTC Medicines">OTC Medicines</option>
+                <option value="Vitamins & Supplements">Vitamins & Supplements</option>
+                <option value="Personal Care">Personal Care</option>
+                <option value="Baby & Mother Care">Baby & Mother Care</option>
+                <option value="Ayurvedic & Herbal">Ayurvedic & Herbal</option>
+                <option value="Health Devices">Health Devices</option>
+                <option value="Surgical Supplies">Surgical Supplies</option>
+              </select>
+              <input
+                type="number"
+                placeholder="Price (₹)"
+                value={newItem.price}
+                onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+              />
+              <input
+                type="number"
+                placeholder="Stock Quantity"
+                value={newItem.stock}
+                onChange={(e) => setNewItem({ ...newItem, stock: e.target.value })}
+              />
+            </div>
+            <div className="form-actions">
+              <button
+                className="save-btn"
+                onClick={editingItem ? handleUpdateItem : handleAddItem}
+              >
+                {editingItem ? <FaEdit /> : <FaPlus />}
+                {editingItem ? 'Update Product' : 'Add Product'}
+              </button>
+              <button
+                className="cancel-btn"
+                onClick={() => {
+                  setShowAddForm(false);
+                  setEditingItem(null);
+                  setNewItem({ name: '', category: '', price: '', stock: '' });
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Search and Filter Bar */}
+        <div className="inventory-controls">
+          <div className="search-box">
+            <FaSearch />
             <input
               type="text"
-              placeholder="Product Name"
-              value={newItem.name}
-              onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-            />
-            <select
-              value={newItem.category}
-              onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-            >
-              <option value="">Select Category</option>
-              <option value="Prescription Medicines">Prescription Medicines</option>
-              <option value="OTC Medicines">OTC Medicines</option>
-              <option value="Vitamins & Supplements">Vitamins & Supplements</option>
-              <option value="Personal Care">Personal Care</option>
-              <option value="Baby & Mother Care">Baby & Mother Care</option>
-              <option value="Ayurvedic & Herbal">Ayurvedic & Herbal</option>
-              <option value="Health Devices">Health Devices</option>
-              <option value="Surgical Supplies">Surgical Supplies</option>
-            </select>
-            <input
-              type="number"
-              placeholder="Price (₹)"
-              value={newItem.price}
-              onChange={(e) => setNewItem({...newItem, price: e.target.value})}
-            />
-            <input
-              type="number"
-              placeholder="Stock Quantity"
-              value={newItem.stock}
-              onChange={(e) => setNewItem({...newItem, stock: e.target.value})}
+              placeholder="Search products..."
+              value={inventorySearchTerm}
+              onChange={(e) => setInventorySearchTerm(e.target.value)}
             />
           </div>
-          <div className="form-actions">
-            <button 
-              className="save-btn" 
-              onClick={editingItem ? handleUpdateItem : handleAddItem}
-            >
-              {editingItem ? <FaEdit /> : <FaPlus />} 
-              {editingItem ? 'Update Product' : 'Add Product'}
-            </button>
-            <button 
-              className="cancel-btn" 
-              onClick={() => {
-                setShowAddForm(false);
-                setEditingItem(null);
-                setNewItem({ name: '', category: '', price: '', stock: '' });
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </motion.div>
-      )}
-      
-      {/* Search and Filter Bar */}
-      <div className="inventory-controls">
-        <div className="search-box">
-          <FaSearch />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={inventorySearchTerm}
-            onChange={(e) => setInventorySearchTerm(e.target.value)}
-          />
+          <select
+            className="category-filter"
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            <option value="Prescription Medicines">Prescription Medicines</option>
+            <option value="OTC Medicines">OTC Medicines</option>
+            <option value="Vitamins & Supplements">Vitamins & Supplements</option>
+            <option value="Personal Care">Personal Care</option>
+            <option value="Baby & Mother Care">Baby & Mother Care</option>
+            <option value="Ayurvedic & Herbal">Ayurvedic & Herbal</option>
+            <option value="Health Devices">Health Devices</option>
+            <option value="Surgical Supplies">Surgical Supplies</option>
+          </select>
         </div>
-        <select
-          className="category-filter"
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          <option value="Prescription Medicines">Prescription Medicines</option>
-          <option value="OTC Medicines">OTC Medicines</option>
-          <option value="Vitamins & Supplements">Vitamins & Supplements</option>
-          <option value="Personal Care">Personal Care</option>
-          <option value="Baby & Mother Care">Baby & Mother Care</option>
-          <option value="Ayurvedic & Herbal">Ayurvedic & Herbal</option>
-          <option value="Health Devices">Health Devices</option>
-          <option value="Surgical Supplies">Surgical Supplies</option>
-        </select>
-      </div>
-      
-      {/* Inventory Items List */}
-      <div className="inventory-items">
-        {filteredItems.length > 0 ? (
-          <>
-            <h4>Current Inventory ({filteredItems.length} items)</h4>
-            <div className="items-grid">
-              {filteredItems.map((item, index) => (
-                <motion.div 
-                  key={item.id}
-                  className="inventory-item-card"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="item-header">
-                    <h5>{item.name}</h5>
-                    <span className={`stock-badge ${item.stock < 10 ? 'low-stock' : 'in-stock'}`}>
-                      {item.stock} in stock
-                    </span>
-                  </div>
-                  <div className="item-details">
-                    <p className="category">{item.category}</p>
-                    <p className="price">₹{item.price}</p>
-                    <p className="date">Added: {new Date(item.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <div className="item-actions">
-                    <button 
-                      className="edit-btn"
-                      onClick={() => handleEditItem(item)}
-                    >
-                      <FaEdit /> Edit
-                    </button>
-                    <button 
-                      className="delete-btn"
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      <FaTrash /> Delete
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="no-items">
-            <p>No inventory items found. Add some products to get started!</p>
-          </div>
-        )}
-      </div>
-      
-      <div className="inventory-stats">
-        <div className="inventory-stat-card">
-          <FaBox className="inventory-icon" />
-          <div className="inventory-stat-info">
-            <span className="inventory-stat-number">10,000+</span>
-            <span className="inventory-stat-label">Total Products</span>
-          </div>
-        </div>
-        <div className="inventory-stat-card">
-          <FaWarehouse className="inventory-icon" />
-          <div className="inventory-stat-info">
-            <span className="inventory-stat-number">12</span>
-            <span className="inventory-stat-label">Categories</span>
-          </div>
-        </div>
-        <div className="inventory-stat-card low-stock">
-          <FaWarehouse className="inventory-icon" />
-          <div className="inventory-stat-info">
-            <span className="inventory-stat-number">23</span>
-            <span className="inventory-stat-label">Low Stock Items</span>
-          </div>
-        </div>
-      </div>
 
-      <div className="inventory-categories">
-        <h4>Product Categories</h4>
-        <div className="categories-grid">
-          {[
-            { name: 'Prescription Medicines', count: 2500, icon: '💊' },
-            { name: 'OTC Medicines', count: 1800, icon: '🏥' },
-            { name: 'Vitamins & Supplements', count: 1200, icon: '💪' },
-            { name: 'Personal Care', count: 1500, icon: '🧴' },
-            { name: 'Baby & Mother Care', count: 800, icon: '👶' },
-            { name: 'Ayurvedic & Herbal', count: 900, icon: '🌿' },
-            { name: 'Health Devices', count: 400, icon: '🩺' },
-            { name: 'Surgical Supplies', count: 600, icon: '🏥' },
-          ].map((category, index) => (
-            <motion.div 
-              key={category.name}
-              className="category-card"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className="category-icon">{category.icon}</div>
-              <div className="category-info">
-                <h5>{category.name}</h5>
-                <p>{category.count.toLocaleString()} items</p>
+        {/* Inventory Items List */}
+        <div className="inventory-items">
+          {filteredItems.length > 0 ? (
+            <>
+              <h4>Current Inventory ({filteredItems.length} items)</h4>
+              <div className="items-grid">
+                {filteredItems.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    className="inventory-item-card"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <div className="item-header">
+                      <h5>{item.name}</h5>
+                      <span className={`stock-badge ${item.stock < 10 ? 'low-stock' : 'in-stock'}`}>
+                        {item.stock} in stock
+                      </span>
+                    </div>
+                    <div className="item-details">
+                      <p className="category">{item.category}</p>
+                      <p className="price">₹{item.price}</p>
+                      <p className="date">Added: {new Date(item.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div className="item-actions">
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEditItem(item)}
+                      >
+                        <FaEdit /> Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteItem(item.id)}
+                      >
+                        <FaTrash /> Delete
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-              <div className="category-actions">
-                <button className="category-btn">
-                  <FaEye /> View
-                </button>
-                <button className="category-btn">
-                  <FaEdit /> Manage
-                </button>
-              </div>
-            </motion.div>
-          ))}
+            </>
+          ) : (
+            <div className="no-items">
+              <p>No inventory items found. Add some products to get started!</p>
+            </div>
+          )}
+        </div>
+
+        <div className="inventory-stats">
+          <div className="inventory-stat-card">
+            <FaBox className="inventory-icon" />
+            <div className="inventory-stat-info">
+              <span className="inventory-stat-number">10,000+</span>
+              <span className="inventory-stat-label">Total Products</span>
+            </div>
+          </div>
+          <div className="inventory-stat-card">
+            <FaWarehouse className="inventory-icon" />
+            <div className="inventory-stat-info">
+              <span className="inventory-stat-number">12</span>
+              <span className="inventory-stat-label">Categories</span>
+            </div>
+          </div>
+          <div className="inventory-stat-card low-stock">
+            <FaWarehouse className="inventory-icon" />
+            <div className="inventory-stat-info">
+              <span className="inventory-stat-number">23</span>
+              <span className="inventory-stat-label">Low Stock Items</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="inventory-categories">
+          <h4>Product Categories</h4>
+          <div className="categories-grid">
+            {[
+              { name: 'Prescription Medicines', count: 2500, icon: '💊' },
+              { name: 'OTC Medicines', count: 1800, icon: '🏥' },
+              { name: 'Vitamins & Supplements', count: 1200, icon: '💪' },
+              { name: 'Personal Care', count: 1500, icon: '🧴' },
+              { name: 'Baby & Mother Care', count: 800, icon: '👶' },
+              { name: 'Ayurvedic & Herbal', count: 900, icon: '🌿' },
+              { name: 'Health Devices', count: 400, icon: '🩺' },
+              { name: 'Surgical Supplies', count: 600, icon: '🏥' },
+            ].map((category, index) => (
+              <motion.div
+                key={category.name}
+                className="category-card"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="category-icon">{category.icon}</div>
+                <div className="category-info">
+                  <h5>{category.name}</h5>
+                  <p>{category.count.toLocaleString()} items</p>
+                </div>
+                <div className="category-actions">
+                  <button className="category-btn">
+                    <FaEye /> View
+                  </button>
+                  <button className="category-btn">
+                    <FaEdit /> Manage
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     );
   };
 
   // Export Data Function
   const exportData = (type) => {
     let data, filename;
-    
-    switch(type) {
+
+    switch (type) {
       case 'users':
         data = getAllUsers();
         filename = 'users_export.json';
@@ -1213,10 +1217,10 @@ const AdminDashboard = () => {
       default:
         return;
     }
-    
+
     const dataStr = JSON.stringify(data, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
     const exportFileDefaultName = filename;
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
@@ -1226,7 +1230,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      <motion.div 
+      <motion.div
         className="admin-header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1236,7 +1240,7 @@ const AdminDashboard = () => {
           <MediCoreLogo />
           <h1>Admin Dashboard</h1>
         </div>
-        <button 
+        <button
           className="logout-btn"
           onClick={handleLogout}
         >
@@ -1245,43 +1249,43 @@ const AdminDashboard = () => {
       </motion.div>
 
       <div className="admin-tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
           <FaClipboardList /> Overview
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'pharmacy' ? 'active' : ''}`}
           onClick={() => setActiveTab('pharmacy')}
         >
           <FaShoppingCart /> Pharmacy Orders
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'labtest' ? 'active' : ''}`}
           onClick={() => setActiveTab('labtest')}
         >
           <FaFlask /> Lab Tests
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
           onClick={() => setActiveTab('users')}
         >
           <FaUsers /> User Management
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
           onClick={() => setActiveTab('analytics')}
         >
           <FaChartBar /> Analytics
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
           onClick={() => setActiveTab('inventory')}
         >
           <FaBoxOpen /> Inventory
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'medicine' ? 'active' : ''}`}
           onClick={() => setActiveTab('medicine')}
         >

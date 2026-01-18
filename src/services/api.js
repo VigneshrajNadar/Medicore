@@ -416,9 +416,7 @@ export const updateProfile = async (profileData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/profile`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(profileData),
     });
 
@@ -450,21 +448,28 @@ export const getLabTests = async (userId) => {
   }
 };
 
-export const bookLabTest = async (labTestData) => {
+export const getAllOrders = async () => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/lab-tests`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(labTestData)
+    const response = await fetch(`${API_BASE_URL}/orders`, {
+      headers: getAuthHeaders()
     });
-    if (!response.ok) throw new Error('Failed to book lab test');
+    if (!response.ok) throw new Error('Failed to fetch all orders');
     return await response.json();
   } catch (error) {
-    console.error('Error booking lab test:', error);
+    console.error('Error fetching all orders:', error);
+    throw error;
+  }
+};
+
+export const getAllLabTests = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/lab-tests`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch all lab tests');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching all lab tests:', error);
     throw error;
   }
 };
@@ -484,10 +489,13 @@ export default {
   cancelAppointment,
   addDoctorReview,
   getOrders,
+  getAllOrders,
   createOrder,
   getProfile,
   updateProfile,
   login,
   getLabTests,
+  getAllLabTests,
   bookLabTest,
+  updateSubscription
 };

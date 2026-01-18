@@ -562,8 +562,11 @@ app.post('/api/lab-tests', authenticateToken, async (req, res) => {
         // Map frontend fields to backend schema
         if (data.userId && !data.user_id) data.user_id = data.userId;
         if (data.scheduled_date && !data.test_date) data.test_date = data.scheduled_date;
-        if (data.price && !data.total_amount) data.total_amount = data.price;
-        if (data.test_name && !data.product_name) data.product_name = data.test_name; // for order consistency
+        if (data.price !== undefined && data.total_amount === undefined) data.total_amount = data.price;
+        if (data.test_name && !data.product_name) data.product_name = data.test_name;
+
+        // Ensure total_amount is numeric
+        if (data.total_amount !== undefined) data.total_amount = parseFloat(data.total_amount);
 
         const labTest = await LabTest.create(data);
         res.status(201).json(labTest);
@@ -585,13 +588,34 @@ app.get('/api/users/:userId/lab-tests', authenticateToken, async (req, res) => {
     }
 });
 
+// Get all lab tests (ADMIN ONLY)
+app.get('/api/admin/lab-tests', authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        const labTests = await LabTest.find().sort({ created_at: -1 });
+        res.json(labTests);
+    } catch (error) {
+        console.error('Error fetching all lab tests:', error);
+        res.status(500).json({ error: 'Failed to fetch all lab tests' });
+    }
+});
+
 // Orders
 
-// Get orders (PROTECTED)
+// Get all orders (PROTECTED)
 app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
         const { userId } = req.query;
-        const orders = await Order.find({ user_id: userId }).sort({ created_at: -1 });
+        let query = {};
+        if (userId) {
+            query.user_id = userId;
+        } else if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+
+        const orders = await Order.find(query).sort({ created_at: -1 });
         res.json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);
