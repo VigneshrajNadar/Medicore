@@ -50,7 +50,8 @@ const PaymentModal = ({
     if (orderData.items && Array.isArray(orderData.items)) {
       return orderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2);
     }
-    return (parseFloat(orderData.total) / 1.1).toFixed(2);
+    // Correctly handle lab tests which pass total/originalTotal as base price
+    return parseFloat(orderData.originalTotal || orderData.total || 0).toFixed(2);
   };
 
   const calculateSubscriptionDiscount = () => {
@@ -310,7 +311,7 @@ const PaymentModal = ({
       </div>
       <div className="cod-details">
         <h3>Cash on Delivery</h3>
-        <p>Pay ₹{orderData.total} when your order arrives at your doorstep.</p>
+        <p>Pay ₹{calculateTotal()} when your order arrives at your doorstep.</p>
         <div className="cod-features">
           <div className="cod-feature">
             <FaCheck /> No advance payment required
@@ -477,7 +478,7 @@ const PaymentModal = ({
                   Paid
                 </>
               ) : (
-                `Pay ₹${orderData.total}`
+                `Pay ₹${calculateTotal()}`
               )}
             </button>
           </div>
