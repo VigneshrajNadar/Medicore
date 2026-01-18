@@ -145,15 +145,25 @@ const AccountPage = () => {
   const fetchAppointments = async () => {
     setLoadingAppointments(true);
     try {
-      // First try to get appointments from user's health history
-      if (currentUser?.healthHistory?.appointments) {
-        // Use appointments from health history with fallback mock data
-        console.log('Using health history appointments:', currentUser.healthHistory.appointments);
-        setAppointments(currentUser.healthHistory.appointments);
-      } else {
-        // Fallback to API call
+      // Always fetch from API first to get the most up-to-date data
+      try {
         const appointmentsData = await getUserAppointments(currentUser.id);
-        setAppointments(appointmentsData);
+        if (appointmentsData && appointmentsData.length > 0) {
+          setAppointments(appointmentsData);
+        } else if (currentUser?.healthHistory?.appointments) {
+          // Fallback to local history only if API returns nothing (optional, effectively handling offline/migration)
+          console.log('Using health history appointments as fallback:', currentUser.healthHistory.appointments);
+          setAppointments(currentUser.healthHistory.appointments);
+        } else {
+          setAppointments([]);
+        }
+      } catch (apiError) {
+        console.error("API Fetch failed, checking local history", apiError);
+        if (currentUser?.healthHistory?.appointments) {
+          setAppointments(currentUser.healthHistory.appointments);
+        } else {
+          throw apiError; // Throw to trigger the catch block below for mock data
+        }
       }
     } catch (error) {
       console.error('Error fetching appointments:', error);
