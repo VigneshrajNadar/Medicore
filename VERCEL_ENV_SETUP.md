@@ -10,8 +10,9 @@ After deploying to Vercel, you need to add these environment variables:
 
 **MONGODB_URI**
 ```
-mongodb+srv://medicore:s25OmpGQPmBBdOH3@cluster0.y8smy1b.mongodb.net/medicore?retryWrites=true&w=majority&appName=Cluster0
+mongodb+srv://<username>:<password>@<your-cluster>.mongodb.net/medicore?retryWrites=true&w=majority
 ```
+*Replace `<username>`, `<password>`, and `<your-cluster>` with your actual MongoDB Atlas credentials*
 
 **JWT_SECRET**
 ```
