@@ -171,26 +171,36 @@ const PaymentModal = ({
     }
 
     // Simulate payment processing
-    setTimeout(() => {
+    setTimeout(async () => {
       // 90% success rate for demo
       const isSuccess = Math.random() > 0.1;
 
       if (isSuccess) {
-        setIsProcessing(false); // Stop processing immediately on success
-        setShowSuccess(true);
-        setTimeout(() => {
-          onPaymentSuccess({
+        try {
+          // Call the success handler and wait for it to finish (this includes backend API calls)
+          await onPaymentSuccess({
             method: selectedMethod,
             transactionId: `TXN${Date.now()}`,
-            amount: orderData.total
+            amount: calculateTotal()
           });
-          onClose();
-        }, 2000);
+
+          setIsProcessing(false);
+          setShowSuccess(true);
+
+          setTimeout(() => {
+            onClose();
+          }, 2000);
+        } catch (error) {
+          console.error('Error in onPaymentSuccess:', error);
+          setErrorMessage('Error finalizing booking. Please contact support.');
+          setShowError(true);
+          setIsProcessing(false);
+        }
       } else {
         setErrorMessage('Payment failed. Please try again.');
         setShowError(true);
         setIsProcessing(false);
-        onPaymentFailure('Payment processing failed');
+        if (onPaymentFailure) onPaymentFailure('Payment processing failed');
       }
     }, 3000);
   };

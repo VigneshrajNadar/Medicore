@@ -181,7 +181,6 @@ const ModernCart = () => {
       });
 
       setIsLoading(false);
-      setShowPaymentModal(false);
       clearCart();
 
       // Navigate to orders or show success page

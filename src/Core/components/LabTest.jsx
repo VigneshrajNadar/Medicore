@@ -705,7 +705,6 @@ const LabTest = () => {
       });
 
       setSuccess(true);
-      setShowPaymentModal(false);
       setPendingBooking(null);
 
       setTimeout(() => {
