@@ -637,13 +637,15 @@ This creates an optimized production build in the `build/` directory.
 - **Access**: Admin Dashboard with full management capabilities
 
 ### Demo User Accounts
-All demo users use password: `demo123`
+All demo users use password: `password123`
 
-| Name | Email | Phone | Blood Group |
-|------|-------|-------|-------------|
-| Vignesh Raj | vignesh@example.com | +91 9876543210 | O+ |
-| Priya Sharma | priya@example.com | +91 9876543211 | A+ |
-| Rajesh Kumar | rajesh@example.com | +91 9876543212 | B+ |
+| Name | Email | Role |
+|------|-------|------|
+| Vignesh Raj | vignesh@example.com | User |
+| Priya Sharma | priya@example.com | User |
+| Rahul Kumar | rahul@example.com | User |
+| Anjali Patel | anjali@example.com | User |
+| Suresh Reddy | suresh@example.com | User |
 
 ### Authentication Methods
 1. **Email/Password Login**: Standard email and password authentication
