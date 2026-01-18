@@ -17,6 +17,7 @@
     "bcryptjs": "^3.0.2",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "firebase": "^9.6.7",
     "framer-motion": "^12.23.12",
@@ -24,6 +25,7 @@
     "jsonwebtoken": "^9.0.3",
     "jspdf": "^3.0.1",
     "lottie-react": "^2.4.1",
+    "mongoose": "^9.1.4",
     "react": "^18.1.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.1.0",
@@ -37,10 +39,13 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "server": "node server/index.js",
-    "build": "CI=false react-scripts build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "node server/index.js",
+    "seed:doctors": "node server/seed-doctors.js",
+    "seed:users": "node server/seed-users.js",
+    "seed": "npm run seed:users && npm run seed:doctors"
   },
   "eslintConfig": {
     "extends": [

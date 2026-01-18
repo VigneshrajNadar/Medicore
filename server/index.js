@@ -1,23 +1,34 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const db = require('./db-fixed');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const connectDB = require('./database');
+
+// Import Mongoose models
+const User = require('./models/User');
+const Doctor = require('./models/Doctor');
+const Appointment = require('./models/Appointment');
+const DoctorReview = require('./models/DoctorReview');
+const Order = require('./models/Order');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_key_change_in_production';
 
+// Connect to MongoDB
+connectDB();
+
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-  if (token == null) return res.status(401).json({ error: 'Authentication token required' });
+    if (token == null) return res.status(401).json({ error: 'Authentication token required' });
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid or expired token' });
-    req.user = user;
-    next();
-  });
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid or expired token' });
+        req.user = user;
+        next();
+    });
 };
 
 const app = express();
@@ -27,625 +38,457 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-// Enable foreign key constraints
-db.run('PRAGMA foreign_keys = ON');
-
 // API Routes
-app.get('/api/doctors', (req, res) => {
-  const {
-    specialization,
-    city,
-    hospital,
-    minRating,
-    maxPrice,
-    availableDay,
-    search
-  } = req.query;
 
-  let query = `
-    SELECT * FROM doctors 
-    WHERE is_active = 1
-  `;
-  const params = [];
+// Get all doctors with filters
+app.get('/api/doctors', async (req, res) => {
+    try {
+        const {
+            specialization,
+            city,
+            hospital,
+            minRating,
+            maxPrice,
+            availableDay,
+            search
+        } = req.query;
 
-  if (specialization) {
-    query += ` AND specialization LIKE ?`;
-    params.push(`%${specialization}%`);
-  }
+        let filter = { is_active: true };
 
-  if (city) {
-    query += ` AND city LIKE ?`;
-    params.push(`%${city}%`);
-  }
-
-  if (hospital) {
-    query += ` AND hospital_name LIKE ?`;
-    params.push(`%${hospital}%`);
-  }
-
-  if (minRating) {
-    query += ` AND rating >= ?`;
-    params.push(parseFloat(minRating));
-  }
-
-  if (maxPrice) {
-    query += ` AND consultation_fee <= ?`;
-    params.push(parseFloat(maxPrice));
-  }
-
-  if (availableDay) {
-    query += ` AND available_days LIKE ?`;
-    params.push(`%${availableDay}%`);
-  }
-
-  if (search) {
-    query += ` AND (name LIKE ? OR specialization LIKE ? OR hospital_name LIKE ?)`;
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
-  }
-
-  query += ` ORDER BY rating DESC, total_reviews DESC`;
-
-  db.all(query, params, (err, doctors) => {
-    if (err) {
-      console.error('Error fetching doctors:', err);
-      return res.status(500).json({ error: 'Failed to fetch doctors' });
-    }
-    res.json(doctors);
-  });
-});
-
-app.get('/api/doctors/:id', (req, res) => {
-  const doctorId = req.params.id;
-
-  db.get('SELECT * FROM doctors WHERE id = ? AND is_active = 1', [doctorId], (err, doctor) => {
-    if (err) {
-      console.error('Error fetching doctor:', err);
-      return res.status(500).json({ error: 'Failed to fetch doctor' });
-    }
-
-    if (!doctor) {
-      return res.status(404).json({ error: 'Doctor not found' });
-    }
-
-    db.all(`
-      SELECT dr.*, u.name as user_name 
-      FROM doctor_reviews dr 
-      JOIN users u ON dr.user_id = u.id 
-      WHERE dr.doctor_id = ? 
-      ORDER BY dr.review_date DESC
-    `, [doctorId], (err, reviews) => {
-      if (err) {
-        console.error('Error fetching reviews:', err);
-        return res.status(500).json({ error: 'Failed to fetch reviews' });
-      }
-
-      res.json({
-        ...doctor,
-        reviews
-      });
-    });
-  });
-});
-
-app.get('/api/doctors/:id/available-slots', (req, res) => {
-  const doctorId = req.params.id;
-  const { date } = req.query;
-
-  if (!date) {
-    return res.status(400).json({ error: 'Date is required' });
-  }
-
-  db.get('SELECT available_time_slots, available_days FROM doctors WHERE id = ?', [doctorId], (err, doctor) => {
-    if (err) {
-      console.error('Error fetching doctor:', err);
-      return res.status(500).json({ error: 'Failed to fetch doctor' });
-    }
-
-    if (!doctor) {
-      return res.status(404).json({ error: 'Doctor not found' });
-    }
-
-    db.all('SELECT appointment_time FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND appointment_status != "cancelled"',
-      [doctorId, date], (err, appointments) => {
-        if (err) {
-          console.error('Error fetching appointments:', err);
-          return res.status(500).json({ error: 'Failed to fetch appointments' });
+        if (specialization) {
+            filter.specialization = new RegExp(specialization, 'i');
+        }
+        if (city) {
+            filter.city = new RegExp(city, 'i');
+        }
+        if (hospital) {
+            filter.hospital_name = new RegExp(hospital, 'i');
+        }
+        if (minRating) {
+            filter.rating = { $gte: parseFloat(minRating) };
+        }
+        if (maxPrice) {
+            filter.consultation_fee = { $lte: parseFloat(maxPrice) };
+        }
+        if (availableDay) {
+            filter.available_days = new RegExp(availableDay, 'i');
+        }
+        if (search) {
+            filter.$or = [
+                { name: new RegExp(search, 'i') },
+                { specialization: new RegExp(search, 'i') },
+                { hospital_name: new RegExp(search, 'i') }
+            ];
         }
 
+        const doctors = await Doctor.find(filter);
+        res.json(doctors);
+    } catch (error) {
+        console.error('Error fetching doctors:', error);
+        res.status(500).json({ error: 'Failed to fetch doctors' });
+    }
+});
+
+// Get doctor by ID
+app.get('/api/doctors/:id', async (req, res) => {
+    try {
+        const doctor = await Doctor.findById(req.params.id);
+        if (!doctor) {
+            return res.status(404).json({ error: 'Doctor not found' });
+        }
+        res.json(doctor);
+    } catch (error) {
+        console.error('Error fetching doctor:', error);
+        res.status(500).json({ error: 'Failed to fetch doctor' });
+    }
+});
+
+// Get available slots for a doctor
+app.get('/api/doctors/:id/available-slots', async (req, res) => {
+    try {
+        const { date } = req.query;
+        const doctor = await Doctor.findById(req.params.id);
+
+        if (!doctor) {
+            return res.status(404).json({ error: 'Doctor not found' });
+        }
+
+        // Get booked appointments for this doctor on this date
+        const appointments = await Appointment.find({
+            doctor_id: req.params.id,
+            appointment_date: new Date(date),
+            appointment_status: { $ne: 'cancelled' }
+        });
+
         const bookedTimes = appointments.map(apt => apt.appointment_time);
+
+        // Generate available slots based on doctor's time slots
+        const generateAvailableSlots = (timeSlots, bookedTimes) => {
+            const slots = [];
+            const timeRanges = timeSlots.split(',').map(t => t.trim());
+
+            timeRanges.forEach(range => {
+                const [start, end] = range.split('-');
+                const [startHour] = start.split(':').map(Number);
+                const [endHour] = end.split(':').map(Number);
+
+                for (let hour = startHour; hour < endHour; hour++) {
+                    const time = `${hour.toString().padStart(2, '0')}:00`;
+                    if (!bookedTimes.includes(time)) {
+                        slots.push(time);
+                    }
+                }
+            });
+
+            return slots;
+        };
+
         const availableSlots = generateAvailableSlots(doctor.available_time_slots, bookedTimes);
 
         res.json({
-          availableSlots,
-          availableDays: doctor.available_days
+            availableSlots,
+            availableDays: doctor.available_days
         });
-      });
-  });
+    } catch (error) {
+        console.error('Error fetching available slots:', error);
+        res.status(500).json({ error: 'Failed to fetch available slots' });
+    }
 });
 
-app.post('/api/appointments', authenticateToken, (req, res) => {
-  const {
-    user_id,
-    doctor_id,
-    appointment_date,
-    appointment_time,
-    consultation_type,
-    symptoms,
-    notes
-  } = req.body;
-
-  // Security: Enforce that the logged-in user can only book for themselves
-  // Security: Enforce that the logged-in user can only book for themselves
-  console.log("Appointment Booking Request:");
-  console.log("Logged in User:", req.user);
-  console.log("Request Body:", req.body);
-
-  if (String(req.user.id) !== String(user_id)) {
-    console.error(`User mismatch: Token ID ${req.user.id} vs Body ID ${user_id}`);
-    return res.status(403).json({ error: 'Cannot book appointments for other users' });
-  }
-
-  if (!user_id || !doctor_id || !appointment_date || !appointment_time) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  db.get('SELECT consultation_fee FROM doctors WHERE id = ?', [doctor_id], (err, doctor) => {
-    if (err) {
-      console.error('Error fetching doctor:');
-      console.error('  Error message:', err.message);
-      console.error('  Error code:', err.code);
-      console.error('  Full error:', err);
-      return res.status(500).json({ error: `Database error: ${err.message}` });
+// Get specializations
+app.get('/api/specializations', async (req, res) => {
+    try {
+        const specializations = await Doctor.distinct('specialization');
+        res.json(specializations);
+    } catch (error) {
+        console.error('Error fetching specializations:', error);
+        res.status(500).json({ error: 'Failed to fetch specializations' });
     }
+});
 
-    if (!doctor) {
-      return res.status(404).json({ error: 'Doctor not found' });
+// Get cities
+app.get('/api/cities', async (req, res) => {
+    try {
+        const cities = await Doctor.distinct('city');
+        res.json(cities);
+    } catch (error) {
+        console.error('Error fetching cities:', error);
+        res.status(500).json({ error: 'Failed to fetch cities' });
     }
+});
 
-    db.get('SELECT id FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND appointment_time = ? AND appointment_status != "cancelled"',
-      [doctor_id, appointment_date, appointment_time], (err, existingAppointment) => {
-        if (err) {
-          console.error('Error checking appointment:', err);
-          return res.status(500).json({ error: 'Failed to check appointment availability' });
+// Get hospitals
+app.get('/api/hospitals', async (req, res) => {
+    try {
+        const hospitals = await Doctor.distinct('hospital_name');
+        res.json(hospitals);
+    } catch (error) {
+        console.error('Error fetching hospitals:', error);
+        res.status(500).json({ error: 'Failed to fetch hospitals' });
+    }
+});
+
+// Book appointment (PROTECTED)
+app.post('/api/appointments', authenticateToken, async (req, res) => {
+    try {
+        const {
+            user_id,
+            doctor_id,
+            appointment_date,
+            appointment_time,
+            consultation_type,
+            symptoms,
+            notes
+        } = req.body;
+
+        console.log("Appointment Booking Request:");
+        console.log("Logged in User:", req.user);
+        console.log("Request Body:", req.body);
+
+        // Security: Enforce that the logged-in user can only book for themselves
+        if (String(req.user.id) !== String(user_id)) {
+            console.error(`User mismatch: Token ID ${req.user.id} vs Body ID ${user_id}`);
+            return res.status(403).json({ error: 'Cannot book appointments for other users' });
         }
+
+        if (!user_id || !doctor_id || !appointment_date || !appointment_time) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        // Get doctor to fetch consultation fee
+        const doctor = await Doctor.findById(doctor_id);
+        if (!doctor) {
+            return res.status(404).json({ error: 'Doctor not found' });
+        }
+
+        // Check if slot is available
+        const existingAppointment = await Appointment.findOne({
+            doctor_id,
+            appointment_date: new Date(appointment_date),
+            appointment_time,
+            appointment_status: { $ne: 'cancelled' }
+        });
 
         if (existingAppointment) {
-          return res.status(409).json({ error: 'This time slot is already booked' });
+            return res.status(409).json({ error: 'This time slot is already booked' });
         }
 
-        const appointment = {
-          user_id,
-          doctor_id,
-          appointment_date,
-          appointment_time,
-          consultation_type: consultation_type || 'in-person',
-          symptoms: symptoms || '',
-          notes: notes || '',
-          total_amount: doctor.consultation_fee,
-          payment_status: 'pending'
-        };
-
-        db.run(`
-          INSERT INTO appointments (
-            user_id, doctor_id, appointment_date, appointment_time, 
-            consultation_type, symptoms, notes, total_amount, payment_status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-          appointment.user_id,
-          appointment.doctor_id,
-          appointment.appointment_date,
-          appointment.appointment_time,
-          appointment.consultation_type,
-          appointment.symptoms,
-          appointment.notes,
-          appointment.total_amount,
-          appointment.payment_status
-        ], function (err) {
-          if (err) {
-            console.error('Error creating appointment:', err);
-            return res.status(500).json({ error: 'Failed to book appointment' });
-          }
-
-          res.status(201).json({
-            id: this.lastID,
-            ...appointment
-          });
+        // Create appointment
+        const appointment = await Appointment.create({
+            user_id,
+            doctor_id,
+            appointment_date: new Date(appointment_date),
+            appointment_time,
+            consultation_type: consultation_type || 'in-person',
+            symptoms: symptoms || '',
+            notes: notes || '',
+            total_amount: doctor.consultation_fee,
+            payment_status: 'pending'
         });
-      });
-  });
+
+        res.status(201).json(appointment);
+    } catch (error) {
+        console.error('Error creating appointment:', error);
+        res.status(500).json({ error: `Database error: ${error.message}` });
+    }
 });
 
-app.get('/api/users/:userId/appointments', authenticateToken, (req, res) => {
-  const userId = req.params.userId;
+// Get user appointments (PROTECTED)
+app.get('/api/users/:userId/appointments', authenticateToken, async (req, res) => {
+    try {
+        const appointments = await Appointment.find({ user_id: req.params.userId })
+            .populate('doctor_id', 'name specialization hospital_name consultation_fee')
+            .sort({ appointment_date: -1 });
 
-  // Security: Ensure user can only view their own appointments
-  if (req.user.id != userId) {
-    return res.status(403).json({ error: 'Unauthorized access to appointments' });
-  }
+        // Transform to match expected format
+        const formattedAppointments = appointments.map(apt => ({
+            ...apt.toObject(),
+            doctor_name: apt.doctor_id?.name,
+            specialization: apt.doctor_id?.specialization,
+            hospital_name: apt.doctor_id?.hospital_name,
+            consultation_fee: apt.doctor_id?.consultation_fee
+        }));
 
-  db.all(`
-    SELECT 
-      a.*,
-      d.name as doctor_name,
-      d.specialization,
-      d.hospital_name,
-      d.hospital_address,
-      d.profile_image as doctor_image,
-      d.rating as doctor_rating
-    FROM appointments a
-    JOIN doctors d ON a.doctor_id = d.id
-    WHERE a.user_id = ?
-    ORDER BY a.appointment_date DESC, a.appointment_time DESC
-  `, [userId], (err, appointments) => {
-    if (err) {
-      console.error('Error fetching appointments:', err);
-      return res.status(500).json({ error: 'Failed to fetch appointments' });
+        res.json(formattedAppointments);
+    } catch (error) {
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ error: 'Failed to fetch appointments' });
     }
-
-    res.json(appointments);
-  });
 });
 
-app.patch('/api/appointments/:id', authenticateToken, (req, res) => {
-  const appointmentId = req.params.id;
-  const { appointment_status, payment_status } = req.body;
-  const userId = req.user.id;
+// Update appointment (PROTECTED)
+app.patch('/api/appointments/:id', authenticateToken, async (req, res) => {
+    try {
+        const appointment = await Appointment.findById(req.params.id);
 
-  // First verify this appointment belongs to the user (or admin)
-  db.get('SELECT user_id FROM appointments WHERE id = ?', [appointmentId], (err, appointment) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (!appointment) return res.status(404).json({ error: 'Appointment not found' });
-
-    if (appointment.user_id !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
-
-    const updates = [];
-    const params = [];
-
-    if (appointment_status) {
-      updates.push('appointment_status = ?');
-      params.push(appointment_status);
-    }
-
-    if (payment_status) {
-      updates.push('payment_status = ?');
-      params.push(payment_status);
-    }
-
-    if (updates.length === 0) {
-      return res.status(400).json({ error: 'No updates provided' });
-    }
-
-    params.push(appointmentId);
-
-    db.run(`UPDATE appointments SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-      params, function (err) {
-        if (err) {
-          console.error('Error updating appointment:', err);
-          return res.status(500).json({ error: 'Failed to update appointment' });
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found' });
         }
 
-        if (this.changes === 0) {
-          return res.status(404).json({ error: 'Appointment not found' });
+        // Security: Only the user who created the appointment can update it
+        if (String(appointment.user_id) !== String(req.user.id)) {
+            return res.status(403).json({ error: 'Not authorized to update this appointment' });
         }
 
-        res.json({ message: 'Appointment updated successfully' });
-      });
-  });
+        Object.assign(appointment, req.body);
+        await appointment.save();
+
+        res.json({ message: 'Appointment updated successfully', appointment });
+    } catch (error) {
+        console.error('Error updating appointment:', error);
+        res.status(500).json({ error: 'Failed to update appointment' });
+    }
 });
 
-app.delete('/api/appointments/:id', authenticateToken, (req, res) => {
-  const appointmentId = req.params.id;
-  const userId = req.user.id;
+// Cancel appointment (PROTECTED)
+app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
+    try {
+        const appointment = await Appointment.findById(req.params.id);
 
-  // Verify ownership
-  db.get('SELECT user_id FROM appointments WHERE id = ?', [appointmentId], (err, appointment) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (!appointment) return res.status(404).json({ error: 'Appointment not found' });
-
-    if (appointment.user_id !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
-
-    db.run('UPDATE appointments SET appointment_status = "cancelled", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [appointmentId], function (err) {
-        if (err) {
-          console.error('Error cancelling appointment:', err);
-          return res.status(500).json({ error: 'Failed to cancel appointment' });
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found' });
         }
 
-        if (this.changes === 0) {
-          return res.status(404).json({ error: 'Appointment not found' });
+        // Security: Only the user who created the appointment can cancel it
+        if (String(appointment.user_id) !== String(req.user.id)) {
+            return res.status(403).json({ error: 'Not authorized to cancel this appointment' });
         }
+
+        appointment.appointment_status = 'cancelled';
+        await appointment.save();
 
         res.json({ message: 'Appointment cancelled successfully' });
-      });
-  });
-});
-
-app.post('/api/doctors/:id/reviews', authenticateToken, (req, res) => {
-  const doctorId = req.params.id;
-  const { rating, review_text } = req.body;
-  const user_id = req.user.id; // Trust token
-
-  if (!rating || rating < 1 || rating > 5) {
-    return res.status(400).json({ error: 'Rating (1-5) is required' });
-  }
-
-  db.get('SELECT id FROM appointments WHERE user_id = ? AND doctor_id = ? AND appointment_status = "completed"',
-    [user_id, doctorId], (err, appointment) => {
-      if (err) {
-        console.error('Error checking appointment:', err);
-        return res.status(500).json({ error: 'Failed to verify appointment' });
-      }
-
-      if (!appointment) {
-        return res.status(403).json({ error: 'You can only review doctors you have consulted with' });
-      }
-
-      db.get('SELECT id FROM doctor_reviews WHERE user_id = ? AND doctor_id = ?',
-        [user_id, doctorId], (err, existingReview) => {
-          if (err) {
-            console.error('Error checking existing review:', err);
-            return res.status(500).json({ error: 'Failed to check existing review' });
-          }
-
-          if (existingReview) {
-            return res.status(409).json({ error: 'You have already reviewed this doctor' });
-          }
-
-          db.run(`
-            INSERT INTO doctor_reviews (user_id, doctor_id, appointment_id, rating, review_text)
-            VALUES (?, ?, ?, ?, ?)
-          `, [user_id, doctorId, appointment_id, rating, review_text || ''], function (err) {
-            if (err) {
-              console.error('Error adding review:', err);
-              return res.status(500).json({ error: 'Failed to add review' });
-            }
-
-            updateDoctorRating(doctorId);
-
-            res.status(201).json({
-              id: this.lastID,
-              message: 'Review added successfully'
-            });
-          });
-        });
-    });
-});
-
-app.get('/api/specializations', (req, res) => {
-  db.all('SELECT DISTINCT specialization FROM doctors WHERE is_active = 1 ORDER BY specialization', (err, specializations) => {
-    if (err) {
-      console.error('Error fetching specializations:', err);
-      return res.status(500).json({ error: 'Failed to fetch specializations' });
-    }
-    res.json(specializations.map(s => s.specialization));
-  });
-});
-
-app.get('/api/cities', (req, res) => {
-  db.all('SELECT DISTINCT city, state FROM doctors WHERE is_active = 1 ORDER BY city', (err, cities) => {
-    if (err) {
-      console.error('Error fetching cities:', err);
-      return res.status(500).json({ error: 'Failed to fetch cities' });
-    }
-    res.json(cities);
-  });
-});
-
-app.get('/api/hospitals', (req, res) => {
-  db.all('SELECT DISTINCT hospital_name FROM doctors WHERE is_active = 1 ORDER BY hospital_name', (err, hospitals) => {
-    if (err) {
-      console.error('Error fetching hospitals:', err);
-      return res.status(500).json({ error: 'Failed to fetch hospitals' });
-    }
-    res.json(hospitals.map(h => h.hospital_name));
-  });
-});
-
-app.get('/api/users', authenticateToken, (req, res) => {
-  const query = `
-    SELECT 
-      id, name, email, phone, address, city, state, pincode, 
-      date_of_birth, gender, blood_group, emergency_contact, 
-      emergency_contact_relation, created_at, updated_at 
-    FROM users
-  `;
-  db.all(query, (err, users) => {
-    if (err) {
-      console.error('Error fetching users:', err);
-      return res.status(500).json({ error: 'Failed to fetch users' });
-    }
-    res.json(users);
-  });
-});
-
-app.post('/api/users', async (req, res) => {
-  const { name, email, phone, password, address, city, state, pincode, date_of_birth, gender, blood_group, emergency_contact, emergency_contact_relation } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Name, email, and password are required' });
-  }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    db.run(`
-      INSERT INTO users (name, email, phone, password, address, city, state, pincode, date_of_birth, gender, blood_group, emergency_contact, emergency_contact_relation)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [name, email, phone, hashedPassword, address, city, state, pincode, date_of_birth, gender, blood_group, emergency_contact, emergency_contact_relation], function (err) {
-      if (err) {
-        console.error('Error creating user:', err);
-        return res.status(500).json({ error: 'Failed to create user' });
-      }
-
-      res.status(201).json({
-        id: this.lastID,
-        name,
-        email
-      });
-    });
-  } catch (err) {
-    console.error('Error hashing password:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
-  }
-
-  db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
-    if (err) {
-      console.error('Error finding user:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    try {
-      // Check if password matches (bcrypt)
-      const match = await bcrypt.compare(password, user.password);
-
-      if (!match) {
-        // Fallback for older plain-text passwords (migration strategy)
-        if (user.password === password) {
-          // Ideally here we would hash it and update DB, but for now just allow login
-          // Or strictly deny. Let's strictly deny to force security, 
-          // but since I just broke it for existing users, maybe allow plain test?
-          // No, I want to ENFORCE security.
-          // OK, I will add auto-migration: if plain matches, login AND update hash.
-          const newHash = await bcrypt.hash(password, 10);
-          db.run('UPDATE users SET password = ? WHERE id = ?', [newHash, user.id]);
-          // proceed to return user
-        } else {
-          return res.status(401).json({ error: 'Invalid credentials' });
-        }
-      }
-
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-
-      // Generate Token
-      const token = jwt.sign({
-        id: user.id,
-        email: user.email,
-        role: user.role || 'user'
-      }, JWT_SECRET, { expiresIn: '24h' });
-
-      res.json({ token, user: userWithoutPassword });
     } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Login failed' });
+        console.error('Error cancelling appointment:', error);
+        res.status(500).json({ error: 'Failed to cancel appointment' });
     }
-  });
 });
 
-app.get('/api/orders', authenticateToken, (req, res) => {
-  // If user is admin (you might want an admin role check), return all, otherwise return only user's
-  // For now, let's restrict to own orders unless userId query is present AND matches token or is admin
+// Add doctor review (PROTECTED)
+app.post('/api/doctors/:id/reviews', authenticateToken, async (req, res) => {
+    try {
+        const { rating, review_text, appointment_id } = req.body;
 
-  const userId = req.query.userId || req.user.id;
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).json({ error: 'Invalid rating' });
+        }
 
-  // Security check: simple strict equality. Admin role check later if needed.
-  if (req.user.id != userId) {
-    // Allow if token user is admin? I don't have roles implemented yet.
-    // So strictly enforce own data.
-    return res.status(403).json({ error: 'Unauthorized access to other user orders' });
-  }
-
-  db.all('SELECT * FROM orders WHERE user_id = ?', [userId], (err, orders) => {
-    if (err) {
-      console.error('Error fetching orders:', err);
-      return res.status(500).json({ error: 'Failed to fetch orders' });
-    }
-    res.json(orders);
-  });
-});
-
-app.post('/api/orders', authenticateToken, (req, res) => {
-  const { total_amount, status, payment_method, shipping_address } = req.body;
-  const user_id = req.user.id; // Trust token, not body
-
-  if (!total_amount) {
-    return res.status(400).json({ error: 'Total amount is required' });
-  }
-
-  db.run(`
-    INSERT INTO orders (user_id, total_amount, status, payment_method, shipping_address)
-    VALUES (?, ?, ?, ?, ?)
-  `, [user_id, total_amount, status || 'pending', payment_method, shipping_address], function (err) {
-    if (err) {
-      console.error('Error creating order:', err);
-      return res.status(500).json({ error: 'Failed to create order' });
-    }
-
-    res.status(201).json({
-      id: this.lastID,
-      user_id,
-      total_amount
-    });
-  });
-});
-
-// Helper functions
-function generateAvailableSlots(availableTimeSlots, bookedTimes) {
-  const slots = [];
-  const timeRanges = availableTimeSlots.split(', ');
-
-  timeRanges.forEach(range => {
-    const [start, end] = range.split('-');
-    const startHour = parseInt(start.split(':')[0]);
-    const endHour = parseInt(end.split(':')[0]);
-
-    for (let hour = startHour; hour < endHour; hour++) {
-      const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
-      if (!bookedTimes.includes(timeSlot)) {
-        slots.push(timeSlot);
-      }
-    }
-  });
-
-  return slots;
-}
-
-function updateDoctorRating(doctorId) {
-  db.get('SELECT AVG(rating) as avg_rating, COUNT(*) as total_reviews FROM doctor_reviews WHERE doctor_id = ?',
-    [doctorId], (err, result) => {
-      if (err) {
-        console.error('Error calculating rating:', err);
-        return;
-      }
-
-      db.run('UPDATE doctors SET rating = ?, total_reviews = ? WHERE id = ?',
-        [result.avg_rating, result.total_reviews, doctorId], (err) => {
-          if (err) {
-            console.error('Error updating doctor rating:', err);
-          }
+        const review = await DoctorReview.create({
+            user_id: req.user.id,
+            doctor_id: req.params.id,
+            appointment_id,
+            rating,
+            review_text: review_text || ''
         });
-    });
-}
 
-// Serve React app
+        // Update doctor's average rating
+        const reviews = await DoctorReview.find({ doctor_id: req.params.id });
+        const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+        await Doctor.findByIdAndUpdate(req.params.id, {
+            rating: avgRating.toFixed(1),
+            total_reviews: reviews.length
+        });
+
+        res.status(201).json(review);
+    } catch (error) {
+        console.error('Error adding review:', error);
+        res.status(500).json({ error: 'Failed to add review' });
+    }
+});
+
+// User Management
+
+// Get all users (PROTECTED - Admin only in production)
+app.get('/api/users', authenticateToken, async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+// Create user (Sign up)
+app.post('/api/users', async (req, res) => {
+    try {
+        const { name, email, password, phone } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ error: 'User with this email already exists' });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create user
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            phone: phone || ''
+        });
+
+        res.status(201).json({
+            id: user._id,
+            name: user.name,
+            email: user.email
+        });
+    } catch (error) {
+        console.error('Error creating user:', error);
+        res.status(500).json({ error: 'Failed to create user' });
+    }
+});
+
+// Login
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        // Check password
+        const match = await bcrypt.compare(password, user.password);
+
+        // Fallback for plain text passwords (auto-migrate)
+        if (!match) {
+            if (user.password === password) {
+                // Auto-hash plain text password
+                const newHash = await bcrypt.hash(password, 10);
+                user.password = newHash;
+                await user.save();
+            } else {
+                return res.status(401).json({ error: 'Invalid credentials' });
+            }
+        }
+
+        // Generate JWT
+        const token = jwt.sign(
+            {
+                id: user._id,
+                email: user.email,
+                role: user.role || 'user'
+            },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.json({
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role || 'user'
+            }
+        });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// Orders
+
+// Get orders (PROTECTED)
+app.get('/api/orders', authenticateToken, async (req, res) => {
+    try {
+        const { userId } = req.query;
+        const orders = await Order.find({ user_id: userId }).sort({ created_at: -1 });
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+// Create order (PROTECTED)
+app.post('/api/orders', authenticateToken, async (req, res) => {
+    try {
+        const order = await Order.create(req.body);
+        res.status(201).json(order);
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: 'Failed to create order' });
+    }
+});
+
+// Serve static files (for production)
 app.use(express.static(path.join(__dirname, '../build')));
-
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
 // Start server
-// Start server only if not in Vercel environment (Vercel handles it via module.exports)
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+    console.log(`[Server] Running on port ${PORT}`);
+    console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
+});
 
 module.exports = app;
