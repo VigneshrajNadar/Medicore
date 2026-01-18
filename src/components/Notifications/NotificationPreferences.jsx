@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FaBell, 
-  FaEnvelope, 
-  FaSms, 
-  FaMobile, 
-  FaDesktop, 
+import {
+  FaBell,
+  FaEnvelope,
+  FaSms,
+  FaMobile,
+  FaDesktop,
   FaCog,
   FaCheck,
   FaTimes,
@@ -272,9 +272,9 @@ const NotificationPreferences = () => {
           [type]: value
         }
       };
-      
+
       setPreferences(newPreferences);
-      
+
       const userId = localStorage.getItem('userId') || 'user_123';
       await notificationService.updateUserPreferences(userId, newPreferences);
     } catch (error) {
@@ -285,7 +285,7 @@ const NotificationPreferences = () => {
   const testNotification = async (type) => {
     setTesting(true);
     setTestResult(null);
-    
+
     try {
       const userId = localStorage.getItem('userId') || 'user_123';
       const result = await notificationService.testNotification(userId, type);
@@ -304,17 +304,17 @@ const NotificationPreferences = () => {
       description: 'Get notified about order status changes',
       icon: <FaShoppingCart />,
       iconBg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        testType: 'order'
-      },
-      {
-        key: 'healthTips',
-        title: 'Health Tips',
+      testType: 'order'
+    },
+    {
+      key: 'healthTips',
+      title: 'Health Tips',
       description: 'Receive daily health tips and wellness advice',
       icon: <FaHeart />,
       iconBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        testType: 'health'
-      },
-      {
+      testType: 'health'
+    },
+    {
       key: 'promotionalOffers',
       title: 'Promotional Offers',
       description: 'Get notified about special offers and discounts',
@@ -352,7 +352,7 @@ const NotificationPreferences = () => {
     <Container>
       <Header>
         <Title>Notification Preferences</Title>
-        <Subtitle>Customize how you receive notifications from Apollo Clone</Subtitle>
+        <Subtitle>Customize how you receive notifications from MediCore</Subtitle>
       </Header>
 
       <PreferencesGrid>
@@ -385,14 +385,14 @@ const NotificationPreferences = () => {
                       <ToggleDescription>{type.description}</ToggleDescription>
                     </ToggleText>
                   </ToggleLabel>
-              <ToggleSwitch>
-                <ToggleInput
-                  type="checkbox"
+                  <ToggleSwitch>
+                    <ToggleInput
+                      type="checkbox"
                       checked={preferences[channel.key][type.key]}
                       onChange={(e) => updatePreference(channel.key, type.key, e.target.checked)}
-                />
+                    />
                     <ToggleSlider />
-              </ToggleSwitch>
+                  </ToggleSwitch>
                 </ToggleItem>
               ))}
             </ToggleGroup>
@@ -402,7 +402,7 @@ const NotificationPreferences = () => {
               disabled={testing}
             >
               {testing ? 'Testing...' : 'Test Notifications'}
-                </TestButton>
+            </TestButton>
 
             {testResult && (
               <div style={{

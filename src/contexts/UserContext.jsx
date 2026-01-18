@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import userDB from '../utils/userDatabase';
+import api from '../services/api';
 
 const UserContext = createContext();
 
@@ -22,26 +23,52 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     // Load current user on app start
-    const user = userDB.getCurrentUser();
-    setCurrentUser(user);
-    
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      // Ideally verify token or fetch profile from backend
+      // For now, let's trust localStorage ID for session persistence 
+      // BUT we should verify with backend.
+      // Since getProfile endpoint is mocked in api.js (step 36) but points to /api/profile which is MISSING in backend...
+      // We might need to implement /api/profile too or use /api/users/:id.
+      // Let's use userDB as fallback for session restoration to avoid full breakage,
+      // but for LOGIN/SIGNUP we definitely use Backend.
+      const user = userDB.getCurrentUser();
+      if (user) setCurrentUser(user);
+    }
+
     // Load medicine history from localStorage
     const savedHistory = localStorage.getItem('medicineHistory');
     if (savedHistory) {
       setMedicineHistory(JSON.parse(savedHistory));
     }
-    
+
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const result = userDB.loginUser(email, password);
-    if (result.success) {
-      setCurrentUser(result.user);
-      localStorage.setItem('user', JSON.stringify(result.user));
-      localStorage.setItem('userId', result.user.id);
+    try {
+      // Use Backend API for Login
+      const data = await api.login({ email, password });
+
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      const user = data.user || data;
+
+      // If successful, update state
+      setCurrentUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('userId', user.id);
+
+      // Also sync to local mock DB for compatibility with other components
+      // This is a bridge until full refactor
+      userDB.users.set(user.id, user);
+
+      return { success: true, user };
+    } catch (error) {
+      return { success: false, message: error.message };
     }
-    return result;
   };
 
   const logout = () => {
@@ -49,10 +76,12 @@ export const UserProvider = ({ children }) => {
     setCurrentUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('userId');
+    localStorage.removeItem('token');
   };
 
   const updateUser = (updateData) => {
     if (currentUser) {
+      // TODO: Call API to update user
       const updatedUser = userDB.updateUser(currentUser.id, updateData);
       setCurrentUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -124,17 +153,11 @@ export const UserProvider = ({ children }) => {
 
   const createUser = async (userData) => {
     try {
-      // Check if user already exists
-      const existingUser = userDB.getUserByEmail(userData.email);
-      if (existingUser) {
-        return { success: false, message: 'User with this email already exists' };
-      }
-
-      // Create new user
-      const newUser = userDB.createUser(userData);
+      // Use Backend API for Signup
+      const newUser = await api.createUser(userData);
       return { success: true, user: newUser };
     } catch (error) {
-      return { success: false, message: 'Failed to create user' };
+      return { success: false, message: 'Failed to create user: ' + error.message };
     }
   };
 
@@ -171,7 +194,7 @@ export const UserProvider = ({ children }) => {
         const updatedUser = userDB.getCurrentUser();
         setCurrentUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        
+
         // Add notification for new order
         userDB.addNotification(currentUser.id, {
           title: 'Order Placed Successfully',
@@ -180,7 +203,7 @@ export const UserProvider = ({ children }) => {
         });
       }
       return order;
-    }
+    };
     return null;
   };
 

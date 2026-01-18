@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaCalendarAlt, 
-  FaClock, 
-  FaUser, 
-  FaPhone, 
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaUser,
+  FaPhone,
   FaMapMarkerAlt,
   FaRupeeSign,
   FaCreditCard,
@@ -18,10 +18,10 @@ import {
   FaEnvelope
 } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  getDoctorById, 
-  getDoctorAvailableSlots, 
-  bookAppointment 
+import {
+  getDoctorById,
+  getDoctorAvailableSlots,
+  bookAppointment
 } from '../../services/api';
 import { useUser } from '../../contexts/UserContext';
 import './AppointmentBooking.css';
@@ -115,7 +115,7 @@ const AppointmentBooking = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -138,19 +138,21 @@ const AppointmentBooking = () => {
       };
 
       const result = await bookAppointment(appointmentData);
-      
+
       // Add to user's health records
       addHealthRecord('appointment', {
         type: 'Doctor Appointment',
         doctor: doctor?.name || 'Dr. Unknown',
-        hospital: doctor?.hospital || 'Medical Center',
+        hospital: doctor?.hospital_name || doctor?.hospital || 'Medical Center',
         date: selectedDate,
         time: selectedTime,
         status: 'scheduled',
         notes: `Consultation: ${formData.consultationType}. Symptoms: ${formData.symptoms}`,
         consultationType: formData.consultationType,
         symptoms: formData.symptoms,
-        appointmentId: result?.id
+        appointmentId: result?.id,
+        consultation_fee: doctor?.consultation_fee || 0,
+        total_amount: doctor?.consultation_fee || 0
       });
 
       // Add notification
@@ -159,7 +161,7 @@ const AppointmentBooking = () => {
         message: `Your appointment with ${doctor?.name || 'the doctor'} has been scheduled for ${selectedDate} at ${selectedTime}`,
         type: 'success'
       });
-      
+
       setBookingDetails(result);
       setBookingSuccess(true);
       setBookingStep(3);
@@ -175,7 +177,7 @@ const AppointmentBooking = () => {
       ...prev,
       [field]: value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
@@ -188,18 +190,18 @@ const AppointmentBooking = () => {
   const getAvailableDates = () => {
     const dates = [];
     const today = new Date();
-    
+
     for (let i = 1; i <= 30; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
-      
+
       // Check if the day is available (simple check - can be enhanced)
       const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
       if (doctor && doctor.available_days.includes(dayName)) {
         dates.push(date);
       }
     }
-    
+
     return dates;
   };
 
@@ -210,19 +212,19 @@ const AppointmentBooking = () => {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     // Add all days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(new Date(year, month, i));
     }
-    
+
     return days;
   };
 
@@ -323,20 +325,20 @@ const AppointmentBooking = () => {
       </div>
 
       {bookingStep === 1 && (
-        <motion.div 
+        <motion.div
           className="booking-step-content"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
         >
           <h3>Select Date & Time</h3>
-          
+
           <div className="date-selection">
             <h4>Select Date</h4>
-            
+
             {/* Calendar Header */}
             <div className="calendar-header">
-              <button 
+              <button
                 className="calendar-nav-btn"
                 onClick={() => changeMonth('prev')}
               >
@@ -345,7 +347,7 @@ const AppointmentBooking = () => {
               <h5 className="calendar-month">
                 {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </h5>
-              <button 
+              <button
                 className="calendar-nav-btn"
                 onClick={() => changeMonth('next')}
               >
@@ -375,7 +377,7 @@ const AppointmentBooking = () => {
                 </div>
               ))}
             </div>
-            
+
             {errors.date && <p className="error">{errors.date}</p>}
           </div>
 
@@ -403,7 +405,7 @@ const AppointmentBooking = () => {
           )}
 
           <div className="step-actions">
-            <button 
+            <button
               className="next-btn"
               onClick={() => setBookingStep(2)}
               disabled={!selectedDate || !selectedTime}
@@ -415,14 +417,14 @@ const AppointmentBooking = () => {
       )}
 
       {bookingStep === 2 && (
-        <motion.div 
+        <motion.div
           className="booking-step-content"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
         >
           <h3>Patient Details</h3>
-          
+
           <form onSubmit={handleSubmit} className="patient-form">
             <div className="form-group">
               <label>
@@ -504,15 +506,15 @@ const AppointmentBooking = () => {
             {errors.submit && <p className="error">{errors.submit}</p>}
 
             <div className="step-actions">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="back-btn"
                 onClick={() => setBookingStep(1)}
               >
                 Back
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="book-btn"
                 disabled={bookingLoading}
               >
@@ -524,7 +526,7 @@ const AppointmentBooking = () => {
       )}
 
       {bookingStep === 3 && bookingSuccess && (
-        <motion.div 
+        <motion.div
           className="booking-step-content"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -561,7 +563,7 @@ const AppointmentBooking = () => {
           </div>
 
           <div className="step-actions">
-            <button 
+            <button
               className="close-btn"
               onClick={() => navigate('/doctors')}
             >
@@ -572,7 +574,7 @@ const AppointmentBooking = () => {
       )}
 
       {/* Animated Footer */}
-      <motion.footer 
+      <motion.footer
         className="appointment-footer"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -593,7 +595,7 @@ const AppointmentBooking = () => {
               </a>
             </div>
           </div>
-          
+
           <div className="footer-section">
             <h4>Quick Links</h4>
             <div className="footer-links">
@@ -602,7 +604,7 @@ const AppointmentBooking = () => {
               <a href="#" className="footer-link">FAQ</a>
             </div>
           </div>
-          
+
           <div className="footer-section">
             <h4>Follow Us</h4>
             <div className="footer-social">
@@ -618,7 +620,7 @@ const AppointmentBooking = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="footer-bottom">
           <p>&copy; 2024 Apollo 247. All rights reserved.</p>
         </div>

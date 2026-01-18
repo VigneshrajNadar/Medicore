@@ -11,12 +11,12 @@ class UserDatabase {
     try {
       const storedUsers = localStorage.getItem('apolloUsers');
       const currentUserId = localStorage.getItem('currentUserId');
-      
+
       if (storedUsers) {
         const usersData = JSON.parse(storedUsers);
         this.users = new Map(Object.entries(usersData));
       }
-      
+
       if (currentUserId && this.users.has(currentUserId)) {
         this.currentUser = this.users.get(currentUserId);
       }
@@ -56,7 +56,7 @@ class UserDatabase {
       chronicConditions: userData.chronicConditions || [],
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
-      
+
       // Health Data
       healthHistory: {
         vitals: {
@@ -117,7 +117,7 @@ class UserDatabase {
 
       // Order History
       orders: [],
-      
+
       // Notifications
       notifications: [
         {
@@ -149,7 +149,7 @@ class UserDatabase {
 
       // Cart
       cart: [],
-      
+
       // Favorites
       favorites: {
         doctors: [],
@@ -207,11 +207,11 @@ class UserDatabase {
       const user = this.users.get(userId);
       const updatedUser = { ...user, ...updateData };
       this.users.set(userId, updatedUser);
-      
+
       if (this.currentUser && this.currentUser.id === userId) {
         this.currentUser = updatedUser;
       }
-      
+
       this.saveToStorage();
       return updatedUser;
     }
@@ -287,13 +287,16 @@ class UserDatabase {
       status: 'processing'
     };
 
+    if (!user.orders) {
+      user.orders = [];
+    }
     user.orders.push(order);
     this.users.set(userId, user);
-    
+
     if (this.currentUser && this.currentUser.id === userId) {
       this.currentUser = user;
     }
-    
+
     this.saveToStorage();
     return order;
   }
@@ -310,13 +313,17 @@ class UserDatabase {
       createdAt: new Date().toISOString()
     };
 
+    if (!user.notifications) {
+      user.notifications = [];
+    }
+
     user.notifications.unshift(notification);
     this.users.set(userId, user);
-    
+
     if (this.currentUser && this.currentUser.id === userId) {
       this.currentUser = user;
     }
-    
+
     this.saveToStorage();
     return notification;
   }
@@ -328,11 +335,11 @@ class UserDatabase {
 
     user.cart = cartItems;
     this.users.set(userId, user);
-    
+
     if (this.currentUser && this.currentUser.id === userId) {
       this.currentUser = user;
     }
-    
+
     this.saveToStorage();
     return true;
   }
@@ -354,7 +361,7 @@ class UserDatabase {
 
     user.favorites[type].push(favorite);
     this.users.set(userId, user);
-    
+
     if (this.currentUser && this.currentUser.id === userId) {
       this.currentUser = user;
     }
@@ -390,7 +397,7 @@ class UserDatabase {
     const results = [];
     for (let [userId, user] of this.users) {
       if (user.name.toLowerCase().includes(query.toLowerCase()) ||
-          user.email.toLowerCase().includes(query.toLowerCase())) {
+        user.email.toLowerCase().includes(query.toLowerCase())) {
         results.push(user);
       }
     }
@@ -458,7 +465,7 @@ if (userDB.users.size === 0) {
 
   demoUsers.forEach((userData, index) => {
     const user = userDB.createUser(userData);
-    
+
     // Add sample health data
     userDB.addHealthRecord(user.id, 'appointment', {
       type: 'General Checkup',
@@ -487,7 +494,7 @@ if (userDB.users.size === 0) {
       total: 175,
       deliveryAddress: user.address
     });
-    
+
     // Auto-login the first demo user for testing
     if (index === 0 && !userDB.getCurrentUser()) {
       userDB.currentUser = user;

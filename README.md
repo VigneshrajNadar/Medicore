@@ -649,8 +649,11 @@ All demo users use password: `demo123`
 1. **Email/Password Login**: Standard email and password authentication
 2. **Phone OTP Login**: Firebase-based phone authentication with OTP
 3. **LocalStorage Session**: Client-side session management
+4. **Secure Password Hashing**: All passwords are now hashed using **bcrypt**.
+   - **Legacy Support**: Accounts with plain-text passwords are automatically migrated to hashed passwords upon their first successful login.
 
----
+### Deployment
+This repository is connected to Vercel for continuous deployment. Pushes to the `main` branch trigger automatic builds and updates to the live application.
 
 ## 📡 API Documentation
 

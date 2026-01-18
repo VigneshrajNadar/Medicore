@@ -1,0 +1,15 @@
+{
+    "name": "SecTest",
+    "email": "sectest@example.com",
+    "password": "securepass123",
+    "phone": "1234567890",
+    "address": "123 Secure St",
+    "city": "Safe City",
+    "state": "Secure State",
+    "pincode": "123456",
+    "date_of_birth": "1990-01-01",
+    "gender": "Male",
+    "blood_group": "O+",
+    "emergency_contact": "9876543210",
+    "emergency_contact_relation": "Brother"
+}

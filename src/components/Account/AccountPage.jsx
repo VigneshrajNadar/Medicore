@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaUser, 
-  FaShoppingBag, 
-  FaBell, 
-  FaCog, 
+import {
+  FaUser,
+  FaShoppingBag,
+  FaBell,
+  FaCog,
   FaSignOutAlt,
   FaEdit,
   FaEye,
@@ -20,6 +20,7 @@ import {
   FaPhone,
   FaEnvelope,
   FaCalendarAlt,
+  FaClock,
   FaUserMd,
   FaHospital,
   FaVideo,
@@ -51,6 +52,11 @@ const AccountPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  const handleViewAppointment = (appointment) => {
+    setSelectedAppointment(appointment);
+  };
 
   const handleLogout = () => {
     logout();
@@ -97,10 +103,10 @@ const AccountPage = () => {
     try {
       // Update via API
       await updateProfile(currentUser.id, editData);
-      
+
       // Update user context
       updateUser({ ...currentUser, ...editData });
-      
+
       // Update localStorage
       const users = JSON.parse(localStorage.getItem('users') || '[]');
       const userIndex = users.findIndex(u => u.id === currentUser.id || u.email === currentUser.email);
@@ -108,7 +114,7 @@ const AccountPage = () => {
         users[userIndex] = { ...users[userIndex], ...editData };
         localStorage.setItem('users', JSON.stringify(users));
       }
-      
+
       setEditMode(false);
       console.log('Profile updated successfully');
     } catch (error) {
@@ -212,7 +218,7 @@ const AccountPage = () => {
     <div className="account-section">
       {/* Subscription Badge */}
       <SubscriptionBadge showDetails={true} />
-      
+
       <div className="section-header">
         <h2>My Profile</h2>
         {!editMode ? (
@@ -221,16 +227,16 @@ const AccountPage = () => {
           </button>
         ) : (
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
-              className="save-btn" 
+            <button
+              className="save-btn"
               onClick={handleSaveProfile}
               disabled={saveLoading}
               style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
             >
               <FaSave /> {saveLoading ? 'Saving...' : 'Save'}
             </button>
-            <button 
-              className="cancel-btn" 
+            <button
+              className="cancel-btn"
               onClick={handleCancelEdit}
               style={{ background: '#ef4444', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
             >
@@ -239,7 +245,7 @@ const AccountPage = () => {
           </div>
         )}
       </div>
-      
+
       <div className="profile-card">
         <div className="profile-avatar">
           <div className="avatar-circle">
@@ -370,30 +376,30 @@ const AccountPage = () => {
     // Get fresh orders from localStorage every render
     const apolloUsers = JSON.parse(localStorage.getItem('apolloUsers') || '{}');
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
+
     // Find current user's orders from both sources
     let userOrders = [];
-    
+
     // Check apolloUsers
     if (currentUser?.id && apolloUsers[currentUser.id]?.orders) {
       userOrders = [...apolloUsers[currentUser.id].orders];
     }
-    
+
     // Check users array
     const userInArray = users.find(u => u.id === currentUser?.id || u.email === currentUser?.email);
     if (userInArray?.orders) {
       userOrders = [...userOrders, ...userInArray.orders];
     }
-    
+
     // Remove duplicates based on order ID
-    userOrders = userOrders.filter((order, index, self) => 
+    userOrders = userOrders.filter((order, index, self) =>
       index === self.findIndex(o => o.id === order.id)
     );
-    
+
     const allOrders = userOrders;
     const pharmacyOrders = allOrders.filter(order => order.orderType === 'pharmacy');
     const labTestOrders = allOrders.filter(order => order.orderType === 'lab_test');
-    
+
     const getFilteredOrders = () => {
       switch (orderFilter) {
         case 'pharmacy': return pharmacyOrders;
@@ -401,9 +407,9 @@ const AccountPage = () => {
         default: return allOrders;
       }
     };
-    
+
     const filteredOrders = getFilteredOrders();
-    
+
     return (
       <div className="account-section">
         <div className="section-header">
@@ -414,22 +420,22 @@ const AccountPage = () => {
             </span>
           </div>
         </div>
-        
+
         {/* Order Filter Tabs */}
         <div className="order-filter-tabs">
-          <button 
+          <button
             className={`filter-tab ${orderFilter === 'all' ? 'active' : ''}`}
             onClick={() => setOrderFilter('all')}
           >
             All Orders ({allOrders.length})
           </button>
-          <button 
+          <button
             className={`filter-tab ${orderFilter === 'pharmacy' ? 'active' : ''}`}
             onClick={() => setOrderFilter('pharmacy')}
           >
             💊 Pharmacy ({pharmacyOrders.length})
           </button>
-          <button 
+          <button
             className={`filter-tab ${orderFilter === 'lab_test' ? 'active' : ''}`}
             onClick={() => setOrderFilter('lab_test')}
           >
@@ -440,135 +446,135 @@ const AccountPage = () => {
         <div className="orders-list">
           {filteredOrders.length > 0 ? (
             filteredOrders.map((order, index) => (
-            <motion.div
-              key={order.id}
-              className="order-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className="order-header">
-                <div className="order-info">
-                  <h4>Order #{order.id || `ORD-${index + 1}`}</h4>
-                  <p className="order-date">{order.date || order.createdAt || 'Recent'}</p>
-                  <span className={`order-status ${order.status || 'pending'}`}>
-                    {(order.status || 'pending').replace('_', ' ').toUpperCase()}
-                  </span>
-                  {order.lastUpdated && (
-                    <p className="last-updated">Updated: {new Date(order.lastUpdated).toLocaleString()}</p>
-                  )}
-                </div>
-                <div className="order-amount">
-                  ₹{order.total || order.amount || '0'}
-                </div>
-              </div>
-              
-              <div className="order-items">
-                {order.items ? (
-                  order.items.slice(0, 2).map((item, idx) => (
-                    <div key={idx} className="order-item">
-                      <span>{item.name}</span>
-                      <span>Qty: {item.quantity}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="order-item">
-                    <span>{order.test || order.productName || 'Order Item'}</span>
-                  </div>
-                )}
-                {order.items && order.items.length > 2 && (
-                  <div className="more-items">+{order.items.length - 2} more items</div>
-                )}
-              </div>
-              
-              <div className="order-actions">
-                <button 
-                  className="action-btn view"
-                  onClick={() => handleViewInvoice(order)}
-                >
-                  <FaEye /> View Details
-                </button>
-                {order.orderType === 'lab_test' && (
-                  <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0'}}>
-                    <div style={{width: '100%', marginBottom: '10px'}}>
-                      <span style={{padding: '5px 10px', background: order.resultFile ? '#10b981' : '#f59e0b', color: 'white', borderRadius: '4px', fontSize: '12px', fontWeight: '600'}}>
-                        Status: {order.status || 'pending'} {order.resultFile ? '✅ Results Ready' : '⏳ Processing'}
-                      </span>
-                    </div>
-                    
-                    <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', width: '100%'}}>
-                      <button 
-                        className="action-btn download"
-                        onClick={() => {
-                          if (order.resultFile && order.resultFile.data) {
-                            const link = document.createElement('a');
-                            link.href = order.resultFile.data;
-                            link.download = order.resultFile.name || 'lab-result-image';
-                            link.click();
-                          } else {
-                            alert('Result image not available yet. Please wait for results to be uploaded.');
-                          }
-                        }}
-                        style={{
-                          background: order.resultFile ? '#8b5cf6' : '#94a3b8', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '10px 15px', 
-                          borderRadius: '6px', 
-                          cursor: order.resultFile ? 'pointer' : 'not-allowed',
-                          fontWeight: '600',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '5px'
-                        }}
-                        disabled={!order.resultFile}
-                      >
-                        <FaReceipt /> {order.resultFile ? 'Download Image' : 'Image Not Ready'}
-                      </button>
-                    </div>
-                    
-                    {order.resultFile && (
-                      <div style={{width: '100%', marginTop: '10px'}}>
-                        <div style={{padding: '8px', backgroundColor: '#f0fdf4', borderRadius: '4px', border: '1px solid #bbf7d0', marginBottom: '10px'}}>
-                          <p style={{margin: 0, fontSize: '12px', color: '#166534', fontWeight: '500'}}>
-                            🖼️ {order.resultFile.name} • Uploaded: {new Date(order.resultFile.uploadDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div style={{textAlign: 'center', padding: '10px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e2e8f0'}}>
-                          <img 
-                            src={order.resultFile.data} 
-                            alt="Lab Test Result" 
-                            style={{
-                              maxWidth: '100%', 
-                              maxHeight: '200px', 
-                              borderRadius: '4px',
-                              border: '1px solid #d1d5db',
-                              cursor: 'pointer'
-                            }}
-                            onClick={() => window.open(order.resultFile.data, '_blank')}
-                          />
-                          <p style={{margin: '8px 0 0 0', fontSize: '11px', color: '#6b7280'}}>
-                            Click image to view full size
-                          </p>
-                        </div>
-                      </div>
+              <motion.div
+                key={order.id}
+                className="order-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="order-header">
+                  <div className="order-info">
+                    <h4>Order #{order.id || `ORD-${index + 1}`}</h4>
+                    <p className="order-date">{order.date || order.createdAt || 'Recent'}</p>
+                    <span className={`order-status ${order.status || 'pending'}`}>
+                      {(order.status || 'pending').replace('_', ' ').toUpperCase()}
+                    </span>
+                    {order.lastUpdated && (
+                      <p className="last-updated">Updated: {new Date(order.lastUpdated).toLocaleString()}</p>
                     )}
                   </div>
-                )}
-              </div>
-            </motion.div>
+                  <div className="order-amount">
+                    ₹{order.total || order.amount || '0'}
+                  </div>
+                </div>
+
+                <div className="order-items">
+                  {order.items ? (
+                    order.items.slice(0, 2).map((item, idx) => (
+                      <div key={idx} className="order-item">
+                        <span>{item.name}</span>
+                        <span>Qty: {item.quantity}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="order-item">
+                      <span>{order.test || order.productName || 'Order Item'}</span>
+                    </div>
+                  )}
+                  {order.items && order.items.length > 2 && (
+                    <div className="more-items">+{order.items.length - 2} more items</div>
+                  )}
+                </div>
+
+                <div className="order-actions">
+                  <button
+                    className="action-btn view"
+                    onClick={() => handleViewInvoice(order)}
+                  >
+                    <FaEye /> View Details
+                  </button>
+                  {order.orderType === 'lab_test' && (
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ width: '100%', marginBottom: '10px' }}>
+                        <span style={{ padding: '5px 10px', background: order.resultFile ? '#10b981' : '#f59e0b', color: 'white', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
+                          Status: {order.status || 'pending'} {order.resultFile ? '✅ Results Ready' : '⏳ Processing'}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', width: '100%' }}>
+                        <button
+                          className="action-btn download"
+                          onClick={() => {
+                            if (order.resultFile && order.resultFile.data) {
+                              const link = document.createElement('a');
+                              link.href = order.resultFile.data;
+                              link.download = order.resultFile.name || 'lab-result-image';
+                              link.click();
+                            } else {
+                              alert('Result image not available yet. Please wait for results to be uploaded.');
+                            }
+                          }}
+                          style={{
+                            background: order.resultFile ? '#8b5cf6' : '#94a3b8',
+                            color: 'white',
+                            border: 'none',
+                            padding: '10px 15px',
+                            borderRadius: '6px',
+                            cursor: order.resultFile ? 'pointer' : 'not-allowed',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                          }}
+                          disabled={!order.resultFile}
+                        >
+                          <FaReceipt /> {order.resultFile ? 'Download Image' : 'Image Not Ready'}
+                        </button>
+                      </div>
+
+                      {order.resultFile && (
+                        <div style={{ width: '100%', marginTop: '10px' }}>
+                          <div style={{ padding: '8px', backgroundColor: '#f0fdf4', borderRadius: '4px', border: '1px solid #bbf7d0', marginBottom: '10px' }}>
+                            <p style={{ margin: 0, fontSize: '12px', color: '#166534', fontWeight: '500' }}>
+                              🖼️ {order.resultFile.name} • Uploaded: {new Date(order.resultFile.uploadDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div style={{ textAlign: 'center', padding: '10px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                            <img
+                              src={order.resultFile.data}
+                              alt="Lab Test Result"
+                              style={{
+                                maxWidth: '100%',
+                                maxHeight: '200px',
+                                borderRadius: '4px',
+                                border: '1px solid #d1d5db',
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => window.open(order.resultFile.data, '_blank')}
+                            />
+                            <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+                              Click image to view full size
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
             ))
           ) : (
             <div className="empty-state">
               <FaShoppingBag className="empty-icon" />
               <h3>
                 {orderFilter === 'pharmacy' ? 'No Pharmacy Orders' :
-                 orderFilter === 'lab_test' ? 'No Lab Test Orders' : 'No Orders Yet'}
+                  orderFilter === 'lab_test' ? 'No Lab Test Orders' : 'No Orders Yet'}
               </h3>
               <p>
                 {orderFilter === 'pharmacy' ? 'Your pharmacy orders will appear here' :
-                 orderFilter === 'lab_test' ? 'Your lab test bookings will appear here' :
-                 'Your orders will appear here once you make a purchase'}
+                  orderFilter === 'lab_test' ? 'Your lab test bookings will appear here' :
+                    'Your orders will appear here once you make a purchase'}
               </p>
             </div>
           )}
@@ -596,8 +602,8 @@ const AccountPage = () => {
             >
               <div className="notification-icon">
                 {notification.type === 'success' ? '✅' :
-                 notification.type === 'error' ? '❌' :
-                 notification.type === 'warning' ? '⚠️' : 'ℹ️'}
+                  notification.type === 'error' ? '❌' :
+                    notification.type === 'warning' ? '⚠️' : 'ℹ️'}
               </div>
               <div className="notification-content">
                 <h4>{notification.title}</h4>
@@ -798,7 +804,7 @@ const AccountPage = () => {
                       </p>
                     </div>
                     <div className="appointment-status">
-                      <span 
+                      <span
                         className={`status-badge ${appointment.appointment_status || appointment.status || 'confirmed'}`}
                         style={{
                           padding: '6px 12px',
@@ -826,7 +832,7 @@ const AccountPage = () => {
                         {appointment.appointment_date || appointment.date || 'Sep 15, 2024'} at {appointment.appointment_time || appointment.time || '10:00 AM'}
                       </p>
                     </div>
-                    
+
                     <div className="detail-item">
                       <label style={{ fontSize: '12px', color: '#6b7280', fontWeight: '600', display: 'block', marginBottom: '4px' }}>CONSULTATION TYPE</label>
                       <p style={{ margin: 0, color: '#1a202c', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -850,17 +856,15 @@ const AccountPage = () => {
                   </div>
 
                   <div className="appointment-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    <button 
+                    <button
                       className="action-btn primary"
-                      onClick={() => {
-                        alert(`Appointment Details:\n\nDoctor: ${appointment.doctor_name || appointment.doctorName || appointment.doctor || 'Dr. Smith'}\nSpecialization: ${appointment.specialization || 'General Medicine'}\nHospital: ${appointment.hospital_name || appointment.hospital || 'Apollo Hospital'}\nDate: ${appointment.appointment_date || appointment.date || 'Sep 15, 2024'}\nTime: ${appointment.appointment_time || appointment.time || '10:00 AM'}\nStatus: ${appointment.appointment_status || appointment.status || 'confirmed'}`);
-                      }}
-                      style={{ 
-                        background: '#3b82f6', 
-                        color: 'white', 
-                        border: 'none', 
-                        padding: '8px 16px', 
-                        borderRadius: '6px', 
+                      onClick={() => handleViewAppointment(appointment)}
+                      style={{
+                        background: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
                         cursor: 'pointer',
                         fontSize: '14px',
                         fontWeight: '500',
@@ -872,14 +876,14 @@ const AccountPage = () => {
                       <FaEye /> View Details
                     </button>
                     {((appointment.consultation_type || appointment.consultationType) === 'Video Call' || (appointment.consultation_type || appointment.consultationType) === 'video') && (
-                      <button 
+                      <button
                         className="action-btn video"
-                        style={{ 
-                          background: '#8b5cf6', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '8px 16px', 
-                          borderRadius: '6px', 
+                        style={{
+                          background: '#8b5cf6',
+                          color: 'white',
+                          border: 'none',
+                          padding: '8px 16px',
+                          borderRadius: '6px',
                           cursor: 'pointer',
                           fontSize: '14px',
                           fontWeight: '500',
@@ -899,7 +903,7 @@ const AccountPage = () => {
                 <FaCalendarAlt style={{ fontSize: '48px', color: '#d1d5db', marginBottom: '16px' }} />
                 <h3 style={{ margin: '0 0 8px 0', color: '#374151' }}>No Appointments Yet</h3>
                 <p style={{ margin: '0 0 20px 0' }}>Your upcoming appointments will appear here</p>
-                <button 
+                <button
                   onClick={() => navigate('/doctor-appointment')}
                   style={{
                     background: '#3b82f6',
@@ -919,6 +923,136 @@ const AccountPage = () => {
           </div>
 
         </>
+      )}
+
+      {/* Appointment Details Modal */}
+      {selectedAppointment && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '24px',
+            position: 'relative',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+          }}>
+            <button
+              onClick={() => setSelectedAppointment(null)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#64748b',
+                fontSize: '20px',
+                padding: '4px'
+              }}
+            >
+              <FaTimes />
+            </button>
+
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', paddingRight: '30px', color: '#1e293b' }}>Appointment Details</h2>
+            <p style={{ color: '#64748b', marginBottom: '24px' }}>#{selectedAppointment.id}</p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <FaUserMd style={{ fontSize: '24px', color: '#3b82f6' }} />
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>{selectedAppointment.doctor_name || selectedAppointment.doctorName || 'Dr. Smith'}</h3>
+                  <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>{selectedAppointment.specialization}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px', display: 'block' }}>DATE</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1e293b', fontWeight: '500' }}>
+                    <FaCalendarAlt style={{ color: '#64748b' }} />
+                    {selectedAppointment.appointment_date || selectedAppointment.date}
+                  </div>
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px', display: 'block' }}>TIME</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1e293b', fontWeight: '500' }}>
+                    <FaClock style={{ color: '#64748b' }} />
+                    {selectedAppointment.appointment_time || selectedAppointment.time}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px', display: 'block' }}>HOSPITAL</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1e293b', fontWeight: '500' }}>
+                  <FaHospital style={{ color: '#64748b' }} />
+                  {selectedAppointment.hospital_name || selectedAppointment.hospital}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px', display: 'block' }}>STATUS</label>
+                <span style={{
+                  display: 'inline-block',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  background:
+                    (selectedAppointment.status || selectedAppointment.appointment_status) === 'Confirmed' ? '#dcfce7' :
+                      (selectedAppointment.status || selectedAppointment.appointment_status) === 'Completed' ? '#dbeafe' : '#fef3c7',
+                  color:
+                    (selectedAppointment.status || selectedAppointment.appointment_status) === 'Confirmed' ? '#166534' :
+                      (selectedAppointment.status || selectedAppointment.appointment_status) === 'Completed' ? '#1e40af' : '#b45309'
+                }}>
+                  {selectedAppointment.status || selectedAppointment.appointment_status || 'Pending'}
+                </span>
+              </div>
+
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#64748b', fontWeight: '500' }}>Consultation Fee</span>
+                <span style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>
+                  ₹{Number(selectedAppointment.total_amount) || Number(selectedAppointment.consultation_fee) || 0}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setSelectedAppointment(null)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  background: 'white',
+                  color: '#64748b',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

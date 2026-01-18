@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FaBell, 
-  FaEnvelope, 
-  FaSms, 
-  FaMobile, 
-  FaDesktop, 
+import {
+  FaBell,
+  FaEnvelope,
+  FaSms,
+  FaMobile,
+  FaDesktop,
   FaCog,
   FaCheck,
   FaTimes,
@@ -172,7 +172,7 @@ const FeatureDemo = () => {
     <Container>
       <Header>
         <Title>Feature Showcase</Title>
-        <Subtitle>Explore the powerful features of Apollo Clone</Subtitle>
+        <Subtitle>Explore the powerful features of MediCore</Subtitle>
       </Header>
 
       <FeaturesGrid>
@@ -195,7 +195,7 @@ const FeatureDemo = () => {
                 <FeatureDescription>{feature.description}</FeatureDescription>
               </div>
             </FeatureHeader>
-            
+
             <div style={{
               padding: '1rem',
               background: 'rgba(102, 126, 234, 0.05)',

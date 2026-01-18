@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaCalculator, 
-  FaBrain, 
-  FaAppleAlt, 
-  FaDumbbell, 
-  FaBed, 
+import {
+  FaCalculator,
+  FaBrain,
+  FaAppleAlt,
+  FaDumbbell,
+  FaBed,
   FaHeartbeat,
-  FaEye, 
-  FaTooth, 
-  FaPills, 
-  FaHospital, 
-  FaSearch, 
-  FaLeaf, 
-  FaUtensils, 
+  FaEye,
+  FaTooth,
+  FaPills,
+  FaHospital,
+  FaSearch,
+  FaLeaf,
+  FaUtensils,
   FaSyringe,
   FaTimes,
   FaPlus,
@@ -231,12 +231,12 @@ const HealthToolsPage = () => {
 
   const renderToolContent = () => {
     if (!selectedTool) return null;
-    
+
     const tool = healthTools.find(t => t.id === selectedTool);
     if (!tool) return null;
 
     const ToolComponent = tool.component;
-    
+
     return (
       <motion.div
         className="tool-fullscreen"
@@ -245,7 +245,7 @@ const HealthToolsPage = () => {
         exit={{ opacity: 0, scale: 0.9, rotateY: 15 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       >
-        <motion.div 
+        <motion.div
           className="tool-header"
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -253,10 +253,10 @@ const HealthToolsPage = () => {
         >
           <div className="tool-header-content">
             <div className="tool-title-section">
-              <motion.div 
+              <motion.div
                 className="tool-icon"
                 style={{ background: tool.gradient }}
-                whileHover={{ 
+                whileHover={{
                   rotate: 360,
                   scale: 1.2,
                   transition: { duration: 0.6, ease: "easeInOut" }
@@ -272,8 +272,8 @@ const HealthToolsPage = () => {
             <motion.button
               className="tool-close-btn"
               onClick={() => setSelectedTool(null)}
-              whileHover={{ 
-                scale: 1.2, 
+              whileHover={{
+                scale: 1.2,
                 rotate: 90,
                 backgroundColor: "rgba(239, 68, 68, 0.2)",
                 transition: { duration: 0.3 }
@@ -285,8 +285,8 @@ const HealthToolsPage = () => {
             </motion.button>
           </div>
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           className="tool-content"
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -312,201 +312,201 @@ const HealthToolsPage = () => {
     <div className="health-tools-page">
       {/* Advanced Floating Background Elements */}
       <div className="floating-elements">
-        <motion.div 
+        <motion.div
           className="floating-element element-1"
-          animate={{ 
+          animate={{
             y: [0, -30, 0],
             rotate: [0, 10, 0],
             scale: [1, 1.2, 1],
             borderRadius: ["50%", "30%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 8,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-2"
-          animate={{ 
+          animate={{
             y: [0, 25, 0],
             rotate: [0, -15, 0],
             scale: [1, 0.8, 1],
             borderRadius: ["50%", "60%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 10,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 1
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-3"
-          animate={{ 
+          animate={{
             y: [0, -40, 0],
             rotate: [0, 20, 0],
             scale: [1, 1.3, 1],
             borderRadius: ["50%", "40%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 12,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 2
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-4"
-          animate={{ 
+          animate={{
             y: [0, 35, 0],
             rotate: [0, -25, 0],
             scale: [1, 0.7, 1],
             borderRadius: ["50%", "70%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 9,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 3
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-5"
-          animate={{ 
+          animate={{
             y: [0, -20, 0],
             rotate: [0, 15, 0],
             scale: [1, 1.1, 1],
             borderRadius: ["50%", "45%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 7,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 4
           }}
         />
-        
+
         {/* Additional Floating Elements */}
-        <motion.div 
+        <motion.div
           className="floating-element element-6"
-          animate={{ 
+          animate={{
             y: [0, -45, 0],
             rotate: [0, 30, 0],
             scale: [1, 1.4, 1],
             borderRadius: ["50%", "25%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 11,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 0.5
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-7"
-          animate={{ 
+          animate={{
             y: [0, 40, 0],
             rotate: [0, -35, 0],
             scale: [1, 0.6, 1],
             borderRadius: ["50%", "80%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 13,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 1.5
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-8"
-          animate={{ 
+          animate={{
             y: [0, -35, 0],
             rotate: [0, 25, 0],
             scale: [1, 1.25, 1],
             borderRadius: ["50%", "35%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 9,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 2.5
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-9"
-          animate={{ 
+          animate={{
             y: [0, 50, 0],
             rotate: [0, -20, 0],
             scale: [1, 0.9, 1],
             borderRadius: ["50%", "55%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 14,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 3.5
           }}
         />
-        <motion.div 
+        <motion.div
           className="floating-element element-10"
-          animate={{ 
+          animate={{
             y: [0, -25, 0],
             rotate: [0, 40, 0],
             scale: [1, 1.15, 1],
             borderRadius: ["50%", "50%", "50%"]
           }}
-          transition={{ 
+          transition={{
             duration: 8,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 4.5
           }}
         />
-        
+
         {/* Animated Geometric Shapes */}
-        <motion.div 
+        <motion.div
           className="geometric-shape shape-1"
-          animate={{ 
+          animate={{
             rotate: [0, 360],
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.7, 0.3]
           }}
-          transition={{ 
+          transition={{
             duration: 15,
             repeat: Infinity,
             ease: "linear"
           }}
         />
-        <motion.div 
+        <motion.div
           className="geometric-shape shape-2"
-          animate={{ 
+          animate={{
             rotate: [360, 0],
             scale: [1, 0.8, 1],
             opacity: [0.4, 0.8, 0.4]
           }}
-          transition={{ 
+          transition={{
             duration: 18,
             repeat: Infinity,
             ease: "linear",
             delay: 2
           }}
         />
-        <motion.div 
+        <motion.div
           className="geometric-shape shape-3"
-          animate={{ 
+          animate={{
             rotate: [0, -360],
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.6, 0.2]
           }}
-          transition={{ 
+          transition={{
             duration: 20,
             repeat: Infinity,
             ease: "linear",
             delay: 4
           }}
         />
-        
+
         {/* Particle Effects */}
         {[...Array(30)].map((_, i) => (
           <motion.div
@@ -530,7 +530,7 @@ const HealthToolsPage = () => {
             }}
           />
         ))}
-        
+
         {/* Sparkle Effects */}
         {[...Array(15)].map((_, i) => (
           <motion.div
@@ -556,19 +556,19 @@ const HealthToolsPage = () => {
       </div>
 
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         className="hero-section"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.div 
+        <motion.div
           className="hero-content"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          <motion.h1 
+          <motion.h1
             className="hero-title"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -576,11 +576,11 @@ const HealthToolsPage = () => {
           >
             <motion.div
               className="sparkle-icon"
-              animate={{ 
+              animate={{
                 rotate: [0, 360],
                 scale: [1, 1.2, 1]
               }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 repeat: Infinity,
                 ease: "linear"
@@ -591,11 +591,11 @@ const HealthToolsPage = () => {
             Health Tools Hub
             <motion.div
               className="sparkle-icon"
-              animate={{ 
+              animate={{
                 rotate: [0, -360],
                 scale: [1, 1.2, 1]
               }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 repeat: Infinity,
                 ease: "linear",
@@ -605,7 +605,7 @@ const HealthToolsPage = () => {
               <FaStar />
             </motion.div>
           </motion.h1>
-          <motion.p 
+          <motion.p
             className="hero-subtitle"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -613,8 +613,8 @@ const HealthToolsPage = () => {
           >
             Your comprehensive health companion with {visibleTools.length} powerful tools
           </motion.p>
-          
-          <motion.div 
+
+          <motion.div
             className="hero-features"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -625,16 +625,16 @@ const HealthToolsPage = () => {
             <div className="feature-tag">📱 Mobile-Friendly</div>
             <div className="feature-tag">⚡ Real-Time</div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="hero-stats"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.6 }}
           >
-            <motion.div 
+            <motion.div
               className="stat-item"
-              whileHover={{ 
+              whileHover={{
                 scale: 1.1,
                 rotateY: 10,
                 transition: { duration: 0.3 }
@@ -643,9 +643,9 @@ const HealthToolsPage = () => {
               <span className="stat-number">{visibleTools.length}</span>
               <span className="stat-label">Health Tools</span>
             </motion.div>
-            <motion.div 
+            <motion.div
               className="stat-item"
-              whileHover={{ 
+              whileHover={{
                 scale: 1.1,
                 rotateY: -10,
                 transition: { duration: 0.3 }
@@ -654,9 +654,9 @@ const HealthToolsPage = () => {
               <span className="stat-number">24/7</span>
               <span className="stat-label">Available</span>
             </motion.div>
-            <motion.div 
+            <motion.div
               className="stat-item"
-              whileHover={{ 
+              whileHover={{
                 scale: 1.1,
                 rotateY: 10,
                 transition: { duration: 0.3 }
@@ -670,7 +670,7 @@ const HealthToolsPage = () => {
       </motion.section>
 
       {/* Main Disclaimer Banner */}
-      <motion.div 
+      <motion.div
         className="main-disclaimer-banner"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -679,11 +679,11 @@ const HealthToolsPage = () => {
         <div className="disclaimer-content">
           <motion.div
             className="disclaimer-icon"
-            animate={{ 
+            animate={{
               rotate: [0, 10, -10, 0],
               scale: [1, 1.1, 1]
             }}
-            transition={{ 
+            transition={{
               duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
@@ -698,7 +698,7 @@ const HealthToolsPage = () => {
           <motion.button
             className="disclaimer-toggle"
             onClick={() => setShowDisclaimer(!showDisclaimer)}
-            whileHover={{ 
+            whileHover={{
               scale: 1.1,
               rotate: 5,
               transition: { duration: 0.2 }
@@ -708,10 +708,10 @@ const HealthToolsPage = () => {
             {showDisclaimer ? <FaCompress /> : <FaExpand />}
           </motion.button>
         </div>
-        
+
         <AnimatePresence>
           {showDisclaimer && (
-            <motion.div 
+            <motion.div
               className="disclaimer-details"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -727,14 +727,14 @@ const HealthToolsPage = () => {
 
 
       {/* Features Overview Section */}
-      <motion.section 
+      <motion.section
         className="features-overview-section"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.6 }}
       >
         <div className="features-overview-content">
-          <motion.h2 
+          <motion.h2
             className="features-overview-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -742,9 +742,9 @@ const HealthToolsPage = () => {
           >
             Why Choose Health Tools Hub?
           </motion.h2>
-          
+
           <div className="features-overview-grid">
-            <motion.div 
+            <motion.div
               className="feature-overview-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -760,8 +760,8 @@ const HealthToolsPage = () => {
                 <li>Predictive health insights</li>
               </ul>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="feature-overview-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -777,8 +777,8 @@ const HealthToolsPage = () => {
                 <li>No data sharing</li>
               </ul>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="feature-overview-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -794,8 +794,8 @@ const HealthToolsPage = () => {
                 <li>Customizable reports</li>
               </ul>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="feature-overview-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -817,7 +817,7 @@ const HealthToolsPage = () => {
 
       {/* Tools Section */}
       <section className="tools-section">
-        <motion.div 
+        <motion.div
           className="tools-section-header"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -828,8 +828,8 @@ const HealthToolsPage = () => {
             Explore our comprehensive suite of {visibleTools.length} health management tools designed to empower your wellness journey
           </p>
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           className="tools-grid"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -840,15 +840,15 @@ const HealthToolsPage = () => {
               key={tool.id}
               className="tool-card"
               initial={{ opacity: 0, y: 50, scale: 0.9, rotateX: -15 }}
-              animate={{ 
-                opacity: 1, 
-                y: [0, -5, 0], 
-                scale: 1, 
+              animate={{
+                opacity: 1,
+                y: [0, -5, 0],
+                scale: 1,
                 rotateX: 0,
                 rotateZ: [0, 1, -1, 0]
               }}
-              transition={{ 
-                delay: 1.5 + (index * 0.1), 
+              transition={{
+                delay: 1.5 + (index * 0.1),
                 duration: 0.6,
                 type: "spring",
                 stiffness: 100,
@@ -866,8 +866,8 @@ const HealthToolsPage = () => {
                   delay: index * 0.3
                 }
               }}
-              whileHover={{ 
-                y: -15, 
+              whileHover={{
+                y: -15,
                 scale: 1.03,
                 rotateY: 5,
                 transition: { duration: 0.3 }
@@ -877,10 +877,10 @@ const HealthToolsPage = () => {
               onHoverEnd={() => setHoveredTool(null)}
             >
               <div className="tool-card-header">
-                <motion.div 
+                <motion.div
                   className="tool-card-icon"
                   style={{ background: tool.gradient }}
-                  whileHover={{ 
+                  whileHover={{
                     rotate: 360,
                     scale: 1.2,
                     transition: { duration: 0.6, ease: "easeInOut" }
@@ -889,17 +889,17 @@ const HealthToolsPage = () => {
                   {tool.icon}
                 </motion.div>
               </div>
-              
+
               <div className="tool-card-info">
                 <h3 className="tool-card-title">{tool.title}</h3>
                 <p className="tool-card-description">{tool.description}</p>
               </div>
-              
+
               <div className="tool-card-footer">
                 <motion.button
                   className="tool-card-action"
                   onClick={() => setSelectedTool(tool.id)}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.1,
                     x: 10,
                     transition: { duration: 0.2 }
@@ -915,9 +915,9 @@ const HealthToolsPage = () => {
                   </motion.div>
                 </motion.button>
               </div>
-              
+
               {/* Advanced Glow Effect */}
-              <motion.div 
+              <motion.div
                 className="tool-card-glow"
                 style={{ background: tool.gradient }}
                 animate={{
@@ -926,7 +926,7 @@ const HealthToolsPage = () => {
                 }}
                 transition={{ duration: 0.3 }}
               />
-              
+
               {/* Particle Trail Effect */}
               {hoveredTool === tool.id && (
                 <motion.div
@@ -940,13 +940,13 @@ const HealthToolsPage = () => {
                       key={i}
                       className="trail-particle"
                       style={{ background: tool.gradient }}
-                      initial={{ 
-                        x: 0, 
-                        y: 0, 
+                      initial={{
+                        x: 0,
+                        y: 0,
                         scale: 0,
-                        opacity: 0 
+                        opacity: 0
                       }}
-                      animate={{ 
+                      animate={{
                         x: Math.random() * 100 - 50,
                         y: Math.random() * 100 - 50,
                         scale: [0, 1, 0],
@@ -967,14 +967,14 @@ const HealthToolsPage = () => {
       </section>
 
       {/* Statistics Section */}
-      <motion.section 
+      <motion.section
         className="statistics-section"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.3, duration: 0.6 }}
       >
         <div className="statistics-content">
-          <motion.h2 
+          <motion.h2
             className="statistics-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -982,9 +982,9 @@ const HealthToolsPage = () => {
           >
             Health Tools Hub Impact
           </motion.h2>
-          
+
           <div className="statistics-grid">
-            <motion.div 
+            <motion.div
               className="statistic-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -995,8 +995,8 @@ const HealthToolsPage = () => {
               <div className="statistic-label">Active Users</div>
               <div className="statistic-description">Trusted by healthcare professionals and individuals worldwide</div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="statistic-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1007,8 +1007,8 @@ const HealthToolsPage = () => {
               <div className="statistic-label">Health Checks</div>
               <div className="statistic-description">Comprehensive health assessments completed</div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="statistic-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1019,8 +1019,8 @@ const HealthToolsPage = () => {
               <div className="statistic-label">Uptime</div>
               <div className="statistic-description">Reliable service available 24/7</div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="statistic-card"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1036,17 +1036,17 @@ const HealthToolsPage = () => {
       </motion.section>
 
       {/* Info Section */}
-      <motion.section 
+      <motion.section
         className="info-section"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.9, duration: 0.6 }}
       >
         <div className="info-grid">
-          <motion.div 
+          <motion.div
             className="info-card"
-            whileHover={{ 
-              y: -10, 
+            whileHover={{
+              y: -10,
               scale: 1.05,
               rotateY: 5,
               transition: { duration: 0.3 }
@@ -1054,11 +1054,11 @@ const HealthToolsPage = () => {
           >
             <motion.div
               className="info-icon"
-              animate={{ 
+              animate={{
                 rotate: [0, 10, -10, 0],
                 scale: [1, 1.1, 1]
               }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut"
@@ -1069,11 +1069,11 @@ const HealthToolsPage = () => {
             <h3>Professional Grade</h3>
             <p>Tools designed with medical professionals in mind</p>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="info-card"
-            whileHover={{ 
-              y: -10, 
+            whileHover={{
+              y: -10,
               scale: 1.05,
               rotateY: -5,
               transition: { duration: 0.3 }
@@ -1081,11 +1081,11 @@ const HealthToolsPage = () => {
           >
             <motion.div
               className="info-icon"
-              animate={{ 
+              animate={{
                 rotate: [0, -10, 10, 0],
                 scale: [1, 1.1, 1]
               }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut",
@@ -1097,11 +1097,11 @@ const HealthToolsPage = () => {
             <h3>Privacy First</h3>
             <p>Your health data is secure and private</p>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="info-card"
-            whileHover={{ 
-              y: -10, 
+            whileHover={{
+              y: -10,
               scale: 1.05,
               rotateY: 5,
               transition: { duration: 0.3 }
@@ -1109,11 +1109,11 @@ const HealthToolsPage = () => {
           >
             <motion.div
               className="info-icon"
-              animate={{ 
+              animate={{
                 rotate: [0, 10, -10, 0],
                 scale: [1, 1.1, 1]
               }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut",
@@ -1129,13 +1129,13 @@ const HealthToolsPage = () => {
       </motion.section>
 
       {/* Footer */}
-      <motion.footer 
+      <motion.footer
         className="health-tools-footer"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 3, duration: 0.6 }}
       >
-        <p>© 2024 Apollo Clone - Health Tools Hub. Empowering your health journey.</p>
+        <p>© {new Date().getFullYear()} MediCore - Health Tools Hub. Empowering your health journey.</p>
       </motion.footer>
     </div>
   );

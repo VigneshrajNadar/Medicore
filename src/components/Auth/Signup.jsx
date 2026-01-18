@@ -288,7 +288,7 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { createUser } = useUser();
   const navigate = useNavigate();
 
@@ -339,7 +339,7 @@ const Signup = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    
+
     if (!validateForm()) {
       return;
     }
@@ -382,7 +382,7 @@ const Signup = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          Join ApolloClone for better healthcare
+          Join MediCore for better healthcare
         </Subtitle>
 
         {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -4,9 +4,19 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   : 'http://localhost:5001/api';  // Local development
 
 // User Management
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+};
+
 export const getUsers = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/users`);
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      headers: getAuthHeaders()
+    });
     return await response.json();
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -26,6 +36,28 @@ export const createUser = async (userData) => {
     return await response.json();
   } catch (error) {
     console.error('Error creating user:', error);
+    throw error;
+  }
+};
+
+export const login = async (credentials) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Login failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error logging in:', error);
     throw error;
   }
 };
@@ -103,9 +135,7 @@ export const bookAppointment = async (appointmentData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/appointments`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(appointmentData),
     });
     return await response.json();
@@ -117,7 +147,9 @@ export const bookAppointment = async (appointmentData) => {
 
 export const getUserAppointments = async (userId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/appointments`);
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/appointments`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       // If API fails, return mock data for demonstration
       return [
@@ -199,9 +231,7 @@ export const updateAppointment = async (appointmentId, updateData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(updateData),
     });
     return await response.json();
@@ -215,6 +245,7 @@ export const cancelAppointment = async (appointmentId) => {
   try {
     const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}`, {
       method: 'DELETE',
+      headers: getAuthHeaders()
     });
     return await response.json();
   } catch (error) {
@@ -228,9 +259,7 @@ export const addDoctorReview = async (doctorId, reviewData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/doctors/${doctorId}/reviews`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(reviewData),
     });
     return await response.json();
@@ -243,7 +272,9 @@ export const addDoctorReview = async (doctorId, reviewData) => {
 // Order Management
 export const getOrders = async (userId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/orders?userId=${userId}`);
+    const response = await fetch(`${API_BASE_URL}/orders?userId=${userId}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       // Return mock orders data if API fails
       return [
@@ -302,9 +333,7 @@ export const createOrder = async (orderData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/orders`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(orderData),
     });
     return await response.json();
@@ -317,7 +346,9 @@ export const createOrder = async (orderData) => {
 // Profile Management
 export const getProfile = async (userId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/profile?userId=${userId}`);
+    const response = await fetch(`${API_BASE_URL}/profile?userId=${userId}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       // Return mock profile data if API fails
       return {
@@ -387,4 +418,5 @@ export default {
   createOrder,
   getProfile,
   updateProfile,
+  login,
 };

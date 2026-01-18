@@ -116,6 +116,23 @@ function RequireAuth({ children }) {
   return children;
 }
 
+// Admin Auth wrapper
+function RequireAdmin({ children }) {
+  const location = useLocation();
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  
+  if (!user) {
+    return <Navigate to="/Login" state={{ from: location }} replace />;
+  }
+  
+  if (user.role !== 'admin') {
+    return <Navigate to="/home" replace />;
+  }
+  
+  return children;
+}
+
 const MainRoutes = () => {
   const location = useLocation();
   
@@ -235,9 +252,11 @@ const MainRoutes = () => {
           </RequireAuth>
         } />
         <Route path="/admin" element={
-          <AnimatedRoute>
-            <AdminPanel />
-          </AnimatedRoute>
+          <RequireAdmin>
+            <AnimatedRoute>
+              <AdminPanel />
+            </AnimatedRoute>
+          </RequireAdmin>
         } />
         <Route path="/dashboard" element={
           <RequireAuth>
@@ -247,11 +266,11 @@ const MainRoutes = () => {
           </RequireAuth>
         } />
         <Route path="/admin-dashboard" element={
-          <RequireAuth>
+          <RequireAdmin>
             <AnimatedRoute>
               <AdminDashboard />
             </AnimatedRoute>
-          </RequireAuth>
+          </RequireAdmin>
         } />
         <Route path="/notifications" element={
           <RequireAuth>

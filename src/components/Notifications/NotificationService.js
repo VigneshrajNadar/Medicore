@@ -18,7 +18,7 @@ class NotificationService {
         promotionalOffers: true
       }
     };
-    
+
     // Initialize audio context for notification sounds
     this.audioContext = null;
     this.notificationSounds = {
@@ -35,20 +35,20 @@ class NotificationService {
       if (!this.audioContext) {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
-      
+
       const oscillator = this.audioContext.createOscillator();
       const gainNode = this.audioContext.createGain();
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
-      
+
       oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
       oscillator.type = 'sine';
-      
+
       gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
       gainNode.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.01);
       gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-      
+
       oscillator.start(this.audioContext.currentTime);
       oscillator.stop(this.audioContext.currentTime + duration);
     };
@@ -91,10 +91,10 @@ class NotificationService {
   async sendNotification(userId, type, emailContent, smsContent, soundType = 'default') {
     try {
       const preferences = await this.getUserPreferences(userId);
-      
+
       // Simulate sending notifications based on preferences
       const notifications = [];
-      
+
       if (preferences.email[type]) {
         notifications.push({
           type: 'email',
@@ -102,7 +102,7 @@ class NotificationService {
           timestamp: new Date().toISOString()
         });
       }
-      
+
       if (preferences.sms[type]) {
         notifications.push({
           type: 'sms',
@@ -110,24 +110,24 @@ class NotificationService {
           timestamp: new Date().toISOString()
         });
       }
-      
+
       if (preferences.push[type]) {
         notifications.push({
           type: 'push',
           content: smsContent,
           timestamp: new Date().toISOString()
         });
-        
+
         // Play notification sound for push notifications
         this.playNotificationSound(soundType);
-        
+
         // Show browser notification if permission granted
         this.showBrowserNotification(smsContent);
       }
-      
+
       // Store notification history
       this.storeNotificationHistory(userId, notifications);
-      
+
       return { success: true, notifications };
     } catch (error) {
       console.error('Error sending notification:', error);
@@ -161,24 +161,24 @@ class NotificationService {
     try {
       const history = JSON.parse(localStorage.getItem(`notification_history_${userId}`) || '[]');
       history.push(...notifications);
-      
+
       // Keep only last 100 notifications
       if (history.length > 100) {
         history.splice(0, history.length - 100);
       }
-      
+
       localStorage.setItem(`notification_history_${userId}`, JSON.stringify(history));
-      } catch (error) {
+    } catch (error) {
       console.error('Error storing notification history:', error);
-      }
     }
+  }
 
   // Get notification history
   async getNotificationHistory(userId) {
-      try {
+    try {
       const history = JSON.parse(localStorage.getItem(`notification_history_${userId}`) || '[]');
       return history;
-      } catch (error) {
+    } catch (error) {
       console.error('Error getting notification history:', error);
       return [];
     }
@@ -187,7 +187,7 @@ class NotificationService {
   // Send order update notification
   async sendOrderUpdate(orderData) {
     const { userId, orderId, status, items } = orderData;
-    
+
     const emailContent = `
       <h2>Order Update</h2>
       <p>Your order <strong>#${orderId}</strong> has been updated.</p>
@@ -195,32 +195,32 @@ class NotificationService {
       <p><strong>Items:</strong> ${items.map(item => item.name).join(', ')}</p>
       <p>Track your order: <a href="/orders/${orderId}">View Details</a></p>
     `;
-    
-    const smsContent = `Order #${orderId} status: ${status}. Track at apollo-clone.com/orders/${orderId}`;
-    
+
+    const smsContent = `Order #${orderId} status: ${status}. Track at medicore.com/orders/${orderId}`;
+
     return this.sendNotification(userId, 'orderUpdates', emailContent, smsContent, 'success');
   }
 
   // Send health tips notification
   async sendHealthTip(healthData) {
     const { userId, tip, category } = healthData;
-    
+
     const emailContent = `
       <h2>Health Tip of the Day</h2>
       <p><strong>Category:</strong> ${category}</p>
       <p>${tip}</p>
-      <p>Stay healthy with Apollo Clone!</p>
+      <p>Stay healthy with MediCore!</p>
     `;
-    
+
     const smsContent = `Health Tip (${category}): ${tip.substring(0, 100)}...`;
-    
+
     return this.sendNotification(userId, 'healthTips', emailContent, smsContent, 'default');
   }
 
   // Send promotional offer notification
   async sendPromotionalOffer(offerData) {
     const { userId, title, description, discount, validUntil } = offerData;
-    
+
     const emailContent = `
       <h2>Special Offer!</h2>
       <p><strong>${title}</strong></p>
@@ -229,16 +229,16 @@ class NotificationService {
       <p><strong>Valid until:</strong> ${validUntil}</p>
       <p><a href="/offers">Claim Offer</a></p>
     `;
-    
+
     const smsContent = `Special Offer: ${title} - ${discount} off! Valid until ${validUntil}`;
-    
+
     return this.sendNotification(userId, 'promotionalOffers', emailContent, smsContent, 'warning');
   }
 
   // Send appointment notification
   async sendAppointmentNotification(appointmentData) {
     const { userId, doctorName, appointmentDate, appointmentTime, type } = appointmentData;
-    
+
     const emailContent = `
       <h2>Appointment ${type}</h2>
       <p>Your appointment with <strong>Dr. ${doctorName}</strong> has been ${type.toLowerCase()}.</p>
@@ -246,11 +246,11 @@ class NotificationService {
       <p><strong>Time:</strong> ${appointmentTime}</p>
       <p>Manage your appointments: <a href="/profile">View Profile</a></p>
     `;
-    
+
     const smsContent = `Appointment ${type}: Dr. ${doctorName} on ${appointmentDate} at ${appointmentTime}`;
-    
+
     const soundType = type === 'Confirmed' ? 'success' : type === 'Cancelled' ? 'error' : 'default';
-    
+
     return this.sendNotification(userId, 'orderUpdates', emailContent, smsContent, soundType);
   }
 
