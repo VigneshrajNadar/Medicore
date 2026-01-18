@@ -174,6 +174,57 @@ const AppointmentBooking = () => {
     }
   };
 
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    setSelectedTime('');
+    setErrors(prev => ({ ...prev, date: '', time: '' }));
+
+    // Generate time slots based on doctor's availability
+    if (doctor?.available_time_slots) {
+      const slots = generateTimeSlotsFromDoctor(doctor.available_time_slots);
+      setAvailableSlots(slots);
+    } else {
+      // Fallback: Generate default time slots (9 AM to 5 PM)
+      const defaultSlots = [];
+      for (let hour = 9; hour <= 17; hour++) {
+        defaultSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+        if (hour < 17) {
+          defaultSlots.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+      }
+      setAvailableSlots(defaultSlots);
+    }
+  };
+
+  // Helper function to parse doctor's time slots
+  const generateTimeSlotsFromDoctor = (timeSlotString) => {
+    const slots = [];
+    try {
+      // Parse time ranges like "09:00-13:00,16:00-19:00"
+      const ranges = timeSlotString.split(',');
+      ranges.forEach(range => {
+        const [start, end] = range.trim().split('-');
+        const [startHour] = start.split(':').map(Number);
+        const [endHour] = end.split(':').map(Number);
+
+        for (let hour = startHour; hour < endHour; hour++) {
+          slots.push(`${hour.toString().padStart(2, '0')}:00`);
+          slots.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+      });
+    } catch (error) {
+      console.error('Error parsing time slots:', error);
+      // Return default slots on error
+      for (let hour = 9; hour <= 17; hour++) {
+        slots.push(`${hour.toString().padStart(2, '0')}:00`);
+        if (hour < 17) {
+          slots.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+      }
+    }
+    return slots;
+  };
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
