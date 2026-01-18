@@ -297,8 +297,23 @@ const AdminDashboard = () => {
             resultFile
           });
 
-          setUploadedFile({});
-          loadAdminData();
+          // Manual local update for immediate feedback
+          // Update local state to show feedback immediately with preview
+          setUploadedFile(prev => ({ ...prev, [orderId]: file.name }));
+
+          // Force a local update of the stats to include the new file immediately without waiting for reload
+          const updatedOrders = stats.labTestOrders.map(order =>
+            order.id === orderId ? { ...order, status: 'completed', resultFile } : order
+          );
+
+          // Mutate stats directly for immediate feedback (React state update would be better but stats is likely local var or from hook not shown)
+          // Based on context, loadAdminData refetches, so we temporarily override
+          setStats(prev => ({
+            ...prev,
+            labTestOrders: updatedOrders
+          }));
+
+          loadAdminData(); // Retrigger fetch to ensure consistency
           alert('Lab test result uploaded successfully!');
         } catch (error) {
           console.error('File processing error:', error);
@@ -670,11 +685,20 @@ const AdminDashboard = () => {
                 )}
               </div>
 
-              {order.status === 'completed' && order.resultFile && (
-                <div className="result-file-info">
-                  <h4>✅ Results Uploaded</h4>
-                  <p>🖼️ Image: {order.resultFile.name}</p>
-                  <p>📅 Uploaded: {new Date(order.resultFile.uploadDate).toLocaleDateString()}</p>
+
+
+              {order.resultFile && (
+                <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0fdf4', borderRadius: '6px' }}>
+                  <p style={{ margin: '0 0 10px 0', color: '#166534', fontWeight: '500' }}>✅ Result uploaded: {order.resultFile.name}</p>
+                  {order.resultFile.data && (
+                    <div className="image-preview" style={{ marginTop: '10px' }}>
+                      <img
+                        src={order.resultFile.data}
+                        alt="Lab Result"
+                        style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px', border: '1px solid #ddd' }}
+                      />
+                    </div>
+                  )}
                   <button
                     onClick={() => {
                       const link = document.createElement('a');
@@ -683,16 +707,10 @@ const AdminDashboard = () => {
                       link.click();
                     }}
                     className="download-btn"
+                    style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}
                   >
-                    <FaEye /> View Image
+                    <FaEye /> Download/View Full Image
                   </button>
-                </div>
-              )}
-
-              {order.resultFile && (
-                <div className="result-file-info">
-                  <FaCheckCircle className="success-icon" />
-                  <span>Result uploaded: {order.resultFile.name}</span>
                 </div>
               )}
             </div>

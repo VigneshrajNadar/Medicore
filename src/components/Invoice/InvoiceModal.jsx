@@ -228,10 +228,10 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                   <span>Subtotal:</span>
                   <span>₹{orderTotal.toFixed(2)}</span>
                 </div>
-                {safeNumber(orderData.savings) > 0 && (
+                {(safeNumber(orderData.savings) > 0 || safeNumber(orderData.discount) > 0) && (
                   <div className="total-row savings">
                     <span>Savings:</span>
-                    <span>-₹{safeNumber(orderData.savings).toFixed(2)}</span>
+                    <span>-₹{(safeNumber(orderData.savings) || safeNumber(orderData.discount)).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="total-row delivery">

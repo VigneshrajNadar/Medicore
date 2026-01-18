@@ -159,7 +159,10 @@ const AccountPage = () => {
     if (!silent) setLoadingOrders(true);
     try {
       const ordersData = await getOrders(userId);
-      setOrders(ordersData || []);
+      // Only update if data has actually changed to prevent flicker
+      if (JSON.stringify(ordersData) !== JSON.stringify(orders)) {
+        setOrders(ordersData || []);
+      }
     } catch (error) {
       console.error('Error fetching orders:', error);
       // Fallback to local user orders if API fails
