@@ -8,6 +8,7 @@ import SubscriptionBadge from '../Subscription/SubscriptionBadge';
 import './ModernCart.css';
 
 const ModernCart = () => {
+  const { addOrder, addNotification, currentUser } = useUser();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +98,6 @@ const ModernCart = () => {
     return mrpSavings + parseFloat(totals.subscriptionDiscount || 0);
   };
 
-  const { addOrder, addNotification, currentUser } = useUser();
 
   // Check if cart has prescription medicines
   const hasPrescriptionMedicines = () => {
