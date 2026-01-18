@@ -263,6 +263,13 @@ Features:
 Benefit:
 Enables quick access to trusted medical facilities.
 
+### 🔐 Security & Privacy
+- **JWT Authentication**: Secure, stateless authentication for all API endpoints using JSON Web Tokens.
+- **Password Hashing**: Industry-standard **Bcrypt** hashing to ensure passwords are never stored in plain text.
+- **Payload Protection**: Strict size limits and validation to prevent abuse.
+- **Role-Based Access Control (RBAC)**: Clear separation between Admin and User capabilities.
+- **Secure File Uploads**: Validated image uploads for lab results.
+
 ---
 
 ### 1️⃣1️⃣ Symptom Checker
@@ -455,8 +462,9 @@ Community outreach metrics
 - **dotenv** 17.2.3 - Environment variables
 
 ### Authentication
-- **Firebase** 9.6.7 - Phone authentication (OTP)
-- **LocalStorage** - Client-side user session management
+- **LocalStorage**: Client-side user session management
+- **JWT**: JSON Web Tokens for secure API access
+
 
 ---
 
@@ -628,9 +636,7 @@ This creates an optimized production build in the `build/` directory.
 
 ### Authentication Flow
 
-![Authentication Flow](./docs/images/authentication_flow_1765277056544.png)
 
-*Complete authentication flow showing email/password login, phone OTP login, and admin access*
 
 ### Admin Login
 - **URL**: `http://localhost:3000/login`
@@ -639,22 +645,18 @@ This creates an optimized production build in the `build/` directory.
 - **Access**: Admin Dashboard with full management capabilities
 
 ### Demo User Accounts
-All demo users use password: `password123`
 
-| Name | Email | Role |
-|------|-------|------|
-| Vignesh Raj | vignesh@example.com | User |
-| Priya Sharma | priya@example.com | User |
-| Rahul Kumar | rahul@example.com | User |
-| Anjali Patel | anjali@example.com | User |
-| Suresh Reddy | suresh@example.com | User |
+**Regular User (John):**
+- **Email**: `john@example.com`
+- **Password**: `password123`
+
 
 ### Authentication Methods
 1. **Email/Password Login**: Standard email and password authentication
-2. **Phone OTP Login**: Firebase-based phone authentication with OTP
-3. **LocalStorage Session**: Client-side session management
-4. **Secure Password Hashing**: All passwords are now hashed using **bcrypt**.
-   - **Legacy Support**: Accounts with plain-text passwords are automatically migrated to hashed passwords upon their first successful login.
+2. **LocalStorage Session**: Client-side user session management
+3. **Secure Password Hashing**: All passwords are hashed using **bcrypt** (salt rounds: 10).
+   - **Protocol**: Passwords are never stored in plain text.
+
 
 ### Deployment
 This repository is connected to Vercel for continuous deployment. Pushes to the `main` branch trigger automatic builds and updates to the live application.
@@ -716,7 +718,7 @@ http://localhost:5001/api
     "doctor_id": "number",
     "appointment_date": "YYYY-MM-DD",
     "appointment_time": "HH:MM",
-    "consultation_type": "in-person|video",
+    "consultation_type": "in-person",
     "symptoms": "string",
     "notes": "string"
   }
@@ -1096,9 +1098,7 @@ npm run eject
 - Change port in `server/index.js` (backend)
 - Frontend port can be changed in package.json
 
-**4. Firebase authentication errors**
-- Check Firebase configuration in `Authentication/firebase.js`
-- Ensure Firebase project is set up correctly
+
 
 ---
 

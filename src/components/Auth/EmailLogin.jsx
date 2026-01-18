@@ -991,7 +991,7 @@ const EmailLogin = () => {
           if (result.user?.role === 'admin') {
             navigate('/admin-dashboard');
           } else {
-            navigate('/dashboard');
+            navigate('/');
           }
         } else {
           setError(result.message || 'Login failed');

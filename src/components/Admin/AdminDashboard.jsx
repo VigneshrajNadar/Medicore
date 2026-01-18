@@ -274,8 +274,9 @@ const AdminDashboard = () => {
   const handleFileUpload = async (e, orderId) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size too large. Please upload an image under 5MB.');
+      // Lower limit to 3MB to fit within Vercel's 4.5MB serverless function payload limit (Base64 encoding adds ~33% overhead)
+      if (file.size > 3 * 1024 * 1024) {
+        alert('File size too large. Please upload an image under 3MB to ensure successful server processing.');
         return;
       }
 
