@@ -11,6 +11,7 @@ import {
   FaSpinner
 } from 'react-icons/fa';
 import Loader from '../common/Loader';
+import { useUser } from '../../contexts/UserContext';
 import './PaymentModal.css';
 
 const PaymentModal = ({
@@ -20,6 +21,7 @@ const PaymentModal = ({
   onPaymentSuccess,
   onPaymentFailure
 }) => {
+  const { currentUser } = useUser();
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -37,12 +39,19 @@ const PaymentModal = ({
 
   // Calculate order totals
   const getSubscriptionDiscount = () => {
-    const subscription = JSON.parse(localStorage.getItem('userSubscription') || 'null');
-    if (!subscription || subscription.status !== 'active') return 0;
+    // Priority: use currentUser subscription, then local storage
+    const subscription = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription') || 'null');
 
-    if (subscription.planId === 'basic') return 0.05;
-    if (subscription.planId === 'premium') return 0.15;
-    if (subscription.planId === 'elite') return 0.25;
+    // Check for valid subscription
+    if (!subscription || !subscription.planId) return 0;
+
+    // Check expiration if endDate exists
+    if (subscription.endDate && new Date(subscription.endDate) < new Date()) return 0;
+
+    const planId = subscription.planId.toLowerCase();
+    if (planId === 'basic') return 0.05;
+    if (planId === 'premium') return 0.15;
+    if (planId === 'elite') return 0.25;
     return 0;
   };
 

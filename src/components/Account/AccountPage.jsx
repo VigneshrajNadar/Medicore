@@ -144,19 +144,19 @@ const AccountPage = () => {
       fetchAppointments();
       fetchOrders();
 
-      // Poll for order updates (real-time feel)
+      // Poll for order updates (real-time feel) without loading spinner
       const interval = setInterval(() => {
-        fetchOrders();
+        fetchOrders(true);
       }, 5000); // Check every 5 seconds
 
       return () => clearInterval(interval);
     }
   }, [currentUser]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (silent = false) => {
     const userId = currentUser?.id || currentUser?._id;
     if (!userId) return;
-    setLoadingOrders(true);
+    if (!silent) setLoadingOrders(true);
     try {
       const ordersData = await getOrders(userId);
       setOrders(ordersData || []);
@@ -165,7 +165,7 @@ const AccountPage = () => {
       // Fallback to local user orders if API fails
       setOrders(currentUser?.orders || []);
     } finally {
-      setLoadingOrders(false);
+      if (!silent) setLoadingOrders(false);
     }
   };
 
