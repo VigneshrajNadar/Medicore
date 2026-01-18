@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaTimes, 
-  FaDownload, 
-  FaPrint, 
+import {
+  FaTimes,
+  FaDownload,
+  FaPrint,
   FaCheck,
   FaCalendarAlt,
   FaCreditCard,
@@ -15,7 +15,7 @@ import './InvoiceModal.css';
 
 const InvoiceModal = ({ isOpen, onClose, orderData }) => {
   const { currentUser } = useUser();
-  
+
   if (!isOpen || !orderData) return null;
 
   const handleDownload = () => {
@@ -115,10 +115,10 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                 </div>
               </div>
               <div className="invoice-number">
-                <h3>Invoice #{orderData.id}</h3>
+                <h3>Invoice #{orderData._id || orderData.id || `ORD-${Date.now().toString().slice(-6)}`}</h3>
                 <p className="invoice-date">
                   <FaCalendarAlt />
-                  {new Date(orderData.createdAt).toLocaleDateString('en-IN', {
+                  {new Date(orderData.created_at || orderData.createdAt || Date.now()).toLocaleDateString('en-IN', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
@@ -132,23 +132,23 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
               <div className="bill-to">
                 <h4>Bill To:</h4>
                 <div className="customer-info">
-                  <p><strong>{orderData.patientName || currentUser?.name || 'Customer'}</strong></p>
-                  <p>{currentUser?.address || orderData.deliveryAddress || orderData.address || 'Address not provided'}</p>
-                  <p>📱 {orderData.mobile || currentUser?.phone || 'Phone not provided'}</p>
+                  <p><strong>{orderData.patient_name || orderData.patientName || currentUser?.name || 'Customer'}</strong></p>
+                  <p>{orderData.shipping_address || orderData.deliveryAddress || orderData.address || currentUser?.address || 'Address not provided'}</p>
+                  <p>📱 {orderData.patient_mobile || orderData.mobile || currentUser?.phone || 'Phone not provided'}</p>
                   {currentUser?.email && <p>📧 {currentUser.email}</p>}
                 </div>
               </div>
               <div className="order-info">
                 <h4>Order Details:</h4>
                 <div className="order-meta">
-                  <p><strong>Order Type:</strong> {orderData.orderType === 'pharmacy' ? '💊 Pharmacy' : '🧪 Lab Test'}</p>
-                  <p><strong>Status:</strong> 
-                    <span className={`status-badge ${orderData.status}`}>
-                      <FaCheck /> {orderData.status}
+                  <p><strong>Order Type:</strong> {(orderData.order_type === 'pharmacy' || orderData.orderType === 'pharmacy') ? '💊 Pharmacy' : '🧪 Lab Test'}</p>
+                  <p><strong>Status:</strong>
+                    <span className={`status-badge ${orderData.status || 'confirmed'}`}>
+                      <FaCheck /> {orderData.status || 'confirmed'}
                     </span>
                   </p>
-                  {orderData.scheduledDate && (
-                    <p><strong>Scheduled Date:</strong> {new Date(orderData.scheduledDate).toLocaleDateString()}</p>
+                  {(orderData.scheduled_date || orderData.scheduledDate) && (
+                    <p><strong>Scheduled Date:</strong> {new Date(orderData.scheduled_date || orderData.scheduledDate).toLocaleDateString()}</p>
                   )}
                 </div>
               </div>
@@ -167,17 +167,17 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orderData.items.map((item, index) => (
+                  {(orderData.items || []).map((item, index) => (
                     <tr key={index}>
                       <td>
                         <div className="item-info">
-                          <strong>{item.name}</strong>
+                          <strong>{item.product_name || item.name || 'Healthcare Item'}</strong>
                           {item.brand && <div className="item-brand">{item.brand}</div>}
                         </div>
                       </td>
-                      <td>{item.quantity}</td>
-                      <td>₹{item.price}</td>
-                      <td>₹{(item.price * item.quantity).toFixed(2)}</td>
+                      <td>{item.quantity || 1}</td>
+                      <td>₹{item.price || 0}</td>
+                      <td>₹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -208,9 +208,9 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
               <div className="total-section">
                 <div className="total-row subtotal">
                   <span>Subtotal:</span>
-                  <span>₹{orderData.total}</span>
+                  <span>₹{orderData.total_amount || orderData.total || 0}</span>
                 </div>
-                {orderData.savings > 0 && (
+                {(orderData.savings > 0) && (
                   <div className="total-row savings">
                     <span>Savings:</span>
                     <span>-₹{orderData.savings}</span>
@@ -222,11 +222,11 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                 </div>
                 <div className="total-row taxes">
                   <span>Taxes (GST):</span>
-                  <span>₹{(orderData.total * 0.18).toFixed(2)}</span>
+                  <span>₹{((orderData.total_amount || orderData.total || 0) * 0.18).toFixed(2)}</span>
                 </div>
                 <div className="total-row grand-total">
                   <span><strong>Grand Total:</strong></span>
-                  <span><strong>₹{(orderData.total * 1.18).toFixed(2)}</strong></span>
+                  <span><strong>₹{((orderData.total_amount || orderData.total || 0) * 1.18).toFixed(2)}</strong></span>
                 </div>
               </div>
             </div>
