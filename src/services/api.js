@@ -33,7 +33,14 @@ export const createUser = async (userData) => {
       },
       body: JSON.stringify(userData),
     });
-    return await response.json();
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `HTTP ${response.status}: Failed to create user`);
+    }
+
+    return data;
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;
