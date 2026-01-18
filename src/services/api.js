@@ -414,50 +414,6 @@ export const updateProfile = async (profileData) => {
   }
 };
 
-// Orders
-export const getOrders = async (userId) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/orders?userId=${userId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch orders');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    throw error;
-  }
-};
-
-export const createOrder = async (orderData) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(orderData)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to create order');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error creating order:', error);
-    throw error;
-  }
-};
-
 export default {
   getUsers,
   createUser,
