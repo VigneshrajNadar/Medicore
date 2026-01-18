@@ -81,10 +81,12 @@ const ModernCart = () => {
   };
 
   const calculateSavings = () => {
-    return cartItems.reduce((savings, item) => {
+    const mrpSavings = cartItems.reduce((savings, item) => {
       const itemSavings = item.mrp ? (item.mrp - item.price) * item.quantity : 0;
       return savings + itemSavings;
     }, 0);
+    const totals = calculateTotal();
+    return mrpSavings + parseFloat(totals.subscriptionDiscount || 0);
   };
 
   const { addOrder, addNotification, currentUser } = useUser();

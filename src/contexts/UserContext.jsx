@@ -32,6 +32,16 @@ export const UserProvider = ({ children }) => {
         const user = JSON.parse(storedUser);
         // Restore session from localStorage
         setCurrentUser(user);
+        setToken(token);
+
+        // Fetch latest profile to sync subscription, etc.
+        api.getProfile(user.id || user._id).then(updatedUser => {
+          if (updatedUser && !updatedUser.error) {
+            setCurrentUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            userDB.setCurrentUser(updatedUser);
+          }
+        }).catch(err => console.error("Failed to sync profile on mount", err));
 
         // Update mock DB for compatibility
         if (user.id) {
@@ -90,12 +100,23 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
-  const updateUser = (updateData) => {
+  const updateUser = async (updateData) => {
     if (currentUser) {
-      // TODO: Call API to update user
-      const updatedUser = userDB.updateUser(currentUser.id, updateData);
-      setCurrentUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      try {
+        const result = await api.updateProfile(updateData);
+        const updatedUser = { ...currentUser, ...updateData };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        userDB.updateUser(currentUser.id, updateData);
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to update profile:", error);
+        // Fallback to local update if API fails (for demo)
+        const updatedUser = userDB.updateUser(currentUser.id, updateData);
+        setCurrentUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return { success: false, error };
+      }
     }
   };
 

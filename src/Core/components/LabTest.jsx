@@ -495,6 +495,7 @@ const AuthError = styled.div`
 `;
 
 const LabTest = () => {
+  const { currentUser, addHealthRecord, addNotification, addOrder } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
   const [form, setForm] = useState({ name: '', mobile: '', address: '', date: '' });
@@ -602,6 +603,22 @@ const LabTest = () => {
     setSearch('');
   };
 
+  const getSubscriptionDiscount = () => {
+    const subscription = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
+    if (!subscription || subscription.status !== 'active') return 0;
+
+    // Discount based on plan
+    if (subscription.planId === 'basic') return 0.05; // 5%
+    if (subscription.planId === 'premium') return 0.15; // 15%
+    if (subscription.planId === 'elite') return 0.25; // 25%
+    return 0;
+  };
+
+  const calculateDiscountedPrice = (price) => {
+    const discount = getSubscriptionDiscount();
+    return Math.floor(price * (1 - discount));
+  };
+
   const openModal = (test) => {
     setSelectedTest(test);
     setModalOpen(true);
@@ -616,7 +633,6 @@ const LabTest = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const { currentUser, addHealthRecord, addNotification, addOrder } = useUser();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -648,6 +664,7 @@ const LabTest = () => {
       const userId = currentUser?.id || currentUser?._id;
 
       // 1. Prepare Lab Test Data for MongoDB
+      const finalPrice = calculateDiscountedPrice(selectedTest?.price || 0);
       const labTestData = {
         user_id: userId,
         test_id: selectedTest?.id || Date.now(),
@@ -656,7 +673,9 @@ const LabTest = () => {
         patient_mobile: pendingBooking.mobile,
         patient_address: pendingBooking.address,
         scheduled_date: pendingBooking.date,
-        price: selectedTest?.price || 0,
+        price: finalPrice,
+        original_price: selectedTest?.price,
+        discount_applied: selectedTest?.price - finalPrice,
         transaction_id: paymentData.transactionId,
         payment_method: paymentData.method,
         status: 'scheduled'
@@ -683,9 +702,10 @@ const LabTest = () => {
           item_id: selectedTest?.id || Date.now(),
           product_name: selectedTest?.name,
           quantity: 1,
-          price: selectedTest?.price || 0
+          price: finalPrice
         }],
-        total_amount: selectedTest?.price || 0,
+        total_amount: finalPrice,
+        savings: selectedTest?.price - finalPrice,
         order_type: 'lab_test',
         patient_name: pendingBooking.name,
         scheduled_date: pendingBooking.date,
@@ -786,8 +806,9 @@ const LabTest = () => {
             {authError && <AuthError>{authError}</AuthError>}
             <form onSubmit={handleAdminLogin}>
               <AuthInput type="password" placeholder="Enter admin password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} required />
-              <button type="submit" className="submit-btn">
-                Proceed to Payment
+              <AuthInput type="password" placeholder="Enter admin password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} required />
+              <button type="submit" className="submit-btn" style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #02475b, #0087ba)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Login to Dashboard
               </button>
             </form>
           </AuthBox>
@@ -1007,7 +1028,16 @@ const LabTest = () => {
             <TestIcon>{test.icon}</TestIcon>
             <TestName>{test.name}</TestName>
             <TestDesc>{test.desc}</TestDesc>
-            <TestPrice>₹{test.price}</TestPrice>
+            <TestPrice>
+              {getSubscriptionDiscount() > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <span style={{ textDecoration: 'line-through', fontSize: '0.9rem', color: '#666', opacity: 0.7 }}>₹{test.price}</span>
+                  <span style={{ color: '#0087ba', fontWeight: '800' }}>₹{calculateDiscountedPrice(test.price)}</span>
+                </div>
+              ) : (
+                `₹${test.price}`
+              )}
+            </TestPrice>
             <TestMeta>
               <MetaItem>⏱️ {test.duration}</MetaItem>
               <MetaItem>{test.fasting ? '🍽️ Fasting' : '🚫 No Fasting'}</MetaItem>
@@ -1038,7 +1068,25 @@ const LabTest = () => {
               <ModalInput name="mobile" placeholder="Mobile Number" value={form.mobile} onChange={handleChange} required pattern="[0-9]{10}" maxLength={10} />
               <ModalInput name="address" placeholder="Address" value={form.address} onChange={handleChange} required />
               <ModalInput name="date" type="date" value={form.date} onChange={handleChange} required />
-              <ModalButton type="submit">Confirm Booking</ModalButton>
+              <div style={{ padding: '15px', background: '#f8fafc', borderRadius: '12px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ color: '#64748b' }}>Original Price</span>
+                  <span style={{ fontWeight: '500', textDecoration: getSubscriptionDiscount() > 0 ? 'line-through' : 'none' }}>₹{selectedTest?.price}</span>
+                </div>
+                {getSubscriptionDiscount() > 0 && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#10b981', fontWeight: 'bold' }}>
+                      <span>👑 Member Discount ({(getSubscriptionDiscount() * 100).toFixed(0)}%)</span>
+                      <span>-₹{selectedTest?.price - calculateDiscountedPrice(selectedTest?.price)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '8px', borderTop: '1px solid #e2e8f0' }}>
+                      <span style={{ fontWeight: 'bold', color: '#02475b' }}>Final Price</span>
+                      <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#0087ba' }}>₹{calculateDiscountedPrice(selectedTest?.price)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              <ModalButton type="submit">Confirm Booking & Pay ₹{calculateDiscountedPrice(selectedTest?.price)}</ModalButton>
             </ModalForm>
             {success && <SuccessMsg>Booking successful! We'll contact you soon.</SuccessMsg>}
           </ModalContent>
@@ -1053,7 +1101,9 @@ const LabTest = () => {
           setPendingBooking(null);
         }}
         orderData={{
-          total: selectedTest?.price || 0,
+          total: calculateDiscountedPrice(selectedTest?.price || 0),
+          originalTotal: selectedTest?.price || 0,
+          discount: selectedTest?.price - calculateDiscountedPrice(selectedTest?.price || 0),
           orderType: 'lab_test',
           testName: selectedTest?.name,
           patientName: pendingBooking?.name

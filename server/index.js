@@ -433,6 +433,74 @@ app.put('/api/users/subscription', authenticateToken, async (req, res) => {
     }
 });
 
+// Get user profile (PROTECTED)
+app.get('/api/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            role: user.role || 'user',
+            subscription: user.subscription,
+            address: user.address,
+            dateOfBirth: user.dateOfBirth,
+            gender: user.gender,
+            bloodGroup: user.bloodGroup,
+            emergencyContact: user.emergencyContact
+        });
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+});
+
+// Update user profile (PROTECTED)
+app.put('/api/profile', authenticateToken, async (req, res) => {
+    try {
+        const updateData = { ...req.body };
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Update fields (excluding sensitive ones like password, role)
+        const allowedFields = ['name', 'phone', 'address', 'city', 'state', 'pincode', 'date_of_birth', 'gender', 'blood_group', 'emergency_contact', 'emergency_contact_relation'];
+
+        allowedFields.forEach(field => {
+            if (updateData[field] !== undefined) {
+                user[field] = updateData[field];
+            }
+        });
+
+        // Also handle camelCase from frontend
+        if (updateData.bloodGroup) user.blood_group = updateData.bloodGroup;
+        if (updateData.emergencyContact) user.emergency_contact = updateData.emergencyContact;
+
+        await user.save();
+
+        res.json({
+            message: 'Profile updated successfully',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role || 'user',
+                subscription: user.subscription
+            }
+        });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ error: 'Failed to update profile' });
+    }
+});
+
 // Login
 app.post('/api/login', async (req, res) => {
     try {
