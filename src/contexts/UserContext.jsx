@@ -201,9 +201,10 @@ export const UserProvider = ({ children }) => {
   const addOrder = async (orderData) => {
     if (currentUser) {
       try {
+        const userId = currentUser.id || currentUser._id;
         const order = await api.createOrder({
           ...orderData,
-          userId: currentUser.id
+          userId: userId
         });
 
         // Add notification for new order

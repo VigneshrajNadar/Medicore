@@ -139,17 +139,19 @@ const AccountPage = () => {
 
   // Fetch appointments and orders on component mount
   useEffect(() => {
-    if (currentUser?.id) {
+    const userId = currentUser?.id || currentUser?._id;
+    if (userId) {
       fetchAppointments();
       fetchOrders();
     }
   }, [currentUser]);
 
   const fetchOrders = async () => {
-    if (!currentUser?.id) return;
+    const userId = currentUser?.id || currentUser?._id;
+    if (!userId) return;
     setLoadingOrders(true);
     try {
-      const ordersData = await getOrders(currentUser.id);
+      const ordersData = await getOrders(userId);
       setOrders(ordersData || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -161,11 +163,13 @@ const AccountPage = () => {
   };
 
   const fetchAppointments = async () => {
+    const userId = currentUser?.id || currentUser?._id;
+    if (!userId) return;
     setLoadingAppointments(true);
     try {
       // Always fetch from API first to get the most up-to-date data
       try {
-        const appointmentsData = await getUserAppointments(currentUser.id);
+        const appointmentsData = await getUserAppointments(userId);
         if (appointmentsData && appointmentsData.length > 0) {
           setAppointments(appointmentsData);
         } else if (currentUser?.healthHistory?.appointments) {

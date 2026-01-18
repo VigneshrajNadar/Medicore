@@ -643,75 +643,82 @@ const LabTest = () => {
   const handlePaymentSuccess = async (paymentData) => {
     if (!pendingBooking) return;
 
-    // Add to user's health records
-    addHealthRecord('labResult', {
-      testName: selectedTest?.name,
-      patientName: pendingBooking.name,
-      mobile: pendingBooking.mobile,
-      address: pendingBooking.address,
-      scheduledDate: pendingBooking.date,
-      status: 'scheduled',
-      testType: 'lab_booking'
-    });
+    try {
+      const userId = currentUser?.id || currentUser?._id;
 
-    // Add lab test order to user's orders
-    const orderData = {
-      items: [{
-        item_id: selectedTest?.id || Date.now(),
-        product_name: selectedTest?.name,
-        quantity: 1,
-        price: selectedTest?.price || 0
-      }],
-      total_amount: selectedTest?.price || 0,
-      order_type: 'lab_test',
-      patient_name: pendingBooking.name,
-      scheduled_date: pendingBooking.date,
-      shipping_address: pendingBooking.address,
-      payment_method: paymentData.method,
-      transaction_id: paymentData.transactionId,
-      status: 'confirmed'
-    };
+      // 1. Prepare Lab Test Data for MongoDB
+      const labTestData = {
+        user_id: userId,
+        test_id: selectedTest?.id || Date.now(),
+        test_name: selectedTest?.name,
+        patient_name: pendingBooking.name,
+        patient_mobile: pendingBooking.mobile,
+        patient_address: pendingBooking.address,
+        scheduled_date: pendingBooking.date,
+        price: selectedTest?.price || 0,
+        transaction_id: paymentData.transactionId,
+        payment_method: paymentData.method,
+        status: 'scheduled'
+      };
 
-    const order = await addOrder(orderData);
+      // 2. Book Lab Test via API
+      const labResult = await api.bookLabTest(labTestData);
 
-    // Also save to localStorage for subscription dashboard tracking
-    const labTestHistory = JSON.parse(localStorage.getItem('labTestHistory')) || [];
-    const newLabTest = {
-      id: order?.id || order?._id || `LAB${Date.now()}`,
-      date: new Date().toISOString(),
-      test: selectedTest?.name,
-      price: selectedTest?.price || 0,
-      patientName: pendingBooking.name,
-      scheduledDate: pendingBooking.date,
-      status: 'scheduled',
-      category: selectedTest?.category || 'General'
-    };
-    labTestHistory.push(newLabTest);
-    localStorage.setItem('labTestHistory', JSON.stringify(labTestHistory));
+      // 3. Add to UserContext/MockDB for immediate UI feedback
+      addHealthRecord('labResult', {
+        testName: selectedTest?.name,
+        patientName: pendingBooking.name,
+        mobile: pendingBooking.mobile,
+        address: pendingBooking.address,
+        scheduledDate: pendingBooking.date,
+        status: 'scheduled',
+        testType: 'lab_booking',
+        id: labResult?._id || labResult?.id
+      });
 
-    // Dispatch custom event to notify subscription dashboard
-    window.dispatchEvent(new CustomEvent('labTestBooked', {
-      detail: { labTest: newLabTest }
-    }));
+      // 4. Add persistent Order for the lab test
+      const orderData = {
+        items: [{
+          item_id: selectedTest?.id || Date.now(),
+          product_name: selectedTest?.name,
+          quantity: 1,
+          price: selectedTest?.price || 0
+        }],
+        total_amount: selectedTest?.price || 0,
+        order_type: 'lab_test',
+        patient_name: pendingBooking.name,
+        scheduled_date: pendingBooking.date,
+        shipping_address: pendingBooking.address,
+        payment_method: paymentData.method,
+        transaction_id: paymentData.transactionId,
+        status: 'confirmed'
+      };
 
-    // Add notification
-    addNotification({
-      title: 'Lab Test Booked',
-      message: `Your ${selectedTest?.name} test has been scheduled for ${pendingBooking.date}. Order #${order?.id || order?._id || 'N/A'}.`,
-      type: 'success'
-    });
+      const order = await addOrder(orderData);
 
-    // Keep localStorage for admin view
-    const prev = JSON.parse(localStorage.getItem('labBookings') || '[]');
-    localStorage.setItem('labBookings', JSON.stringify([...prev, pendingBooking]));
+      // 5. Success UI state
+      addNotification({
+        title: 'Lab Test Booked',
+        message: `Your ${selectedTest?.name} test has been scheduled for ${pendingBooking.date}.`,
+        type: 'success'
+      });
 
-    setSuccess(true);
-    setShowPaymentModal(false);
-    setPendingBooking(null);
+      setSuccess(true);
+      setShowPaymentModal(false);
+      setPendingBooking(null);
 
-    setTimeout(() => {
-      closeModal();
-    }, 1500);
+      setTimeout(() => {
+        closeModal();
+      }, 1500);
+    } catch (error) {
+      console.error('Error completing lab test booking:', error);
+      addNotification({
+        title: 'Booking Error',
+        message: 'Payment was successful but we failed to register the booking. Please contact support.',
+        type: 'error'
+      });
+      setShowPaymentModal(false);
+    }
   };
 
   const handlePaymentFailure = (error) => {

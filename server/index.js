@@ -461,7 +461,11 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/lab-tests', authenticateToken, async (req, res) => {
     try {
         const data = { ...req.body };
+        // Map frontend fields to backend schema
         if (data.userId && !data.user_id) data.user_id = data.userId;
+        if (data.scheduled_date && !data.test_date) data.test_date = data.scheduled_date;
+        if (data.price && !data.total_amount) data.total_amount = data.price;
+        if (data.test_name && !data.product_name) data.product_name = data.test_name; // for order consistency
 
         const labTest = await LabTest.create(data);
         res.status(201).json(labTest);

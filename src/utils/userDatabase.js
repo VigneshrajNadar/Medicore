@@ -39,8 +39,40 @@ class UserDatabase {
   }
 
   setCurrentUser(user) {
+    if (!user) {
+      this.currentUser = null;
+      localStorage.removeItem('currentUserId');
+      return;
+    }
+
+    // Ensure healthHistory and other critical structures exist
+    if (!user.healthHistory) {
+      user.healthHistory = {
+        vitals: {
+          heartRate: { value: 72, unit: 'bpm', status: 'normal', lastUpdated: new Date().toISOString() },
+          bloodPressure: { value: '120/80', unit: 'mmHg', status: 'normal', lastUpdated: new Date().toISOString() },
+          weight: { value: 70, unit: 'kg', status: 'normal', lastUpdated: new Date().toISOString() },
+          temperature: { value: 98.6, unit: '°F', status: 'normal', lastUpdated: new Date().toISOString() },
+          bloodSugar: { value: 95, unit: 'mg/dL', status: 'normal', lastUpdated: new Date().toISOString() }
+        },
+        appointments: [],
+        medications: [],
+        labResults: [],
+        vaccinations: []
+      };
+    }
+    if (!user.orders) user.orders = [];
+    if (!user.notifications) user.notifications = [];
+    if (!user.favorites) {
+      user.favorites = {
+        doctors: [],
+        medicines: [],
+        healthTools: []
+      };
+    }
+
     this.currentUser = user;
-    this.users.set(user.id, user);
+    this.users.set(user.id || user._id, user);
     this.saveToStorage();
   }
 
@@ -237,15 +269,19 @@ class UserDatabase {
 
     switch (recordType) {
       case 'appointment':
+        if (!user.healthHistory.appointments) user.healthHistory.appointments = [];
         user.healthHistory.appointments.push(record);
         break;
       case 'medication':
+        if (!user.healthHistory.medications) user.healthHistory.medications = [];
         user.healthHistory.medications.push(record);
         break;
       case 'labResult':
+        if (!user.healthHistory.labResults) user.healthHistory.labResults = [];
         user.healthHistory.labResults.push(record);
         break;
       case 'vaccination':
+        if (!user.healthHistory.vaccinations) user.healthHistory.vaccinations = [];
         user.healthHistory.vaccinations.push(record);
         break;
     }
@@ -262,6 +298,18 @@ class UserDatabase {
   updateVitals(userId, vitalsData) {
     const user = this.users.get(userId);
     if (!user) return false;
+
+    // Ensure healthHistory and vitals structure exists
+    if (!user.healthHistory) user.healthHistory = {};
+    if (!user.healthHistory.vitals) {
+      user.healthHistory.vitals = {
+        heartRate: { value: 72, unit: 'bpm', status: 'normal', lastUpdated: new Date().toISOString() },
+        bloodPressure: { value: '120/80', unit: 'mmHg', status: 'normal', lastUpdated: new Date().toISOString() },
+        weight: { value: 70, unit: 'kg', status: 'normal', lastUpdated: new Date().toISOString() },
+        temperature: { value: 98.6, unit: '°F', status: 'normal', lastUpdated: new Date().toISOString() },
+        bloodSugar: { value: 95, unit: 'mg/dL', status: 'normal', lastUpdated: new Date().toISOString() }
+      };
+    }
 
     Object.keys(vitalsData).forEach(key => {
       if (user.healthHistory.vitals[key]) {
@@ -416,11 +464,11 @@ class UserDatabase {
     if (!user) return null;
 
     return {
-      totalOrders: user.orders.length,
-      totalAppointments: user.healthHistory.appointments.length,
-      activeMedications: user.healthHistory.medications.filter(med => med.status === 'active').length,
-      unreadNotifications: user.notifications.filter(notif => !notif.read).length,
-      cartItems: user.cart.length,
+      totalOrders: (user.orders || []).length,
+      totalAppointments: (user.healthHistory?.appointments || []).length,
+      activeMedications: (user.healthHistory?.medications || []).filter(med => med.status === 'active').length,
+      unreadNotifications: (user.notifications || []).filter(notif => !notif.read).length,
+      cartItems: (user.cart || []).length,
       memberSince: user.createdAt,
       lastLogin: user.lastLogin
     };

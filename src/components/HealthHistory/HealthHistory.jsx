@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../../contexts/UserContext';
+import api, { getUserAppointments, getLabTests } from '../../services/api';
 import { motion } from 'framer-motion';
-import { 
-  FaHeartbeat, 
-  FaWeight, 
-  FaThermometerHalf, 
-  FaTint, 
+import {
+  FaHeartbeat,
+  FaWeight,
+  FaThermometerHalf,
+  FaTint,
   FaLightbulb,
   FaClock,
   FaEye,
@@ -22,7 +23,8 @@ import {
   FaChevronRight,
   FaShoppingCart,
   FaPrescriptionBottleAlt,
-  FaUserMd
+  FaUserMd,
+  FaCalendarAlt
 } from 'react-icons/fa';
 import styled from 'styled-components';
 import './HealthHistory.css';
@@ -220,6 +222,9 @@ const HealthHistory = () => {
   const [centersModalOpen, setCentersModalOpen] = useState(false);
   const [guidelinesModalOpen, setGuidelinesModalOpen] = useState(false);
   const [guidelinesType, setGuidelinesType] = useState('donation');
+  const [appointments, setAppointments] = useState([]);
+  const [labTests, setLabTests] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(false);
 
   // Health Tips Database
   const healthTips = [
@@ -275,14 +280,26 @@ const HealthHistory = () => {
 
   useEffect(() => {
     const loadHealthData = async () => {
-      try {
-        if (!currentUser) {
-          setLoading(false);
-          return;
-        }
+      const userId = currentUser?.id || currentUser?._id;
+      if (!userId) {
         setLoading(false);
+        return;
+      }
+
+      setLoadingItems(true);
+      try {
+        // Fetch real data from backend
+        const [aptData, labData] = await Promise.all([
+          getUserAppointments(userId),
+          getLabTests(userId)
+        ]);
+
+        setAppointments(aptData || []);
+        setLabTests(labData || []);
       } catch (error) {
         console.error('Error loading health data:', error);
+      } finally {
+        setLoadingItems(false);
         setLoading(false);
       }
     };
@@ -295,7 +312,7 @@ const HealthHistory = () => {
     const interval = setInterval(() => {
       setTipAnimation(true);
       setTimeout(() => {
-        setCurrentTipIndex((prevIndex) => 
+        setCurrentTipIndex((prevIndex) =>
           (prevIndex + 1) % healthTips.length
         );
         setTipAnimation(false);
@@ -310,17 +327,39 @@ const HealthHistory = () => {
   };
 
   const getFilteredHistory = () => {
-    if (!currentUser?.healthHistory?.appointments) return [];
-    
+    // Standardize backend items for consistency
+    const standardizedAppointments = (appointments || []).map(apt => ({
+      ...apt,
+      type: `${apt.consultation_type || 'General'} Consultation`,
+      title: `Appointment with Dr. ${apt.doctor_name || 'Medical Team'}`,
+      date: apt.appointment_date,
+      time: apt.appointment_time,
+      status: apt.appointment_status
+    }));
+
+    const standardizedLabs = (labTests || []).map(test => ({
+      ...test,
+      type: 'Lab Test',
+      title: test.test_name,
+      date: test.scheduled_date,
+      time: 'Scheduled',
+      status: test.status
+    }));
+
+    const localMedications = currentUser?.healthHistory?.medications || [];
+
     switch (activeFilter) {
       case 'appointments':
-        return currentUser.healthHistory.appointments.filter(item => item.type.includes('Consultation') || item.type.includes('Checkup'));
+        return standardizedAppointments;
       case 'labs':
-        return currentUser.healthHistory.appointments.filter(item => item.type.includes('Lab'));
+        return standardizedLabs;
       case 'medications':
-        return currentUser.healthHistory.medications || [];
+        return localMedications;
       default:
-        return currentUser.healthHistory.appointments || [];
+        // Combine all for default view, sort by date descending
+        return [...standardizedAppointments, ...standardizedLabs].sort((a, b) =>
+          new Date(b.date) - new Date(a.date)
+        );
     }
   };
 
@@ -342,9 +381,9 @@ const HealthHistory = () => {
         transition={{ duration: 0.5 }}
       >
         <HeaderSection>
-          <h1 style={{ 
-            fontSize: '2.5rem', 
-            fontWeight: '800', 
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: '800',
             color: '#1e293b',
             marginBottom: '1rem',
             display: 'flex',
@@ -354,8 +393,8 @@ const HealthHistory = () => {
             <FaHeartbeat style={{ color: '#667eea' }} />
             Health History
           </h1>
-          <p style={{ 
-            fontSize: '1.1rem', 
+          <p style={{
+            fontSize: '1.1rem',
             color: '#64748b',
             margin: 0
           }}>
@@ -415,6 +454,114 @@ const HealthHistory = () => {
         </StatsGrid>
 
         <ContentGrid>
+          {/* Medical Records History - FULL WIDTH FIRST */}
+          <HistoryCard
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            style={{ gridColumn: '1 / -1' }}
+          >
+            <CardHeader style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+              <CardTitle>
+                <FaStethoscope style={{ color: '#667eea' }} />
+                Recent Medical Records
+              </CardTitle>
+              <FilterBar style={{ marginBottom: 0 }}>
+                <FilterButton
+                  active={activeFilter === 'all'}
+                  onClick={() => filterHistory('all')}
+                >
+                  All
+                </FilterButton>
+                <FilterButton
+                  active={activeFilter === 'appointments'}
+                  onClick={() => filterHistory('appointments')}
+                >
+                  Appointments
+                </FilterButton>
+                <FilterButton
+                  active={activeFilter === 'labs'}
+                  onClick={() => filterHistory('labs')}
+                >
+                  Lab Reports
+                </FilterButton>
+                <FilterButton
+                  active={activeFilter === 'medications'}
+                  onClick={() => filterHistory('medications')}
+                >
+                  Medications
+                </FilterButton>
+              </FilterBar>
+            </CardHeader>
+
+            <div style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '0.5rem', marginTop: '1rem' }}>
+              {loadingItems ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+                  <div className="loading-spinner">Loading your health records...</div>
+                </div>
+              ) : getFilteredHistory().length > 0 ? (
+                getFilteredHistory().map((item, index) => (
+                  <HistoryItem
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ flex: 1 }}>
+                        <HistoryDate>
+                          <FaCalendarAlt style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />
+                          {item.date} {item.time ? `• ${item.time}` : ''}
+                        </HistoryDate>
+                        <HistoryTitle>{item.title}</HistoryTitle>
+                        <HistoryDetails>
+                          <span style={{
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            background: item.type?.includes('Consultation') ? 'rgba(102, 126, 234, 0.1)' :
+                              item.type?.includes('Lab') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                            color: item.type?.includes('Consultation') ? '#667eea' :
+                              item.type?.includes('Lab') ? '#10b981' : '#f59e0b',
+                            marginRight: '0.6rem',
+                            display: 'inline-block'
+                          }}>
+                            {item.type}
+                          </span>
+                          {item.hospital || item.patient_name || item.hospital_name || 'Medical Center'}
+                        </HistoryDetails>
+                      </div>
+                      <div style={{ textAlign: 'right', marginLeft: '1rem' }}>
+                        <div style={{
+                          color: (item.status === 'scheduled' || item.status === 'Confirmed' || item.status === 'confirmed') ? '#10b981' :
+                            (item.status === 'Pending' || item.status === 'pending') ? '#f59e0b' : '#64748b',
+                          fontWeight: '700',
+                          fontSize: '0.85rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}>
+                          {item.status}
+                        </div>
+                        {item.total_amount && (
+                          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.2rem' }}>
+                            ₹{item.total_amount}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </HistoryItem>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#94a3b8' }}>
+                  <FaStethoscope style={{ fontSize: '3.5rem', opacity: 0.15, marginBottom: '1.2rem' }} />
+                  <p style={{ fontSize: '1.1rem', fontWeight: '500' }}>No records found in this category.</p>
+                  <p style={{ fontSize: '0.9rem' }}>Book an appointment or lab test to see records here.</p>
+                </div>
+              )}
+            </div>
+          </HistoryCard>
+
           {/* Health Tips */}
           <HistoryCard
             initial={{ opacity: 0, x: -20 }}
@@ -431,7 +578,7 @@ const HealthHistory = () => {
                 Updates every 2 minutes
               </div>
             </CardHeader>
-            
+
             <motion.div
               key={currentTipIndex}
               initial={{ opacity: 0, y: 20 }}
@@ -484,9 +631,9 @@ const HealthHistory = () => {
               </p>
             </motion.div>
 
-            <div style={{ 
-              marginTop: '1.5rem', 
-              display: 'flex', 
+            <div style={{
+              marginTop: '1.5rem',
+              display: 'flex',
               justifyContent: 'center',
               gap: '0.5rem'
             }}>
@@ -521,7 +668,7 @@ const HealthHistory = () => {
             </CardHeader>
 
             <div style={{ display: 'grid', gap: '1rem' }}>
-              <ActionButton 
+              <ActionButton
                 onClick={() => window.location.href = '/pharmacy'}
                 style={{
                   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -534,8 +681,8 @@ const HealthHistory = () => {
                 <FaPills />
                 Browse 10,000+ Medicines
               </ActionButton>
-              
-              <ActionButton 
+
+              <ActionButton
                 onClick={() => window.location.href = '/pharmacy?category=prescription'}
                 style={{
                   background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
@@ -548,8 +695,8 @@ const HealthHistory = () => {
                 <FaPrescriptionBottleAlt />
                 Prescription Medicines
               </ActionButton>
-              
-              <ActionButton 
+
+              <ActionButton
                 onClick={() => window.location.href = '/pharmacy?category=otc'}
                 style={{
                   background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -591,7 +738,7 @@ const HealthHistory = () => {
               minHeight: '400px'
             }}>
               {/* Donate Medicines */}
-              <motion.div 
+              <motion.div
                 style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
                   backdropFilter: 'blur(20px)',
@@ -606,7 +753,7 @@ const HealthHistory = () => {
                   boxShadow: '0 8px 32px rgba(16, 185, 129, 0.1)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.03,
                   y: -5,
                   boxShadow: '0 20px 60px rgba(16, 185, 129, 0.2)',
@@ -658,7 +805,7 @@ const HealthHistory = () => {
                       zIndex: 10,
                       boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
                     }}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.05,
                       y: -2,
                       boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)'
@@ -685,7 +832,7 @@ const HealthHistory = () => {
                       position: 'relative',
                       zIndex: 10
                     }}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.05,
                       y: -2,
                       background: 'rgba(16, 185, 129, 0.15)',
@@ -704,7 +851,7 @@ const HealthHistory = () => {
               </motion.div>
 
               {/* Request Medicines */}
-              <motion.div 
+              <motion.div
                 style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
                   backdropFilter: 'blur(20px)',
@@ -719,7 +866,7 @@ const HealthHistory = () => {
                   boxShadow: '0 8px 32px rgba(59, 130, 246, 0.1)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.03,
                   y: -5,
                   boxShadow: '0 20px 60px rgba(59, 130, 246, 0.2)',
@@ -771,7 +918,7 @@ const HealthHistory = () => {
                       zIndex: 10,
                       boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
                     }}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.05,
                       y: -2,
                       boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)'
@@ -798,7 +945,7 @@ const HealthHistory = () => {
                       position: 'relative',
                       zIndex: 10
                     }}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.05,
                       y: -2,
                       background: 'rgba(59, 130, 246, 0.15)',
@@ -817,7 +964,7 @@ const HealthHistory = () => {
               </motion.div>
 
               {/* Collection Centers */}
-              <motion.div 
+              <motion.div
                 style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
                   backdropFilter: 'blur(20px)',
@@ -832,7 +979,7 @@ const HealthHistory = () => {
                   boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.03,
                   y: -5,
                   boxShadow: '0 20px 60px rgba(139, 92, 246, 0.2)',
@@ -884,7 +1031,7 @@ const HealthHistory = () => {
                     zIndex: 10,
                     boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)'
                   }}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.05,
                     y: -2,
                     boxShadow: '0 8px 25px rgba(139, 92, 246, 0.4)'
@@ -912,7 +1059,7 @@ const HealthHistory = () => {
                     position: 'relative',
                     zIndex: 10
                   }}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.05,
                     y: -2,
                     background: 'rgba(139, 92, 246, 0.15)',
@@ -935,10 +1082,10 @@ const HealthHistory = () => {
               borderRadius: '12px',
               border: '1px solid rgba(102, 126, 234, 0.2)'
             }}>
-              <h4 style={{ 
-                margin: '0 0 1rem 0', 
-                color: '#1e293b', 
-                fontSize: '1.1rem', 
+              <h4 style={{
+                margin: '0 0 1rem 0',
+                color: '#1e293b',
+                fontSize: '1.1rem',
                 fontWeight: '700',
                 textAlign: 'center'
               }}>Donation Impact</h4>
@@ -969,25 +1116,25 @@ const HealthHistory = () => {
           </HistoryCard>
         </ContentGrid>
       </motion.div>
-      
+
       {/* Modals */}
-      <MedicineDonationModal 
+      <MedicineDonationModal
         isOpen={donationModalOpen}
         onClose={() => setDonationModalOpen(false)}
         type="donate"
       />
-      
-      <MedicineRequestModal 
+
+      <MedicineRequestModal
         isOpen={requestModalOpen}
         onClose={() => setRequestModalOpen(false)}
       />
-      
-      <CollectionCentersModal 
+
+      <CollectionCentersModal
         isOpen={centersModalOpen}
         onClose={() => setCentersModalOpen(false)}
       />
-      
-      <GuidelinesModal 
+
+      <GuidelinesModal
         isOpen={guidelinesModalOpen}
         onClose={() => setGuidelinesModalOpen(false)}
         type={guidelinesType}
