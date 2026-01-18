@@ -18,6 +18,7 @@ const LabTestSchema = new mongoose.Schema({
         name: String,
         data: String,
         type: String,
+        size: Number,
         uploadDate: Date
     }
 }, {
