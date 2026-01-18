@@ -14,6 +14,7 @@ export const useUser = () => {
 
 export const UserProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [medicineHistory, setMedicineHistory] = useState({
     donations: [],
