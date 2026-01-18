@@ -191,8 +191,11 @@ app.post('/api/appointments', authenticateToken, (req, res) => {
 
   db.get('SELECT consultation_fee FROM doctors WHERE id = ?', [doctor_id], (err, doctor) => {
     if (err) {
-      console.error('Error fetching doctor:', err);
-      return res.status(500).json({ error: 'Failed to fetch doctor' });
+      console.error('Error fetching doctor:');
+      console.error('  Error message:', err.message);
+      console.error('  Error code:', err.code);
+      console.error('  Full error:', err);
+      return res.status(500).json({ error: `Database error: ${err.message}` });
     }
 
     if (!doctor) {
