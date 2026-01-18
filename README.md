@@ -6,7 +6,7 @@ Built using React.js and Node.js, MediCore aims to bridge healthcare accessibili
 ![MediCore](https://img.shields.io/badge/MediCore-Healthcare-blue)
 ![React](https://img.shields.io/badge/React-18.1.0-61dafb)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-green)
-![SQLite](https://img.shields.io/badge/Database-SQLite-003B57)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248)
 
 ---
 
@@ -430,7 +430,7 @@ Community outreach metrics
 
 ![Tech Stack](./docs/images/tech_stack_1765276789860.png)
 
-*Modern technology stack with React frontend, Node.js backend, and SQLite database*
+*Modern technology stack with React frontend, Node.js backend, and MongoDB Atlas database*
 
 ### Frontend
 - **React** 18.1.0 - UI library
@@ -447,10 +447,12 @@ Community outreach metrics
 ### Backend
 - **Node.js** - Runtime environment
 - **Express** 4.18.2 - Web framework
-- **SQLite3** 5.1.7 - Database
-- **CORS** 2.8.5 - Cross-origin resource sharing
+- **MongoDB Atlas** - Cloud database (via Mongoose 9.1.4)
+- **Mongoose** 9.1.4 - MongoDB object modeling
 - **bcrypt** 6.0.0 - Password hashing
-- **jsonwebtoken** 9.0.2 - JWT authentication
+- **jsonwebtoken** 9.0.3 - JWT authentication
+- **CORS** 2.8.5 - Cross-origin resource sharing
+- **dotenv** 17.2.3 - Environment variables
 
 ### Authentication
 - **Firebase** 9.6.7 - Phone authentication (OTP)
@@ -879,25 +881,97 @@ http://localhost:5001/api
 
 ---
 
+## 🔄 MongoDB Migration
+
+**MediCore has been migrated from SQLite to MongoDB Atlas** for better scalability, cloud compatibility, and production deployment on Vercel.
+
+### Why MongoDB?
+
+- ✅ **Cloud-Native**: Works seamlessly with Vercel serverless deployment
+- ✅ **Scalable**: Handles growing user base and data
+- ✅ **Persistent**: Data survives across deployments (unlike SQLite on serverless)
+- ✅ **Free Tier**: MongoDB Atlas M0 cluster provides 512MB free storage
+- ✅ **Better Performance**: Optimized for production workloads
+
+### Migration Details
+
+| Aspect | Before (SQLite) | After (MongoDB) |
+|--------|----------------|-----------------|
+| **Database** | SQLite3 (file-based) | MongoDB Atlas (cloud) |
+| **ORM/ODM** | Raw SQL queries | Mongoose ODM |
+| **Deployment** | Not compatible with Vercel | Fully compatible |
+| **Data Persistence** | Lost on serverless | Persists across deployments |
+| **Schemas** | 6 tables | 5 Mongoose models |
+
+### Models Created
+
+- `User.js` - User accounts with authentication
+- `Doctor.js` - Doctor profiles and availability
+- `Appointment.js` - Appointment bookings
+- `DoctorReview.js` - Doctor ratings and reviews
+- `Order.js` - Medicine orders
+
+### Seed Scripts
+
+```bash
+# Seed demo users
+npm run seed:users
+
+# Seed sample doctors
+npm run seed:doctors
+
+# Seed both (recommended for first-time setup)
+npm run seed
+```
+
+---
+
 ## 🌐 Environment Variables
 
-Create a `.env` file in the root directory (optional):
+Create a `.env` file in the root directory:
 
 ```env
+# MongoDB Configuration (Required)
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/medicore?retryWrites=true&w=majority
+
+# JWT Secret (Required for authentication)
+JWT_SECRET=your_super_secret_jwt_key_change_in_production
+
 # Server Configuration
 PORT=5001
+NODE_ENV=development
 
-# Frontend URL
-REACT_APP_API_URL=http://localhost:5001
+# Frontend Configuration (Optional)
+CI=false
+DISABLE_ESLINT_PLUGIN=true
 
-# Firebase Configuration (for phone auth)
+# Firebase Configuration (Optional - for phone auth)
 REACT_APP_FIREBASE_API_KEY=your_api_key
 REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
 REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
 ```
+
+### MongoDB Atlas Setup
+
+1. **Create MongoDB Atlas Account**: [mongodb.com/cloud/atlas/register](https://www.mongodb.com/cloud/atlas/register)
+2. **Create a Cluster**: Choose M0 (Free tier - 512MB)
+3. **Create Database User**: Set username and password
+4. **Whitelist IP**: Add `0.0.0.0/0` for all IPs or your specific IP
+5. **Get Connection String**: Replace `<username>`, `<password>`, and cluster URL in `MONGODB_URI`
+6. **Seed Database**:
+   ```bash
+   npm run seed
+   ```
+
+### Vercel Deployment Environment Variables
+
+For Vercel deployment, add these environment variables in your Vercel project settings:
+
+- `MONGODB_URI` - Your MongoDB Atlas connection string
+- `JWT_SECRET` - Random secret key for JWT tokens
+- `NODE_ENV` - Set to `production`
+
+See `VERCEL_ENV_SETUP.md` for detailed deployment instructions.
 
 ---
 
