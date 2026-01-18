@@ -166,7 +166,9 @@ const AppointmentBooking = () => {
       setBookingSuccess(true);
       setBookingStep(3);
     } catch (error) {
-      setErrors({ submit: 'Failed to book appointment. Please try again.' });
+      console.error('Booking error:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to book appointment. Please try again.';
+      setErrors({ submit: errorMessage });
     } finally {
       setBookingLoading(false);
     }

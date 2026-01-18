@@ -175,7 +175,13 @@ app.post('/api/appointments', authenticateToken, (req, res) => {
   } = req.body;
 
   // Security: Enforce that the logged-in user can only book for themselves
-  if (req.user.id != user_id) {
+  // Security: Enforce that the logged-in user can only book for themselves
+  console.log("Appointment Booking Request:");
+  console.log("Logged in User:", req.user);
+  console.log("Request Body:", req.body);
+
+  if (String(req.user.id) !== String(user_id)) {
+    console.error(`User mismatch: Token ID ${req.user.id} vs Body ID ${user_id}`);
     return res.status(403).json({ error: 'Cannot book appointments for other users' });
   }
 

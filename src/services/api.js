@@ -138,7 +138,14 @@ export const bookAppointment = async (appointmentData) => {
       headers: getAuthHeaders(),
       body: JSON.stringify(appointmentData),
     });
-    return await response.json();
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `HTTP ${response.status}: Failed to book appointment`);
+    }
+
+    return data;
   } catch (error) {
     console.error('Error booking appointment:', error);
     throw error;
