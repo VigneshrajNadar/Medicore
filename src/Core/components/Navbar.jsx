@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import "./Navbar.css";
 import Slider from "../Slider/Slider";
 import styled from 'styled-components';
+import { useUser } from "../../contexts/UserContext";
 
 const NavbarContainer = styled.nav`
   position: sticky;
@@ -109,7 +110,7 @@ const LogoutButton = styled.button`
 
 const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { currentUser, logout } = useUser();
   const navigate = useNavigate();
 
   const updateCartCount = () => {
@@ -119,47 +120,41 @@ const Navbar = () => {
 
   useEffect(() => {
     updateCartCount();
-    
-    // Check login status
-    const userId = localStorage.getItem('userId');
-    setIsLoggedIn(!!userId);
-    
+
     // Listen for cart updates
     const handleCartUpdate = () => {
       updateCartCount();
     };
-    
+
     window.addEventListener('cartUpdated', handleCartUpdate);
-    
+
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate);
     };
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userProfile');
-    setIsLoggedIn(false);
-    navigate('/');
+    logout();
+    navigate('/login');
   };
 
   return (
     <NavbarContainer>
       <Logo to="/">
-        <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
-            width: '48px', 
-            height: '48px', 
-            background: 'linear-gradient(135deg, #02475b, #0087ba)', 
-            borderRadius: '12px', 
-            display: 'flex', 
-            alignItems: 'center', 
+            width: '48px',
+            height: '48px',
+            background: 'linear-gradient(135deg, #02475b, #0087ba)',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 4px 12px rgba(2, 71, 91, 0.3)'
           }}>
-            <span style={{color: 'white', fontSize: '24px', fontWeight: '800'}}>M+</span>
+            <span style={{ color: 'white', fontSize: '24px', fontWeight: '800' }}>M+</span>
           </div>
-          <span style={{fontSize: '1.5rem', fontWeight: '700', color: '#02475b'}}>MediCore</span>
+          <span style={{ fontSize: '1.5rem', fontWeight: '700', color: '#02475b' }}>MediCore</span>
         </div>
       </Logo>
       <NavLinks>
@@ -169,7 +164,7 @@ const Navbar = () => {
         <NavLinkStyled to="/labtest">Lab Test</NavLinkStyled>
         <NavLinkStyled to="/subscriptions">Subscription</NavLinkStyled>
         <NavLinkStyled to="/HealthTools">Health Tools</NavLinkStyled>
-        <NavLinkStyled to="/cart" style={{position: 'relative'}}>
+        <NavLinkStyled to="/cart" style={{ position: 'relative' }}>
           <NavIcon icon={faCartShopping} />Cart
           {cartCount > 0 && (
             <span style={{
@@ -193,8 +188,8 @@ const Navbar = () => {
         </NavLinkStyled>
         <NavLinkStyled to="/dashboard">Dashboard</NavLinkStyled>
         <NavLinkStyled to="/account">Account</NavLinkStyled>
-        
-        {isLoggedIn && (
+
+        {currentUser && (
           <LogoutButton onClick={handleLogout}>
             <FontAwesomeIcon icon={faSignOutAlt} />
             Logout
