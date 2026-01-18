@@ -12,6 +12,7 @@ const Doctor = require('./models/Doctor');
 const Appointment = require('./models/Appointment');
 const DoctorReview = require('./models/DoctorReview');
 const Order = require('./models/Order');
+const LabTest = require('./models/LabTest');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_key_change_in_production';
 
@@ -451,6 +452,31 @@ app.post('/api/login', async (req, res) => {
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// Lab Tests
+
+// Book lab test (PROTECTED)
+app.post('/api/lab-tests', authenticateToken, async (req, res) => {
+    try {
+        const labTest = await LabTest.create(req.body);
+        res.status(201).json(labTest);
+    } catch (error) {
+        console.error('Error creating lab test:', error);
+        res.status(500).json({ error: 'Failed to create lab test' });
+    }
+});
+
+// Get user lab tests (PROTECTED)
+app.get('/api/users/:userId/lab-tests', authenticateToken, async (req, res) => {
+    try {
+        const labTests = await LabTest.find({ user_id: req.params.userId })
+            .sort({ test_date: -1 });
+        res.json(labTests);
+    } catch (error) {
+        console.error('Error fetching lab tests:', error);
+        res.status(500).json({ error: 'Failed to fetch lab tests' });
     }
 });
 
