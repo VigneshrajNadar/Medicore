@@ -52,7 +52,7 @@ const ModernCart = () => {
   };
 
   const getSubscriptionDiscount = () => {
-    const subscription = JSON.parse(localStorage.getItem('userSubscription'));
+    const subscription = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
     if (!subscription || subscription.status !== 'active') return 0;
 
     // Discount based on plan
@@ -87,7 +87,7 @@ const ModernCart = () => {
     }, 0);
   };
 
-  const { addOrder, addNotification } = useUser();
+  const { addOrder, addNotification, currentUser } = useUser();
 
   // Check if cart has prescription medicines
   const hasPrescriptionMedicines = () => {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FaCrown, 
-  FaCheck, 
-  FaTimes, 
-  FaShippingFast, 
-  FaPercent, 
-  FaUserMd, 
-  FaPills, 
+import {
+  FaCrown,
+  FaCheck,
+  FaTimes,
+  FaShippingFast,
+  FaPercent,
+  FaUserMd,
+  FaPills,
   FaHeartbeat,
   FaStar,
   FaGift,
@@ -18,11 +18,13 @@ import {
   FaChartLine
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../contexts/UserContext';
 import PaymentModal from './PaymentModal';
 import './SubscriptionPlans.css';
 
 const SubscriptionPlans = () => {
   const navigate = useNavigate();
+  const { currentUser } = useUser();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [billingCycle, setBillingCycle] = useState('monthly'); // monthly, quarterly, yearly
   const [showComparison, setShowComparison] = useState(false);
@@ -33,9 +35,9 @@ const SubscriptionPlans = () => {
 
   useEffect(() => {
     // Check if user has active subscription
-    const subscription = localStorage.getItem('userSubscription');
-    setHasActiveSubscription(!!subscription);
-  }, []);
+    const hasSub = !!(currentUser?.subscription || localStorage.getItem('userSubscription'));
+    setHasActiveSubscription(hasSub);
+  }, [currentUser]);
 
   // Subscription plans data
   const plans = [
@@ -196,7 +198,7 @@ const SubscriptionPlans = () => {
     const plan = plans.find(p => p.id === planId);
     setPlanToSubscribe(plan);
     setShowPaymentModal(true);
-    
+
     // Track analytics
     trackEvent('subscription_initiated', {
       plan_id: planId,
@@ -208,10 +210,10 @@ const SubscriptionPlans = () => {
 
   const handlePaymentSuccess = (subscriptionData) => {
     setShowPaymentModal(false);
-    
+
     // Track conversion
     trackEvent('subscription_completed', subscriptionData);
-    
+
     // Navigate to dashboard
     setTimeout(() => {
       navigate('/subscription-dashboard');
@@ -220,12 +222,12 @@ const SubscriptionPlans = () => {
 
   const trackEvent = (eventName, data) => {
     console.log('Analytics Event:', eventName, data);
-    
+
     // Google Analytics integration
     if (window.gtag) {
       window.gtag('event', eventName, data);
     }
-    
+
     // Store in localStorage for demo analytics
     const analytics = JSON.parse(localStorage.getItem('subscriptionAnalytics') || '[]');
     analytics.push({
@@ -239,9 +241,9 @@ const SubscriptionPlans = () => {
   const calculateSavings = (plan) => {
     const basePrice = plan.pricing.monthly;
     const selectedPrice = plan.pricing[billingCycle];
-    
+
     if (billingCycle === 'monthly') return 0;
-    
+
     const months = billingCycle === 'quarterly' ? 3 : 12;
     const totalWithoutDiscount = basePrice * months;
     return totalWithoutDiscount - selectedPrice;
@@ -260,7 +262,7 @@ const SubscriptionPlans = () => {
             Save more on healthcare with our exclusive membership plans
           </p>
           {hasActiveSubscription && (
-            <button 
+            <button
               className="dashboard-link-btn"
               onClick={() => navigate('/subscription-dashboard')}
             >
@@ -286,19 +288,19 @@ const SubscriptionPlans = () => {
 
       {/* Tab Navigation */}
       <div className="subscription-tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'plans' ? 'active' : ''}`}
           onClick={() => setActiveTab('plans')}
         >
           <FaCalendarAlt /> Subscription Plans
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'benefits' ? 'active' : ''}`}
           onClick={() => setActiveTab('benefits')}
         >
           <FaGift /> Benefits
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'faq' ? 'active' : ''}`}
           onClick={() => setActiveTab('faq')}
         >
@@ -340,15 +342,15 @@ const SubscriptionPlans = () => {
             {/* Plans Grid */}
             <div className="plans-grid">
               {plans.map((plan) => (
-                <div 
-                  key={plan.id} 
+                <div
+                  key={plan.id}
                   className={`plan-card ${plan.popular ? 'popular' : ''} ${selectedPlan === plan.id ? 'selected' : ''}`}
                   style={{ '--plan-color': plan.color }}
                 >
                   {plan.badge && (
                     <div className="plan-badge">{plan.badge}</div>
                   )}
-                  
+
                   <div className="plan-header">
                     <div className="plan-icon" style={{ color: plan.color }}>
                       {plan.icon}
@@ -388,7 +390,7 @@ const SubscriptionPlans = () => {
                     ))}
                   </div>
 
-                  <button 
+                  <button
                     className="subscribe-btn"
                     onClick={() => handleSubscribe(plan.id)}
                     style={{ backgroundColor: plan.color }}
@@ -401,7 +403,7 @@ const SubscriptionPlans = () => {
 
             {/* Comparison Toggle */}
             <div className="comparison-section">
-              <button 
+              <button
                 className="comparison-toggle"
                 onClick={() => setShowComparison(!showComparison)}
               >
@@ -502,8 +504,8 @@ const SubscriptionPlans = () => {
             <h2>Frequently Asked Questions</h2>
             <div className="faq-list">
               {faqs.map((faq, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`faq-item ${expandedFaq === index ? 'expanded' : ''}`}
                   onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
                 >

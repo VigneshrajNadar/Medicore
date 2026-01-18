@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FaCrown,
-  FaCalendarAlt,
-  FaCreditCard,
-  FaHistory,
-  FaDownload,
-  FaPause,
-  FaPlay,
-  FaTimes,
-  FaChartLine,
-  FaGift,
-  FaExclamationTriangle,
-  FaCheckCircle,
-  FaBell
-} from 'react-icons/fa';
+import { FaCrown, FaCalendarAlt, FaCreditCard, FaHistory, FaDownload, FaPause, FaPlay, FaTimes, FaChartLine, FaGift, FaExclamationTriangle, FaCheckCircle, FaBell } from 'react-icons/fa';
+import { useUser } from '../../contexts/UserContext';
+import * as api from '../../services/api';
 import './SubscriptionDashboard.css';
 
 const SubscriptionDashboard = () => {
+  const { currentUser } = useUser();
   const [subscription, setSubscription] = useState(null);
   const [usage, setUsage] = useState({
     medicineOrders: 0,
@@ -29,14 +18,14 @@ const SubscriptionDashboard = () => {
 
   useEffect(() => {
     // Load subscription data
-    const subData = JSON.parse(localStorage.getItem('userSubscription'));
+    const subData = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
     if (subData) {
       setSubscription(subData);
       loadTransactions(subData);
       loadNotifications(subData);
       calculateRealUsage(subData);
     }
-  }, []);
+  }, [currentUser]);
 
   // Add effect to listen for localStorage changes (when orders are placed)
   useEffect(() => {
@@ -50,11 +39,11 @@ const SubscriptionDashboard = () => {
 
     // Listen for storage events
     window.addEventListener('storage', handleStorageChange);
-    
+
     // Also refresh when component becomes visible (for same-tab updates)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        const subData = JSON.parse(localStorage.getItem('userSubscription'));
+        const subData = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
         if (subData) {
           calculateRealUsage(subData);
           loadNotifications(subData);
@@ -165,35 +154,35 @@ const SubscriptionDashboard = () => {
   const calculateRealUsage = (subData) => {
     // Initialize sample data if not exists
     initializeSampleData(subData);
-    
+
     // Calculate real usage based on user activity
     const cart = JSON.parse(localStorage.getItem('pharmacy_cart')) || [];
     const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
     const labTestHistory = JSON.parse(localStorage.getItem('labTestHistory')) || [];
-    
+
     // Calculate medicine orders since subscription start
     const subscriptionStartDate = new Date(subData.startDate);
     const currentDate = new Date();
-    
+
     // Validate dates
     if (isNaN(subscriptionStartDate.getTime())) {
       console.warn('Invalid subscription start date, using current date');
       subscriptionStartDate.setTime(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
     }
-    
+
     // Filter orders since subscription started
     const ordersThisMonth = orderHistory.filter(order => {
       const orderDate = new Date(order.date);
       return !isNaN(orderDate.getTime()) && orderDate >= subscriptionStartDate && orderDate <= currentDate;
     });
-    
+
     // Calculate total savings from medicine orders (assuming 15% average discount for subscribers)
     const totalOrderValue = ordersThisMonth.reduce((sum, order) => {
       const orderTotal = parseFloat(order.total) || 0;
       return sum + orderTotal;
     }, 0);
     const medicineOrderSavings = Math.floor(totalOrderValue * 0.15) || 0;
-    
+
     // Calculate lab test savings (assuming 20% discount for subscribers)
     const labTestsForSavings = labTestHistory.filter(test => {
       const testDate = new Date(test.date);
@@ -204,24 +193,24 @@ const SubscriptionDashboard = () => {
       return sum + testPrice;
     }, 0);
     const labTestSavings = Math.floor(totalLabTestValue * 0.20) || 0;
-    
+
     // Combined savings with fallback
     const estimatedSavings = (medicineOrderSavings || 0) + (labTestSavings || 0);
-    
+
     // Count lab tests
     const labTestsThisMonth = labTestHistory.filter(test => {
       const testDate = new Date(test.date);
       return !isNaN(testDate.getTime()) && testDate >= subscriptionStartDate && testDate <= currentDate;
     }).length;
-    
+
     // Add current cart items to medicine orders
     const cartItemsCount = cart.length || 0;
     const cartSavings = cartItemsCount * 50;
-    
+
     // Final calculations with proper fallbacks
     const finalTotalSavings = estimatedSavings + cartSavings;
     const finalMedicineOrders = ordersThisMonth.length + labTestsThisMonth + (cartItemsCount > 0 ? 1 : 0);
-    
+
     // Debug logging
     console.log('Subscription calculation debug:', {
       medicineOrderSavings,
@@ -232,7 +221,7 @@ const SubscriptionDashboard = () => {
       totalOrderValue,
       totalLabTestValue
     });
-    
+
     setUsage({
       medicineOrders: finalMedicineOrders || 0,
       totalSavings: isNaN(finalTotalSavings) ? 0 : finalTotalSavings,
@@ -259,7 +248,7 @@ const SubscriptionDashboard = () => {
     const currentDate = new Date();
     const endDate = new Date(subData.endDate);
     const daysUntilRenewal = Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24));
-    
+
     const notifs = [
       {
         id: 1,
@@ -269,7 +258,7 @@ const SubscriptionDashboard = () => {
         read: false
       }
     ];
-    
+
     // Add cart-related notification
     if (cart.length > 0) {
       notifs.push({
@@ -285,7 +274,7 @@ const SubscriptionDashboard = () => {
     const allOrders = JSON.parse(localStorage.getItem('orderHistory')) || [];
     const allLabTests = JSON.parse(localStorage.getItem('labTestHistory')) || [];
     const totalOrders = allOrders.length + allLabTests.length;
-    
+
     if (totalOrders > 0) {
       notifs.push({
         id: 7,
@@ -295,7 +284,7 @@ const SubscriptionDashboard = () => {
         read: false
       });
     }
-    
+
     // Add renewal reminder based on actual days remaining
     if (daysUntilRenewal <= 7 && daysUntilRenewal > 0) {
       notifs.push({
@@ -314,7 +303,7 @@ const SubscriptionDashboard = () => {
         read: false
       });
     }
-    
+
     // Add savings notification if user has made orders
     const recentOrders = JSON.parse(localStorage.getItem('orderHistory')) || [];
     if (recentOrders.length > 0) {
@@ -338,7 +327,7 @@ const SubscriptionDashboard = () => {
       const testDate = new Date(lastLabTest.scheduledDate);
       const today = new Date();
       const daysDiff = Math.ceil((testDate - today) / (1000 * 60 * 60 * 24));
-      
+
       if (daysDiff >= 0 && daysDiff <= 3) {
         notifs.push({
           id: 5,
@@ -361,7 +350,7 @@ const SubscriptionDashboard = () => {
         });
       }
     }
-    
+
     setNotifications(notifs);
   };
 
@@ -374,11 +363,14 @@ const SubscriptionDashboard = () => {
       loadTransactions(subData);
     }
   };
-
   const handlePauseSubscription = () => {
     const updatedSub = { ...subscription, status: 'paused' };
     setSubscription(updatedSub);
     localStorage.setItem('userSubscription', JSON.stringify(updatedSub));
+
+    // Persist to backend
+    api.updateSubscription(updatedSub).catch(console.error);
+
     alert('Subscription paused successfully');
   };
 
@@ -386,11 +378,20 @@ const SubscriptionDashboard = () => {
     const updatedSub = { ...subscription, status: 'active' };
     setSubscription(updatedSub);
     localStorage.setItem('userSubscription', JSON.stringify(updatedSub));
+
+    // Persist to backend
+    api.updateSubscription(updatedSub).catch(console.error);
+
     alert('Subscription resumed successfully');
   };
 
   const handleCancelSubscription = () => {
     localStorage.removeItem('userSubscription');
+
+    // Persist to backend (status cancelled)
+    const cancelledSub = { ...subscription, status: 'cancelled' };
+    api.updateSubscription(cancelledSub).catch(console.error);
+
     setSubscription(null);
     setShowCancelModal(false);
     alert('Subscription cancelled successfully');

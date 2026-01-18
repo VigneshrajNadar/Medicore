@@ -404,6 +404,35 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
+// Update user subscription (PROTECTED)
+app.put('/api/users/subscription', authenticateToken, async (req, res) => {
+    try {
+        const { subscription } = req.body;
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.subscription = subscription;
+        await user.save();
+
+        res.json({
+            message: 'Subscription updated successfully',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role || 'user',
+                subscription: user.subscription
+            }
+        });
+    } catch (error) {
+        console.error('Error updating subscription:', error);
+        res.status(500).json({ error: 'Failed to update subscription' });
+    }
+});
+
 // Login
 app.post('/api/login', async (req, res) => {
     try {
@@ -446,7 +475,8 @@ app.post('/api/login', async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role || 'user'
+                role: user.role || 'user',
+                subscription: user.subscription
             }
         });
     } catch (error) {

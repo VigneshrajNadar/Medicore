@@ -14,7 +14,18 @@ const UserSchema = new mongoose.Schema({
     gender: String,
     blood_group: String,
     emergency_contact: String,
-    emergency_contact_relation: String
+    emergency_contact_relation: String,
+    subscription: {
+        planId: String,
+        planName: String,
+        billingCycle: String,
+        amount: Number,
+        startDate: String,
+        endDate: String,
+        status: String,
+        paymentMethod: String,
+        transactionId: String
+    }
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

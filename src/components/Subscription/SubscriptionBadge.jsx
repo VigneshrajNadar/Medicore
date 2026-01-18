@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { FaCrown, FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../contexts/UserContext';
 import './SubscriptionBadge.css';
 
 const SubscriptionBadge = ({ showDetails = false, inline = false }) => {
+  const { currentUser } = useUser();
   const [subscription, setSubscription] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const subData = JSON.parse(localStorage.getItem('userSubscription'));
+    const subData = currentUser?.subscription || JSON.parse(localStorage.getItem('userSubscription'));
     if (subData && subData.status === 'active') {
       setSubscription(subData);
+    } else {
+      setSubscription(null);
     }
-  }, []);
+  }, [currentUser]);
 
   if (!subscription) {
     return null;
@@ -72,7 +76,7 @@ const SubscriptionBadge = ({ showDetails = false, inline = false }) => {
         </div>
       )}
 
-      <button 
+      <button
         className="view-benefits-btn"
         onClick={() => navigate('/subscription-dashboard')}
       >

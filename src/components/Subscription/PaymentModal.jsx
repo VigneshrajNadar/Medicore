@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaCreditCard, FaMobile, FaLock, FaCheck, FaSpinner, FaCheckCircle, FaMobileAlt, FaUniversity, FaWallet } from 'react-icons/fa';
 import Loader from '../common/Loader';
+import * as api from '../../services/api';
 import './PaymentModal.css';
 
 const PaymentModal = ({ isOpen, onClose, plan, billingCycle, onPaymentSuccess }) => {
@@ -62,6 +63,18 @@ const PaymentModal = ({ isOpen, onClose, plan, billingCycle, onPaymentSuccess })
     };
 
     localStorage.setItem('userSubscription', JSON.stringify(subscriptionData));
+
+    // Persist to backend
+    try {
+      await api.updateSubscription(subscriptionData);
+
+      // Update local user data in localStorage to include subscription
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      userData.subscription = subscriptionData;
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Failed to persist subscription to backend:', error);
+    }
 
     // Send email notification (simulated)
     sendEmailNotification(subscriptionData);
@@ -287,7 +300,7 @@ const PaymentModal = ({ isOpen, onClose, plan, billingCycle, onPaymentSuccess })
 
             {/* Processing Overlay */}
             {isProcessing && (
-              <motion.div 
+              <motion.div
                 className="processing-overlay"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

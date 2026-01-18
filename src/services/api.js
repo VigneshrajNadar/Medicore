@@ -69,6 +69,27 @@ export const login = async (credentials) => {
   }
 };
 
+export const updateSubscription = async (subscriptionData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/subscription`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ subscription: subscriptionData }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to update subscription');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error updating subscription:', error);
+    throw error;
+  }
+};
+
 // Doctor Management
 export const getDoctors = async (filters = {}) => {
   try {
