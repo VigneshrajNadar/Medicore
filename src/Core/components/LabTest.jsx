@@ -509,7 +509,7 @@ const LabTest = () => {
   const [pendingBooking, setPendingBooking] = useState(null);
   const [detailsBooking, setDetailsBooking] = useState(null);
   const [detailsModal, setDetailsModal] = useState(false);
-  
+
   // Filter states
   const [filters, setFilters] = useState({
     category: 'All Tests',
@@ -537,7 +537,7 @@ const LabTest = () => {
     }
 
     // Price filter
-    filtered = filtered.filter(test => 
+    filtered = filtered.filter(test =>
       test.price >= filters.priceRange.min && test.price <= filters.priceRange.max
     );
 
@@ -619,7 +619,7 @@ const LabTest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!currentUser) {
       alert('Please login to book lab tests');
       return;
@@ -640,7 +640,7 @@ const LabTest = () => {
     setShowPaymentModal(true);
   };
 
-  const handlePaymentSuccess = (paymentData) => {
+  const handlePaymentSuccess = async (paymentData) => {
     if (!pendingBooking) return;
 
     // Add to user's health records
@@ -671,13 +671,13 @@ const LabTest = () => {
       transactionId: paymentData.transactionId,
       status: 'confirmed'
     };
-    
-    const order = addOrder(orderData);
+
+    const order = await addOrder(orderData);
 
     // Also save to localStorage for subscription dashboard tracking
     const labTestHistory = JSON.parse(localStorage.getItem('labTestHistory')) || [];
     const newLabTest = {
-      id: order?.id || `LAB${Date.now()}`,
+      id: order?.id || order?._id || `LAB${Date.now()}`,
       date: new Date().toISOString(),
       test: selectedTest?.name,
       price: selectedTest?.price || 0,
@@ -690,25 +690,25 @@ const LabTest = () => {
     localStorage.setItem('labTestHistory', JSON.stringify(labTestHistory));
 
     // Dispatch custom event to notify subscription dashboard
-    window.dispatchEvent(new CustomEvent('labTestBooked', { 
-      detail: { labTest: newLabTest } 
+    window.dispatchEvent(new CustomEvent('labTestBooked', {
+      detail: { labTest: newLabTest }
     }));
 
     // Add notification
     addNotification({
       title: 'Lab Test Booked',
-      message: `Your ${selectedTest?.name} test has been scheduled for ${pendingBooking.date}. Order #${order?.id || 'N/A'}.`,
+      message: `Your ${selectedTest?.name} test has been scheduled for ${pendingBooking.date}. Order #${order?.id || order?._id || 'N/A'}.`,
       type: 'success'
     });
 
     // Keep localStorage for admin view
     const prev = JSON.parse(localStorage.getItem('labBookings') || '[]');
     localStorage.setItem('labBookings', JSON.stringify([...prev, pendingBooking]));
-    
+
     setSuccess(true);
     setShowPaymentModal(false);
     setPendingBooking(null);
-    
+
     setTimeout(() => {
       closeModal();
     }, 1500);
@@ -863,7 +863,7 @@ const LabTest = () => {
         <HeroContent>
           <HeroTitle>Lab Tests & Health Checkups</HeroTitle>
           <HeroSubtitle>Book lab tests from the comfort of your home with certified labs and quick results</HeroSubtitle>
-          
+
           <FeatureGrid>
             <FeatureCard>
               <FeatureIcon>🏠</FeatureIcon>
@@ -902,7 +902,7 @@ const LabTest = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        
+
         <FilterGrid>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#02475b' }}>
@@ -1011,9 +1011,9 @@ const LabTest = () => {
       </TestGrid>
 
       {filteredTests.length === 0 && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '60px 20px', 
+        <div style={{
+          textAlign: 'center',
+          padding: '60px 20px',
           color: '#666',
           fontSize: '1.2rem'
         }}>
@@ -1037,7 +1037,7 @@ const LabTest = () => {
           </ModalContent>
         </ModalOverlay>
       )}
-      
+
       {/* Payment Modal */}
       <PaymentModal
         isOpen={showPaymentModal}

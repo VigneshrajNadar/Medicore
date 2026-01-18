@@ -414,6 +414,40 @@ export const updateProfile = async (profileData) => {
   }
 };
 
+// Lab Tests
+export const getLabTests = async (userId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/lab-tests`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to fetch lab tests');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching lab tests:', error);
+    throw error;
+  }
+};
+
+export const bookLabTest = async (labTestData) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/lab-tests`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(labTestData)
+    });
+    if (!response.ok) throw new Error('Failed to book lab test');
+    return await response.json();
+  } catch (error) {
+    console.error('Error booking lab test:', error);
+    throw error;
+  }
+};
+
 export default {
   getUsers,
   createUser,
@@ -433,4 +467,6 @@ export default {
   getProfile,
   updateProfile,
   login,
+  getLabTests,
+  bookLabTest,
 };

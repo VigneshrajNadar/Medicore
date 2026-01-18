@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaTimes, 
-  FaCreditCard, 
-  FaMobile, 
-  FaTruck, 
-  FaLock, 
+import {
+  FaTimes,
+  FaCreditCard,
+  FaMobile,
+  FaTruck,
+  FaLock,
   FaCheck,
   FaExclamationTriangle,
   FaSpinner
@@ -13,12 +13,12 @@ import {
 import Loader from '../common/Loader';
 import './PaymentModal.css';
 
-const PaymentModal = ({ 
-  isOpen, 
-  onClose, 
-  orderData, 
-  onPaymentSuccess, 
-  onPaymentFailure 
+const PaymentModal = ({
+  isOpen,
+  onClose,
+  orderData,
+  onPaymentSuccess,
+  onPaymentFailure
 }) => {
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,7 +39,7 @@ const PaymentModal = ({
   const getSubscriptionDiscount = () => {
     const subscription = JSON.parse(localStorage.getItem('userSubscription') || 'null');
     if (!subscription || subscription.status !== 'active') return 0;
-    
+
     if (subscription.planId === 'basic') return 0.05;
     if (subscription.planId === 'premium') return 0.15;
     if (subscription.planId === 'elite') return 0.25;
@@ -108,7 +108,7 @@ const PaymentModal = ({
 
   const handleCardInputChange = (field, value) => {
     let formattedValue = value;
-    
+
     if (field === 'number') {
       // Format card number with spaces
       formattedValue = value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
@@ -122,13 +122,13 @@ const PaymentModal = ({
       formattedValue = value.replace(/\D/g, '');
       if (formattedValue.length > 4) return;
     }
-    
+
     setCardData(prev => ({ ...prev, [field]: formattedValue }));
   };
 
   const validateCardData = () => {
     const { number, expiry, cvv, name } = cardData;
-    
+
     if (!number || number.replace(/\s/g, '').length < 16) {
       return 'Please enter a valid card number';
     }
@@ -154,7 +154,7 @@ const PaymentModal = ({
   const processPayment = () => {
     setIsProcessing(true);
     setShowError(false);
-    
+
     // Validate based on payment method
     let validationError = null;
     if (selectedMethod === 'card') {
@@ -162,20 +162,21 @@ const PaymentModal = ({
     } else if (selectedMethod === 'upi') {
       validationError = validateUPI();
     }
-    
+
     if (validationError) {
       setErrorMessage(validationError);
       setShowError(true);
       setIsProcessing(false);
       return;
     }
-    
+
     // Simulate payment processing
     setTimeout(() => {
       // 90% success rate for demo
       const isSuccess = Math.random() > 0.1;
-      
+
       if (isSuccess) {
+        setIsProcessing(false); // Stop processing immediately on success
         setShowSuccess(true);
         setTimeout(() => {
           onPaymentSuccess({
@@ -183,7 +184,6 @@ const PaymentModal = ({
             transactionId: `TXN${Date.now()}`,
             amount: orderData.total
           });
-          setIsProcessing(false);
           onClose();
         }, 2000);
       } else {
@@ -213,7 +213,7 @@ const PaymentModal = ({
           </div>
         </div>
       </div>
-      
+
       <div className="form-row">
         <div className="form-group">
           <label>Expiry Date</label>
@@ -236,7 +236,7 @@ const PaymentModal = ({
           />
         </div>
       </div>
-      
+
       <div className="form-group">
         <label>Cardholder Name</label>
         <input
@@ -262,7 +262,7 @@ const PaymentModal = ({
           className="upi-input"
         />
       </div>
-      
+
       <div className="upi-apps">
         <div className="upi-app-title">Popular UPI Apps</div>
         <div className="upi-app-grid">
@@ -346,7 +346,7 @@ const PaymentModal = ({
                 <span>Subtotal</span>
                 <span className="amount">₹{calculateSubtotal()}</span>
               </div>
-              
+
               {/* Subscription Discount */}
               {parseFloat(calculateSubscriptionDiscount()) > 0 && (
                 <div className="summary-row discount-row">
@@ -356,7 +356,7 @@ const PaymentModal = ({
                   <span className="amount discount-amount">-₹{calculateSubscriptionDiscount()}</span>
                 </div>
               )}
-              
+
               <div className="summary-row">
                 <span>Tax (5%)</span>
                 <span className="amount">₹{calculateTax()}</span>
@@ -445,7 +445,7 @@ const PaymentModal = ({
             <button className="cancel-btn" onClick={onClose} disabled={isProcessing}>
               Cancel
             </button>
-            <button 
+            <button
               className={`pay-btn ${isProcessing ? 'processing' : ''}`}
               onClick={processPayment}
               disabled={isProcessing || showSuccess}
@@ -474,7 +474,7 @@ const PaymentModal = ({
 
           {/* Processing Overlay */}
           {isProcessing && (
-            <motion.div 
+            <motion.div
               className="processing-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

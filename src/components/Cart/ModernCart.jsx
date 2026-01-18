@@ -35,7 +35,7 @@ const ModernCart = () => {
       removeItem(productId);
       return;
     }
-    
+
     const updatedCart = cartItems.map(item =>
       item.id === productId ? { ...item, quantity: newQuantity } : item
     );
@@ -54,7 +54,7 @@ const ModernCart = () => {
   const getSubscriptionDiscount = () => {
     const subscription = JSON.parse(localStorage.getItem('userSubscription'));
     if (!subscription || subscription.status !== 'active') return 0;
-    
+
     // Discount based on plan
     if (subscription.planId === 'basic') return 0.05; // 5%
     if (subscription.planId === 'premium') return 0.15; // 15%
@@ -111,7 +111,7 @@ const ModernCart = () => {
   const handlePrescriptionProcessed = (prescriptionData) => {
     setPrescriptionData(prescriptionData);
     setShowPrescriptionUpload(false);
-    
+
     // Update prescription status for all prescription items
     const updatedStatus = { ...prescriptionStatus };
     cartItems.forEach(item => {
@@ -120,16 +120,16 @@ const ModernCart = () => {
       }
     });
     setPrescriptionStatus(updatedStatus);
-    
+
     // Force re-render to update button text immediately
     setTimeout(() => {
       setIsLoading(false);
     }, 100);
   };
 
-  const handlePaymentSuccess = (paymentData) => {
+  const handlePaymentSuccess = async (paymentData) => {
     setIsLoading(true);
-    
+
     // Create order data
     const orderData = {
       items: cartItems.map(item => ({
@@ -148,10 +148,10 @@ const ModernCart = () => {
       transactionId: paymentData.transactionId,
       status: 'confirmed'
     };
-    
+
     // Add order to user database
-    const order = addOrder(orderData);
-    
+    const order = await addOrder(orderData);
+
     if (order) {
       // Also save to localStorage for subscription dashboard tracking
       const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
@@ -166,23 +166,23 @@ const ModernCart = () => {
       };
       orderHistory.push(newOrder);
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-      
+
       // Dispatch custom event to notify subscription dashboard
-      window.dispatchEvent(new CustomEvent('orderPlaced', { 
-        detail: { order: newOrder } 
+      window.dispatchEvent(new CustomEvent('orderPlaced', {
+        detail: { order: newOrder }
       }));
-      
+
       // Add success notification
       addNotification({
         title: 'Pharmacy Order Placed',
         message: `Your order #${order.id} for ₹${totals.total} has been placed successfully.`,
         type: 'success'
       });
-      
+
       setIsLoading(false);
       setShowPaymentModal(false);
       clearCart();
-      
+
       // Navigate to orders or show success page
       setTimeout(() => {
         navigate('/profile?tab=orders');
@@ -211,14 +211,14 @@ const ModernCart = () => {
           </button>
           <h1>Shopping Cart</h1>
         </div>
-        
+
         <div className="empty-cart">
           <div className="empty-cart-icon">
             <FaShoppingCart />
           </div>
           <h2>Your cart is empty</h2>
           <p>Add some medicines to get started</p>
-          <button 
+          <button
             className="continue-shopping-btn"
             onClick={() => navigate('/pharmacy')}
           >
@@ -276,7 +276,7 @@ const ModernCart = () => {
                 <div className="item-brand">{item.brand}</div>
                 <h3 className="item-name">{item.name}</h3>
                 <div className="item-pack-size">{item.packSize}</div>
-                
+
                 <div className="item-price">
                   <span className="current-price">₹{item.price}</span>
                   {item.mrp && item.mrp > item.price && (
@@ -287,7 +287,7 @@ const ModernCart = () => {
 
               <div className="item-controls">
                 <div className="quantity-controls">
-                  <button 
+                  <button
                     className="quantity-btn decrease-btn"
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     type="button"
@@ -315,7 +315,7 @@ const ModernCart = () => {
                     textAlign: 'center',
                     padding: '0 10px'
                   }}>{item.quantity}</span>
-                  <button 
+                  <button
                     className="quantity-btn increase-btn"
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
                     type="button"
@@ -347,7 +347,7 @@ const ModernCart = () => {
                   ₹{(item.price * item.quantity).toFixed(2)}
                 </div>
 
-                <button 
+                <button
                   className="remove-btn"
                   onClick={() => removeItem(item.id)}
                   style={{
@@ -370,13 +370,13 @@ const ModernCart = () => {
         <div className="cart-summary">
           <div className="summary-card">
             <h2>Order Summary</h2>
-            
+
             <div className="summary-details">
               <div className="summary-row">
                 <span>Subtotal</span>
                 <span>₹{totals.subtotal}</span>
               </div>
-              
+
               {/* Subscription Discount */}
               {parseFloat(totals.subscriptionDiscount) > 0 && (
                 <div className="summary-row discount-row">
@@ -386,7 +386,7 @@ const ModernCart = () => {
                   <span className="discount-value">-₹{totals.subscriptionDiscount}</span>
                 </div>
               )}
-              
+
               <div className="summary-row">
                 <span>Tax (5%)</span>
                 <span>₹{totals.tax}</span>
@@ -399,7 +399,7 @@ const ModernCart = () => {
                   <span className="free">FREE</span>
                 )}
               </div>
-              
+
               {/* Show prescription verification details */}
               {prescriptionData && prescriptionData.status === 'verified' && (
                 <div className="prescription-verification-info">
@@ -418,9 +418,9 @@ const ModernCart = () => {
                   </div>
                 </div>
               )}
-              
+
               <div className="summary-divider"></div>
-              
+
               <div className="summary-row total">
                 <span>Total Amount</span>
                 <span>₹{totals.total}</span>
@@ -433,8 +433,8 @@ const ModernCart = () => {
                 <span>Prescription verification required before checkout</span>
               </div>
             )}
-            
-            <button 
+
+            <button
               className={`checkout-btn ${isLoading ? 'loading' : ''} ${hasPrescriptionMedicines() && !allPrescriptionsVerified() ? 'prescription-required' : ''}`}
               onClick={handleCheckout}
               disabled={isLoading}
@@ -460,14 +460,14 @@ const ModernCart = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Prescription Upload Modal */}
       {showPrescriptionUpload && (
         <div className="prescription-modal">
           <div className="prescription-modal-content">
             <div className="prescription-modal-header">
               <h3>Prescription Required</h3>
-              <button 
+              <button
                 className="close-prescription-modal"
                 onClick={() => setShowPrescriptionUpload(false)}
               >
@@ -497,7 +497,7 @@ const ModernCart = () => {
           </div>
         </div>
       )}
-      
+
       {/* Payment Modal */}
       <PaymentModal
         isOpen={showPaymentModal}

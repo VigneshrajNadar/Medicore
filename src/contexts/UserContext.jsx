@@ -198,22 +198,31 @@ export const UserProvider = ({ children }) => {
     return false;
   };
 
-  const addOrder = (orderData) => {
+  const addOrder = async (orderData) => {
     if (currentUser) {
-      const order = userDB.addOrder(currentUser.id, orderData);
-      if (order) {
-        const updatedUser = userDB.getCurrentUser();
-        setCurrentUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+      try {
+        const order = await api.createOrder({
+          ...orderData,
+          userId: currentUser.id
+        });
 
         // Add notification for new order
-        userDB.addNotification(currentUser.id, {
+        addNotification({
           title: 'Order Placed Successfully',
-          message: `Your order #${order.id} has been placed and is being processed.`,
+          message: `Your order has been placed and is being processed.`,
           type: 'success'
         });
+
+        return order;
+      } catch (error) {
+        console.error('Error adding order:', error);
+        addNotification({
+          title: 'Order Failed',
+          message: 'Failed to place your order. Please try again.',
+          type: 'error'
+        });
+        return null;
       }
-      return order;
     };
     return null;
   };
