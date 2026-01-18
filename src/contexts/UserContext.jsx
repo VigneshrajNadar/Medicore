@@ -23,17 +23,24 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     // Load current user on app start
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      // Ideally verify token or fetch profile from backend
-      // For now, let's trust localStorage ID for session persistence 
-      // BUT we should verify with backend.
-      // Since getProfile endpoint is mocked in api.js (step 36) but points to /api/profile which is MISSING in backend...
-      // We might need to implement /api/profile too or use /api/users/:id.
-      // Let's use userDB as fallback for session restoration to avoid full breakage,
-      // but for LOGIN/SIGNUP we definitely use Backend.
-      const user = userDB.getCurrentUser();
-      if (user) setCurrentUser(user);
+    const storedUser = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+
+    if (storedUser && token) {
+      try {
+        const user = JSON.parse(storedUser);
+        // Restore session from localStorage
+        setCurrentUser(user);
+
+        // Update mock DB for compatibility
+        if (user.id) {
+          userDB.setCurrentUser(user);
+        }
+      } catch (e) {
+        console.error("Failed to parse stored user", e);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
     }
 
     // Load medicine history from localStorage

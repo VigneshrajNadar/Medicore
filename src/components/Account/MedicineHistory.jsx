@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FaHandHoldingHeart, 
+import {
+  FaHandHoldingHeart,
   FaStethoscope,
   FaMapMarkerAlt,
   FaCalendarAlt,
@@ -89,9 +89,9 @@ const HistoryCard = styled(motion.div)`
   padding: 1.5rem;
   margin-bottom: 1rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid ${props => 
-    props.type === 'donation' ? '#10b981' : 
-    props.type === 'request' ? '#3b82f6' : '#8b5cf6'
+  border-left: 4px solid ${props =>
+    props.type === 'donation' ? '#10b981' :
+      props.type === 'request' ? '#3b82f6' : '#8b5cf6'
   };
 `;
 
@@ -113,19 +113,19 @@ const CardTitle = styled.h3`
 `;
 
 const StatusBadge = styled.span`
-  background: ${props => 
+  background: ${props =>
     props.status === 'completed' ? '#dcfce7' :
-    props.status === 'pending' ? '#fef3c7' :
-    props.status === 'awaiting_center_assignment' ? '#fef3c7' :
-    props.status === 'center_assigned' ? '#dcfce7' :
-    props.status === 'approved' ? '#dbeafe' : '#fef2f2'
+      props.status === 'pending' ? '#fef3c7' :
+        props.status === 'awaiting_center_assignment' ? '#fef3c7' :
+          props.status === 'center_assigned' ? '#dcfce7' :
+            props.status === 'approved' ? '#dbeafe' : '#fef2f2'
   };
-  color: ${props => 
+  color: ${props =>
     props.status === 'completed' ? '#16a34a' :
-    props.status === 'pending' ? '#d97706' :
-    props.status === 'awaiting_center_assignment' ? '#d97706' :
-    props.status === 'center_assigned' ? '#16a34a' :
-    props.status === 'approved' ? '#2563eb' : '#dc2626'
+      props.status === 'pending' ? '#d97706' :
+        props.status === 'awaiting_center_assignment' ? '#d97706' :
+          props.status === 'center_assigned' ? '#16a34a' :
+            props.status === 'approved' ? '#2563eb' : '#dc2626'
   };
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -264,7 +264,23 @@ const MedicineHistory = () => {
     else data = visitHistory;
 
     if (statusFilter === 'all') return data;
-    return data.filter(item => item.status === statusFilter);
+
+    return data.filter(item => {
+      // Map 'pending' filter to multiple internal statuses
+      if (statusFilter === 'pending') {
+        return ['pending', 'awaiting_center_assignment', 'scheduled'].includes(item.status);
+      }
+      // Map 'approved' filter to multiple internal statuses including 'confirmed'
+      if (statusFilter === 'approved') {
+        return ['approved', 'center_assigned', 'confirmed', 'accepted'].includes(item.status);
+      }
+      // Map 'completed' filter
+      if (statusFilter === 'completed') {
+        return ['completed', 'fulfilled', 'donated'].includes(item.status);
+      }
+      // Exact match for others
+      return item.status === statusFilter;
+    });
   };
 
   const getStatusIcon = (status) => {
@@ -281,9 +297,9 @@ const MedicineHistory = () => {
   return (
     <HistoryContainer>
       <HeaderSection>
-        <h1 style={{ 
-          fontSize: '2.5rem', 
-          fontWeight: '800', 
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: '800',
           color: '#1e293b',
           marginBottom: '1rem',
           display: 'flex',
@@ -293,8 +309,8 @@ const MedicineHistory = () => {
           <FaHandHoldingHeart style={{ color: '#10b981' }} />
           Medicine History
         </h1>
-        <p style={{ 
-          fontSize: '1.1rem', 
+        <p style={{
+          fontSize: '1.1rem',
           color: '#64748b',
           margin: 0
         }}>
@@ -303,22 +319,22 @@ const MedicineHistory = () => {
       </HeaderSection>
 
       <TabContainer>
-        <Tab 
-          active={activeTab === 'donations'} 
+        <Tab
+          active={activeTab === 'donations'}
           onClick={() => setActiveTab('donations')}
         >
           <FaHandHoldingHeart />
           My Donations ({donationHistory.length})
         </Tab>
-        <Tab 
-          active={activeTab === 'requests'} 
+        <Tab
+          active={activeTab === 'requests'}
           onClick={() => setActiveTab('requests')}
         >
           <FaStethoscope />
           My Requests ({requestHistory.length})
         </Tab>
-        <Tab 
-          active={activeTab === 'visits'} 
+        <Tab
+          active={activeTab === 'visits'}
           onClick={() => setActiveTab('visits')}
         >
           <FaMapMarkerAlt />
@@ -370,15 +386,15 @@ const MedicineHistory = () => {
                 {activeTab === 'donations' && <FaHandHoldingHeart style={{ color: '#10b981' }} />}
                 {activeTab === 'requests' && <FaStethoscope style={{ color: '#3b82f6' }} />}
                 {activeTab === 'visits' && <FaMapMarkerAlt style={{ color: '#8b5cf6' }} />}
-                {activeTab === 'donations' ? item.medicine : 
-                 activeTab === 'requests' ? item.medicine : 
-                 item.center}
+                {activeTab === 'donations' ? item.medicine :
+                  activeTab === 'requests' ? item.medicine :
+                    item.center}
               </CardTitle>
               <StatusBadge status={item.status}>
                 {getStatusIcon(item.status)}
-                {item.status === 'center_assigned' ? 'Center Assigned' : 
-                 item.status === 'awaiting_center_assignment' ? 'Awaiting Assignment' :
-                 item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                {item.status === 'center_assigned' ? 'Center Assigned' :
+                  item.status === 'awaiting_center_assignment' ? 'Awaiting Assignment' :
+                    item.status.charAt(0).toUpperCase() + item.status.slice(1)}
               </StatusBadge>
             </CardHeader>
 
@@ -452,7 +468,7 @@ const MedicineHistory = () => {
             </CardDetails>
 
             <ActionButtons>
-              <ActionButton 
+              <ActionButton
                 primary
                 onClick={() => {
                   setSelectedItem(item);
@@ -473,10 +489,10 @@ const MedicineHistory = () => {
         ))}
 
         {getFilteredData().length === 0 && (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '3rem', 
-            color: '#64748b' 
+          <div style={{
+            textAlign: 'center',
+            padding: '3rem',
+            color: '#64748b'
           }}>
             <FaStethoscope style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }} />
             <h3>No {activeTab} found</h3>
@@ -499,11 +515,11 @@ const MedicineHistory = () => {
                 {activeTab === 'donations' && <FaHandHoldingHeart style={{ color: '#10b981', marginRight: '0.5rem' }} />}
                 {activeTab === 'requests' && <FaStethoscope style={{ color: '#3b82f6', marginRight: '0.5rem' }} />}
                 {activeTab === 'visits' && <FaMapMarkerAlt style={{ color: '#8b5cf6', marginRight: '0.5rem' }} />}
-                {activeTab === 'donations' ? 'Donation Details' : 
-                 activeTab === 'requests' ? 'Request Details' : 
-                 'Visit Details'}
+                {activeTab === 'donations' ? 'Donation Details' :
+                  activeTab === 'requests' ? 'Request Details' :
+                    'Visit Details'}
               </h3>
-              <button 
+              <button
                 onClick={() => setShowDetailsModal(false)}
                 style={{
                   background: 'none',
@@ -522,15 +538,15 @@ const MedicineHistory = () => {
                 <strong>ID:</strong> {selectedItem.id}
               </DetailRow>
               <DetailRow>
-                <strong>Status:</strong> 
+                <strong>Status:</strong>
                 <StatusBadge status={selectedItem.status} style={{ marginLeft: '0.5rem' }}>
                   {getStatusIcon(selectedItem.status)}
-                  {selectedItem.status === 'center_assigned' ? 'Center Assigned' : 
-                   selectedItem.status === 'awaiting_center_assignment' ? 'Awaiting Assignment' :
-                   selectedItem.status.charAt(0).toUpperCase() + selectedItem.status.slice(1)}
+                  {selectedItem.status === 'center_assigned' ? 'Center Assigned' :
+                    selectedItem.status === 'awaiting_center_assignment' ? 'Awaiting Assignment' :
+                      selectedItem.status.charAt(0).toUpperCase() + selectedItem.status.slice(1)}
                 </StatusBadge>
               </DetailRow>
-              
+
               {activeTab === 'donations' && (
                 <>
                   <DetailRow>
@@ -599,7 +615,7 @@ const MedicineHistory = () => {
             </DetailsBody>
 
             <DetailsFooter>
-              <ActionButton 
+              <ActionButton
                 primary
                 onClick={() => setShowDetailsModal(false)}
               >

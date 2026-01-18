@@ -38,6 +38,12 @@ class UserDatabase {
     }
   }
 
+  setCurrentUser(user) {
+    this.currentUser = user;
+    this.users.set(user.id, user);
+    this.saveToStorage();
+  }
+
   // Create a new user
   createUser(userData) {
     const userId = userData.id || this.generateUserId();
