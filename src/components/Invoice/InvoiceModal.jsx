@@ -16,7 +16,24 @@ import './InvoiceModal.css';
 const InvoiceModal = ({ isOpen, onClose, orderData }) => {
   const { currentUser } = useUser();
 
+  // Helpers for safe values
+  const safeNumber = (value) => {
+    if (value === null || value === undefined || value === '') return 0;
+    // Remove currency symbols if accidentally stored
+    const cleanValue = String(value).replace(/[₹,]/g, '');
+    const num = parseFloat(cleanValue);
+    return isNaN(num) ? 0 : num;
+  };
+
+  const safeDate = (dateValue) => {
+    if (!dateValue) return new Date();
+    const d = new Date(dateValue);
+    return isNaN(d.getTime()) ? new Date() : d;
+  };
+
   if (!isOpen || !orderData) return null;
+
+  const orderTotal = safeNumber(orderData.total_amount || orderData.total || orderData.amount);
 
   const handleDownload = () => {
     // Create a printable version
@@ -115,10 +132,10 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                 </div>
               </div>
               <div className="invoice-number">
-                <h3>Invoice #{orderData._id || orderData.id || `ORD-${Date.now().toString().slice(-6)}`}</h3>
+                <h3>Invoice #{orderData._id || orderData.id || `ORD-${String(Date.now()).slice(-6)}`}</h3>
                 <p className="invoice-date">
                   <FaCalendarAlt />
-                  {new Date(orderData.created_at || orderData.createdAt || Date.now()).toLocaleDateString('en-IN', {
+                  {safeDate(orderData.created_at || orderData.createdAt).toLocaleDateString('en-IN', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
@@ -132,9 +149,9 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
               <div className="bill-to">
                 <h4>Bill To:</h4>
                 <div className="customer-info">
-                  <p><strong>{orderData.patient_name || orderData.patientName || currentUser?.name || 'Customer'}</strong></p>
-                  <p>{orderData.shipping_address || orderData.deliveryAddress || orderData.address || currentUser?.address || 'Address not provided'}</p>
-                  <p>📱 {orderData.patient_mobile || orderData.mobile || currentUser?.phone || 'Phone not provided'}</p>
+                  <p><strong>{orderData.patient_name || orderData.patientName || currentUser?.name || 'Valuable Customer'}</strong></p>
+                  <p>{orderData.shipping_address || orderData.deliveryAddress || orderData.address || currentUser?.address || 'Address on file'}</p>
+                  <p>📱 {orderData.patient_mobile || orderData.mobile || currentUser?.phone || 'Contact not provided'}</p>
                   {currentUser?.email && <p>📧 {currentUser.email}</p>}
                 </div>
               </div>
@@ -148,7 +165,7 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                     </span>
                   </p>
                   {(orderData.scheduled_date || orderData.scheduledDate) && (
-                    <p><strong>Scheduled Date:</strong> {new Date(orderData.scheduled_date || orderData.scheduledDate).toLocaleDateString()}</p>
+                    <p><strong>Scheduled Date:</strong> {safeDate(orderData.scheduled_date || orderData.scheduledDate).toLocaleDateString()}</p>
                   )}
                 </div>
               </div>
@@ -176,8 +193,8 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                         </div>
                       </td>
                       <td>{item.quantity || 1}</td>
-                      <td>₹{item.price || 0}</td>
-                      <td>₹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}</td>
+                      <td>₹{safeNumber(item.price)}</td>
+                      <td>₹{(safeNumber(item.price) * (item.quantity || 1)).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -208,12 +225,12 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
               <div className="total-section">
                 <div className="total-row subtotal">
                   <span>Subtotal:</span>
-                  <span>₹{orderData.total_amount || orderData.total || 0}</span>
+                  <span>₹{orderTotal.toFixed(2)}</span>
                 </div>
-                {(orderData.savings > 0) && (
+                {safeNumber(orderData.savings) > 0 && (
                   <div className="total-row savings">
                     <span>Savings:</span>
-                    <span>-₹{orderData.savings}</span>
+                    <span>-₹{safeNumber(orderData.savings).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="total-row delivery">
@@ -221,12 +238,12 @@ const InvoiceModal = ({ isOpen, onClose, orderData }) => {
                   <span className="free">FREE</span>
                 </div>
                 <div className="total-row taxes">
-                  <span>Taxes (GST):</span>
-                  <span>₹{((orderData.total_amount || orderData.total || 0) * 0.18).toFixed(2)}</span>
+                  <span>Taxes (GST 18%):</span>
+                  <span>₹{(orderTotal * 0.18).toFixed(2)}</span>
                 </div>
                 <div className="total-row grand-total">
                   <span><strong>Grand Total:</strong></span>
-                  <span><strong>₹{((orderData.total_amount || orderData.total || 0) * 1.18).toFixed(2)}</strong></span>
+                  <span><strong>₹{(orderTotal * 1.18).toFixed(2)}</strong></span>
                 </div>
               </div>
             </div>
