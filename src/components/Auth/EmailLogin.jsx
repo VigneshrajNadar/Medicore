@@ -958,7 +958,7 @@ const EmailLogin = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isAdminLogin, setIsAdminLogin] = useState(false);
-  
+
   const { login } = useUser();
   const navigate = useNavigate();
 
@@ -986,7 +986,12 @@ const EmailLogin = () => {
         // Regular user login
         const result = await login(email, password);
         if (result.success) {
-          navigate('/dashboard');
+          // Check if the logged-in user is an admin
+          if (result.user?.role === 'admin') {
+            navigate('/admin-dashboard');
+          } else {
+            navigate('/dashboard');
+          }
         } else {
           setError(result.message || 'Login failed');
         }
@@ -1010,18 +1015,18 @@ const EmailLogin = () => {
         <div className="floating-icon icon-6">🔬</div>
         <div className="floating-icon icon-7">🧬</div>
         <div className="floating-icon icon-8">❤️</div>
-        
-        {Array.from({length: 30}, (_, i) => (
+
+        {Array.from({ length: 30 }, (_, i) => (
           <div key={i} className={`particle particle-${(i % 5) + 1}`}></div>
         ))}
-        
+
         {/* Additional floating shapes */}
         <div className="floating-shape shape-1"></div>
         <div className="floating-shape shape-2"></div>
         <div className="floating-shape shape-3"></div>
         <div className="floating-shape shape-4"></div>
         <div className="floating-shape shape-5"></div>
-        
+
         {/* Gradient orbs */}
         <div className="gradient-orb orb-1"></div>
         <div className="gradient-orb orb-2"></div>
@@ -1035,8 +1040,8 @@ const EmailLogin = () => {
         <Title
           initial={{ opacity: 0, y: -30, scale: 0.8 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ 
-            duration: 0.8, 
+          transition={{
+            duration: 0.8,
             delay: 0.3,
             type: "spring",
             stiffness: 100,
@@ -1052,8 +1057,8 @@ const EmailLogin = () => {
         <Subtitle
           initial={{ opacity: 0, y: -20, rotateX: -90 }}
           animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{ 
-            duration: 0.8, 
+          transition={{
+            duration: 0.8,
             delay: 0.5,
             type: "spring",
             stiffness: 80
@@ -1061,13 +1066,13 @@ const EmailLogin = () => {
         >
           {isAdminLogin ? 'Admin Portal Access' : 'Advanced Healthcare Solutions'}
         </Subtitle>
-        
+
         {/* Admin/User Toggle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8, rotateY: -180 }}
           animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-          transition={{ 
-            duration: 0.8, 
+          transition={{
+            duration: 0.8,
             delay: 0.6,
             type: "spring",
             stiffness: 100
@@ -1150,8 +1155,8 @@ const EmailLogin = () => {
           <motion.div
             initial={{ opacity: 0, x: -50, rotateZ: -10 }}
             animate={{ opacity: 1, x: 0, rotateZ: 0 }}
-            transition={{ 
-              duration: 0.7, 
+            transition={{
+              duration: 0.7,
               delay: 0.8,
               type: "spring",
               stiffness: 120,
@@ -1181,8 +1186,8 @@ const EmailLogin = () => {
           <motion.div
             initial={{ opacity: 0, x: -50, rotateZ: 10 }}
             animate={{ opacity: 1, x: 0, rotateZ: 0 }}
-            transition={{ 
-              duration: 0.7, 
+            transition={{
+              duration: 0.7,
               delay: 1.0,
               type: "spring",
               stiffness: 120,
@@ -1218,8 +1223,8 @@ const EmailLogin = () => {
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ 
-              duration: 0.8, 
+            transition={{
+              duration: 0.8,
               delay: 1.2,
               type: "spring",
               stiffness: 100,
@@ -1229,12 +1234,12 @@ const EmailLogin = () => {
             <LoginButton
               type="submit"
               disabled={loading}
-              whileHover={{ 
+              whileHover={{
                 scale: 1.03,
                 rotateZ: 1,
                 transition: { duration: 0.3 }
               }}
-              whileTap={{ 
+              whileTap={{
                 scale: 0.97,
                 rotateZ: -1,
                 transition: { duration: 0.1 }
@@ -1306,40 +1311,40 @@ const EmailLogin = () => {
         <div className="holographic-grid" />
 
         {/* Floating Icons */}
-        <FloatingIcon 
-          style={{ 
-            top: '10%', 
-            left: '10%', 
+        <FloatingIcon
+          style={{
+            top: '10%',
+            left: '10%',
             animationDelay: '0s',
             color: '#00ffff'
           }}
         >
           🏥
         </FloatingIcon>
-        <FloatingIcon 
-          style={{ 
-            top: '20%', 
-            right: '15%', 
+        <FloatingIcon
+          style={{
+            top: '20%',
+            right: '15%',
             animationDelay: '2s',
             color: '#ff00ff'
           }}
         >
           💊
         </FloatingIcon>
-        <FloatingIcon 
-          style={{ 
-            bottom: '20%', 
-            left: '15%', 
+        <FloatingIcon
+          style={{
+            bottom: '20%',
+            left: '15%',
             animationDelay: '4s',
             color: '#00ff7f'
           }}
         >
           🩺
         </FloatingIcon>
-        <FloatingIcon 
-          style={{ 
-            bottom: '10%', 
-            right: '10%', 
+        <FloatingIcon
+          style={{
+            bottom: '10%',
+            right: '10%',
             animationDelay: '6s',
             color: '#ffff00'
           }}
