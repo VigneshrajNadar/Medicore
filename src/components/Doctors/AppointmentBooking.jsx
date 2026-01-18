@@ -57,10 +57,10 @@ const AppointmentBooking = () => {
   }, [doctorId]);
 
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedDate && doctor) {
       loadAvailableSlots();
     }
-  }, [selectedDate, doctorId]);
+  }, [selectedDate, doctorId, doctor]);
 
   const loadDoctorData = async () => {
     try {
@@ -73,12 +73,21 @@ const AppointmentBooking = () => {
     }
   };
 
-  const loadAvailableSlots = async () => {
-    try {
-      const slotsData = await getDoctorAvailableSlots(doctorId, selectedDate);
-      setAvailableSlots(slotsData.availableSlots || []);
-    } catch (error) {
-      console.error('Error loading available slots:', error);
+  const loadAvailableSlots = () => {
+    // Generate slots using handleDateChange logic
+    if (doctor?.available_time_slots) {
+      const slots = generateTimeSlotsFromDoctor(doctor.available_time_slots);
+      setAvailableSlots(slots);
+    } else {
+      // Fallback: Generate default time slots (9 AM to 5 PM)
+      const defaultSlots = [];
+      for (let hour = 9; hour <= 17; hour++) {
+        defaultSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+        if (hour < 17) {
+          defaultSlots.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+      }
+      setAvailableSlots(defaultSlots);
     }
   };
 
