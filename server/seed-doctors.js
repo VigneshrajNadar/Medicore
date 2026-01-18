@@ -3,80 +3,85 @@ const mongoose = require('mongoose');
 const connectDB = require('./database');
 const Doctor = require('./models/Doctor');
 
-// Sample doctors data
-const sampleDoctors = [
-    {
-        name: 'Dr. Rajesh Kumar',
-        email: 'rajesh.kumar@medicore.com',
-        phone: '+919876543210',
-        specialization: 'Cardiology',
-        qualification: 'MBBS, MD, DM (Cardiology)',
-        experience_years: 15,
-        hospital_name: 'Apollo Hospitals',
-        hospital_address: '123, MG Road, Mumbai, Maharashtra',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        pincode: '400001',
-        latitude: 19.0760,
-        longitude: 72.8777,
-        consultation_fee: 1500,
-        available_days: 'Monday, Tuesday, Wednesday, Thursday, Friday',
-        available_time_slots: '09:00-13:00,16:00-19:00',
-        languages: 'English, Hindi, Marathi',
-        about: 'Experienced Cardiology specialist with 15 years of practice. Committed to providing the highest quality healthcare services.',
-        is_verified: true,
-        rating: 4.8,
-        total_reviews: 120,
-        profile_image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&h=200&fit=crop'
-    },
-    {
-        name: 'Dr. Priya Sharma',
-        email: 'priya.sharma@medicore.com',
-        phone: '+919876543211',
-        specialization: 'Dermatology',
-        qualification: 'MBBS, MD (Dermatology)',
-        experience_years: 10,
-        hospital_name: 'Fortis Healthcare',
-        hospital_address: '456, Park Street, Delhi, Delhi',
-        city: 'Delhi',
-        state: 'Delhi',
-        pincode: '110001',
-        latitude: 28.7041,
-        longitude: 77.1025,
-        consultation_fee: 1200,
-        available_days: 'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday',
-        available_time_slots: '10:00-14:00,17:00-20:00',
-        languages: 'English, Hindi',
-        about: 'Dermatologist with expertise in skin care and cosmetic procedures.',
-        is_verified: true,
-        rating: 4.6,
-        total_reviews: 95,
-        profile_image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=200&h=200&fit=crop'
-    },
-    {
-        name: 'Dr. Amit Patel',
-        email: 'amit.patel@medicore.com',
-        phone: '+919876543212',
-        specialization: 'Orthopedics',
-        qualification: 'MBBS, MS (Orthopedics)',
-        experience_years: 12,
-        hospital_name: 'Max Healthcare',
-        hospital_address: '789, Commercial Street, Bangalore, Karnataka',
-        city: 'Bangalore',
-        state: 'Karnataka',
-        pincode: '560001',
-        latitude: 12.9716,
-        longitude: 77.5946,
-        consultation_fee: 1300,
-        available_days: 'Monday, Wednesday, Friday, Saturday',
-        available_time_slots: '09:00-13:00,15:00-18:00',
-        languages: 'English, Hindi, Kannada',
-        about: 'Orthopedic surgeon specializing in joint replacements and sports injuries.',
-        is_verified: true,
-        rating: 4.7,
-        total_reviews: 85
-    }
+const specializations = [
+    'Cardiology', 'Dermatology', 'Orthopedics', 'Pediatrics', 'General Medicine',
+    'Neurology', 'Oncology', 'Gynecology', 'Ophthalmology', 'ENT',
+    'Psychiatry', 'Dentistry', 'Urology', 'Gastroenterology', 'Pulmonology'
 ];
+
+const cities = [
+    { name: 'Mumbai', state: 'Maharashtra' },
+    { name: 'Delhi', state: 'Delhi' },
+    { name: 'Bangalore', state: 'Karnataka' },
+    { name: 'Chennai', state: 'Tamil Nadu' },
+    { name: 'Hyderabad', state: 'Telangana' },
+    { name: 'Kolkata', state: 'West Bengal' },
+    { name: 'Pune', state: 'Maharashtra' },
+    { name: 'Ahmedabad', state: 'Gujarat' },
+    { name: 'Jaipur', state: 'Rajasthan' },
+    { name: 'Lucknow', state: 'Uttar Pradesh' }
+];
+
+const hospitals = [
+    'Apollo Hospitals', 'Fortis Healthcare', 'Max Healthcare', 'Manipal Hospitals',
+    'Care Hospitals', 'Narayana Health', 'Medanta', 'Global Hospitals',
+    'Aster DM Healthcare', 'Columbia Asia'
+];
+
+const languages = ['English', 'Hindi', 'Marathi', 'Tamil', 'Telugu', 'Kannada', 'Bengali', 'Gujarati'];
+
+const firstNames = ['Rajesh', 'Priya', 'Amit', 'Sunita', 'Vikram', 'Anjali', 'Deepak', 'Meera', 'Rahul', 'Sneha', 'Sanjay', 'Kavita', 'Arjun', 'Pooja', 'Vijay', 'Anita', 'Rohan', 'Swati', 'Manish', 'Ritu'];
+const lastNames = ['Kumar', 'Sharma', 'Patel', 'Singh', 'Gupta', 'Verma', 'Reddy', 'Iyer', 'Nair', 'Desai', 'Joshi', 'Chopra', 'Malhotra', 'Bansal', 'Shah', 'Mehta', 'Kulkarni', 'Naidu', 'Rao', 'Das'];
+
+function getRandomElement(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+function getRandomLanguages() {
+    const count = Math.floor(Math.random() * 3) + 1;
+    const selected = [];
+    for (let i = 0; i < count; i++) {
+        const lang = getRandomElement(languages);
+        if (!selected.includes(lang)) selected.push(lang);
+    }
+    return selected.join(', ');
+}
+
+function generateDoctors(count) {
+    const doctors = [];
+    for (let i = 0; i < count; i++) {
+        const firstName = getRandomElement(firstNames);
+        const lastName = getRandomElement(lastNames);
+        const name = `Dr. ${firstName} ${lastName}`;
+        const cityObj = getRandomElement(cities);
+        const spec = getRandomElement(specializations);
+        const hospital = getRandomElement(hospitals);
+
+        doctors.push({
+            name,
+            email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@medicore.com`,
+            phone: `+91${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+            specialization: spec,
+            qualification: 'MBBS, MD',
+            experience_years: Math.floor(Math.random() * 25) + 5,
+            hospital_name: hospital,
+            hospital_address: `${Math.floor(Math.random() * 999)}, MG Road, ${cityObj.name}`,
+            city: cityObj.name,
+            state: cityObj.state,
+            pincode: `${Math.floor(100000 + Math.random() * 900000)}`,
+            consultation_fee: Math.floor(500 + Math.random() * 2000),
+            available_days: 'Monday, Tuesday, Wednesday, Thursday, Friday',
+            available_time_slots: '09:00-13:00,16:00-19:00',
+            languages: getRandomLanguages(),
+            about: `Experienced ${spec} specialist with a focus on patient-centric care.`,
+            is_verified: true,
+            rating: parseFloat((4 + Math.random()).toFixed(1)),
+            total_reviews: Math.floor(Math.random() * 200) + 20,
+            profile_image: `https://i.pravatar.cc/150?u=${firstName}${lastName}${i}`
+        });
+    }
+    return doctors;
+}
 
 async function seedDoctors() {
     try {
@@ -85,10 +90,14 @@ async function seedDoctors() {
         console.log('[Seed] Clearing existing doctors...');
         await Doctor.deleteMany({});
 
-        console.log('[Seed] Inserting sample doctors...');
-        await Doctor.insertMany(sampleDoctors);
+        const doctorsCount = 550;
+        console.log(`[Seed] Generating ${doctorsCount} doctors...`);
+        const doctors = generateDoctors(doctorsCount);
 
-        console.log(`[Seed] Successfully seeded ${sampleDoctors.length} doctors!`);
+        console.log('[Seed] Inserting doctors...');
+        await Doctor.insertMany(doctors);
+
+        console.log(`[Seed] Successfully seeded ${doctors.length} doctors!`);
         process.exit(0);
     } catch (error) {
         console.error('[Seed] Error:', error);

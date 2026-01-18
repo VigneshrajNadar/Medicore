@@ -137,7 +137,7 @@ const DoctorDirectory = () => {
 
   const handleBookAppointment = (doctor) => {
     closeDoctorModal();
-    navigate(`/book-appointment/${doctor.id}`);
+    navigate(`/book-appointment/${doctor._id || doctor.id}`);
   };
 
   const renderStars = (rating) => {

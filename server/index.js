@@ -460,11 +460,14 @@ app.post('/api/login', async (req, res) => {
 // Book lab test (PROTECTED)
 app.post('/api/lab-tests', authenticateToken, async (req, res) => {
     try {
-        const labTest = await LabTest.create(req.body);
+        const data = { ...req.body };
+        if (data.userId && !data.user_id) data.user_id = data.userId;
+
+        const labTest = await LabTest.create(data);
         res.status(201).json(labTest);
     } catch (error) {
         console.error('Error creating lab test:', error);
-        res.status(500).json({ error: 'Failed to create lab test' });
+        res.status(500).json({ error: `Failed to create lab test: ${error.message}` });
     }
 });
 
@@ -497,11 +500,30 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
 // Create order (PROTECTED)
 app.post('/api/orders', authenticateToken, async (req, res) => {
     try {
-        const order = await Order.create(req.body);
+        const data = { ...req.body };
+        // Normalize user_id
+        if (data.userId && !data.user_id) data.user_id = data.userId;
+
+        // Normalize total_amount
+        if (data.total && !data.total_amount) data.total_amount = data.total;
+
+        // Map orderType to order_type
+        if (data.orderType && !data.order_type) data.order_type = data.orderType;
+
+        // Normalize items for Mongoose schema (name -> product_name)
+        if (data.items && Array.isArray(data.items)) {
+            data.items = data.items.map(item => ({
+                ...item,
+                product_name: item.product_name || item.name,
+                item_id: item.id || item.item_id
+            }));
+        }
+
+        const order = await Order.create(data);
         res.status(201).json(order);
     } catch (error) {
         console.error('Error creating order:', error);
-        res.status(500).json({ error: 'Failed to create order' });
+        res.status(500).json({ error: `Failed to create order: ${error.message}` });
     }
 });
 

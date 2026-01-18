@@ -657,18 +657,18 @@ const LabTest = () => {
     // Add lab test order to user's orders
     const orderData = {
       items: [{
-        id: selectedTest?.id || Date.now(),
-        name: selectedTest?.name,
+        item_id: selectedTest?.id || Date.now(),
+        product_name: selectedTest?.name,
         quantity: 1,
         price: selectedTest?.price || 0
       }],
-      total: selectedTest?.price || 0,
-      orderType: 'lab_test',
-      patientName: pendingBooking.name,
-      scheduledDate: pendingBooking.date,
-      address: pendingBooking.address,
-      paymentMethod: paymentData.method,
-      transactionId: paymentData.transactionId,
+      total_amount: selectedTest?.price || 0,
+      order_type: 'lab_test',
+      patient_name: pendingBooking.name,
+      scheduled_date: pendingBooking.date,
+      shipping_address: pendingBooking.address,
+      payment_method: paymentData.method,
+      transaction_id: paymentData.transactionId,
       status: 'confirmed'
     };
 
