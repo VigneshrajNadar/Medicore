@@ -969,18 +969,19 @@ const EmailLogin = () => {
 
     try {
       if (isAdminLogin) {
-        // Admin login logic
-        if (email === 'admin@medicore.com' && password === 'admin123') {
-          localStorage.setItem('adminUser', JSON.stringify({
-            id: 'admin_001',
-            email: 'admin@medicore.com',
-            name: 'MediCore Admin',
-            role: 'admin',
-            loginTime: new Date().toISOString()
-          }));
-          navigate('/admin-dashboard');
+        // Admin login logic using backend
+        const result = await login(email, password);
+
+        if (result.success) {
+          if (result.user?.role === 'admin') {
+            navigate('/admin-dashboard');
+          } else {
+            setError('Access Denied: You do not have admin privileges.');
+            // Optional: Logout the user since they aren't an admin
+            // logout(); 
+          }
         } else {
-          setError('Invalid admin credentials');
+          setError(result.message || 'Invalid admin credentials');
         }
       } else {
         // Regular user login
